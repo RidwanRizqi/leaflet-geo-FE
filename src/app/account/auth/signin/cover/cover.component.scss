@@ -1,0 +1,791 @@
+.auth-page-wrapper {
+  min-height: 100vh;
+  background: #ffffff;
+  overflow-x: hidden; // Prevent horizontal scroll from curved elements
+}
+
+// Enhanced row styling for seamless curve effect
+.row.g-0.min-vh-100 {
+  margin: 0;
+
+  .col-lg-6:first-child {
+    position: relative;
+    z-index: 2; // Ensure form is above curved background
+  }
+}
+
+// Form column with decorative accents
+.form-column {
+
+  // Subtle background pattern
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(circle at 20% 20%, rgba(33, 150, 243, 0.05) 1px, transparent 1px),
+      radial-gradient(circle at 80% 80%, rgba(33, 150, 243, 0.04) 1px, transparent 1px);
+    background-size: 50px 50px, 30px 30px;
+    z-index: 1;
+  }
+
+  .auth-form-container {
+    position: relative;
+    z-index: 10;
+  }
+}
+
+// Decorative accent elements
+.form-accent {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.18) 0%, rgba(33, 150, 243, 0.1) 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(33, 150, 243, 0.25);
+  z-index: 2;
+}
+
+.accent-1 {
+  width: 80px;
+  height: 80px;
+  top: 10%;
+  left: 15%;
+  animation: floatSlow 8s ease-in-out infinite;
+}
+
+.accent-2 {
+  width: 60px;
+  height: 60px;
+  top: 25%;
+  left: 85%;
+  animation: floatSlow 10s ease-in-out infinite reverse;
+}
+
+.accent-3 {
+  width: 40px;
+  height: 40px;
+  top: 60%;
+  left: 10%;
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.22) 0%, rgba(109, 40, 217, 0.12) 100%);
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.accent-4 {
+  width: 100px;
+  height: 100px;
+  top: 75%;
+  left: 80%;
+  animation: floatSlow 12s ease-in-out infinite reverse;
+}
+
+.accent-5 {
+  width: 30px;
+  height: 30px;
+  top: 45%;
+  left: 90%;
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.2) 0%, rgba(109, 40, 217, 0.1) 100%);
+  animation: floatSlow 7s ease-in-out infinite;
+}
+
+.accent-6 {
+  width: 50px;
+  height: 50px;
+  top: 30%;
+  left: 5%;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.06) 0%, rgba(33, 150, 243, 0.03) 100%);
+  animation: floatSlow 9s ease-in-out infinite reverse;
+}
+
+.accent-7 {
+  width: 70px;
+  height: 70px;
+  top: 90%;
+  left: 60%;
+  background: linear-gradient(135deg, rgba(53, 119, 241, 0.05) 0%, rgba(53, 119, 241, 0.02) 100%);
+  animation: floatSlow 11s ease-in-out infinite;
+}
+
+// Floating animation for form accents
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+// Geometric shapes for additional visual interest
+.geometric-shape {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.shape-1 {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(45deg, #3577f1, transparent);
+  transform: rotate(45deg);
+  top: 20%;
+  left: 5%;
+  animation: rotate 15s linear infinite;
+}
+
+.shape-2 {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 25px solid rgba(53, 119, 241, 0.15);
+  top: 55%;
+  left: 95%;
+  animation: floatSlow 9s ease-in-out infinite;
+}
+
+.shape-3 {
+  width: 25px;
+  height: 25px;
+  background: transparent;
+  border: 3px solid rgba(53, 119, 241, 0.2);
+  border-radius: 0;
+  transform: rotate(45deg);
+  top: 85%;
+  left: 5%;
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.shape-4 {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-top: 20px solid rgba(53, 119, 241, 0.12);
+  top: 15%;
+  left: 50%;
+  animation: floatSlow 8s ease-in-out infinite reverse;
+}
+
+.shape-5 {
+  width: 18px;
+  height: 18px;
+  background: rgba(53, 119, 241, 0.1);
+  border-radius: 50%;
+  top: 70%;
+  left: 25%;
+  animation: pulse 6s ease-in-out infinite;
+}
+
+// Decorative lines
+.decorative-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent 0%, rgba(53, 119, 241, 0.15) 50%, transparent 100%);
+  height: 1px;
+  z-index: 1;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.line-1 {
+  width: 80px;
+  top: 35%;
+  left: 20%;
+  transform: rotate(15deg);
+}
+
+.line-2 {
+  width: 60px;
+  top: 65%;
+  left: 70%;
+  transform: rotate(-20deg);
+  animation-delay: 1s;
+}
+
+.line-3 {
+  width: 100px;
+  top: 50%;
+  left: 0%;
+  transform: rotate(45deg);
+  animation-delay: 2s;
+}
+
+// Floating dots
+.floating-dot {
+  position: absolute;
+  background: rgba(53, 119, 241, 0.12);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.dot-1 {
+  width: 4px;
+  height: 4px;
+  top: 20%;
+  left: 30%;
+  animation: floatDots 4s ease-in-out infinite;
+}
+
+.dot-2 {
+  width: 6px;
+  height: 6px;
+  top: 40%;
+  left: 80%;
+  animation: floatDots 5s ease-in-out infinite reverse;
+}
+
+.dot-3 {
+  width: 3px;
+  height: 3px;
+  top: 60%;
+  left: 40%;
+  animation: floatDots 6s ease-in-out infinite;
+}
+
+.dot-4 {
+  width: 5px;
+  height: 5px;
+  top: 80%;
+  left: 90%;
+  animation: floatDots 4.5s ease-in-out infinite reverse;
+}
+
+.dot-5 {
+  width: 4px;
+  height: 4px;
+  top: 25%;
+  left: 75%;
+  animation: floatDots 5.5s ease-in-out infinite;
+}
+
+// Additional animations
+@keyframes pulse {
+  0%, 100% {
+    transform: rotate(45deg) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: rotate(45deg) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes floatDots {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-8px);
+    opacity: 0.8;
+  }
+}
+
+// Responsive adjustments for accents
+@media (max-width: 991.98px) {
+  .form-accent,
+  .geometric-shape,
+  .decorative-line,
+  .floating-dot {
+    display: none;
+  }
+
+  .form-column {
+    background: linear-gradient(135deg, #e5e7eb 0%, #4fc3f7 25%, #2196f3 75%, #1976d2 100%);
+
+    &::before {
+      background-image: none;
+    }
+
+    .auth-form-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+.auth-form-container {
+  background: rgba(255, 255, 255, 0 );
+  border-radius: 24px;
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow:
+    0 8px 32px rgba(31, 38, 135, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.25) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    border-radius: 24px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 100%
+    );
+    border-radius: 24px 24px 0 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+
+
+  @media (max-width: 991.98px) {
+    padding: 2rem !important;
+    max-width: 100% !important;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  @media (max-width: 575.98px) {
+    padding: 1.5rem !important;
+  }
+}
+
+// Glass reflection effect
+.glass-reflection {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 40%;
+  height: 20%;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    transparent 100%
+  );
+  border-radius: 50%;
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.circle-logo {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    border-color: var(--bs-primary) !important;
+  }
+}
+
+.form-control {
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 4px 15px rgba(31, 38, 135, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+  &:focus {
+    border-color: rgba(33, 150, 243, 0.4) !important;
+    box-shadow:
+      0 0 0 3px rgba(33, 150, 243, 0.1) !important,
+  0 4px 15px rgba(33, 150, 243, 0.15) !important,
+  inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    outline: none;
+  }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    opacity: 1;
+    font-weight: 400;
+  }
+}
+
+.btn {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.gradient-btn {
+  background: linear-gradient(135deg, #2196f3 0%, #4fc3f7 100%);
+  border: none;
+
+  &:hover {
+    background: linear-gradient(135deg, #1976d2 0%, #42a5f5 100%);
+  }
+}
+
+// Semicircle background styling
+.curved-background {
+  position: relative;
+  background: transparent;
+  overflow: hidden; // Hide the left part of the circle
+
+  // Create semicircle shape using pseudo-element
+  &::before {
+    content: '';
+    position: absolute;
+    right: -100%; // Position from right side to create outward curve
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200%; // Double the container width to make a full circle
+    height: 200%; // Same ratio to maintain circle shape
+    max-height: 200vh; // Limit height to viewport
+    background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 15%, #4fc3f7 35%, #2196f3 65%, #1976d2 100%);
+    border-radius: 50%; // Makes it a perfect circle
+    z-index: 1;
+  }
+
+  // Ensure content is above the background
+  .ornament-circle,
+  .main-bg-circle,
+  .content-overlay {
+    position: relative;
+    z-index: 10;
+  }
+
+  @media (max-width: 991.98px) {
+    display: none !important;
+  }
+}
+
+// Ornament circles with various sizes and positions
+.ornament-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+}
+
+.ornament-1 {
+  width: 120px;
+  height: 120px;
+  top: 15%;
+  right: 20%;
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 20px rgba(109, 40, 217, 0.2);
+  animation: float 6s ease-in-out infinite;
+}
+
+.ornament-2 {
+  width: 80px;
+  height: 80px;
+  top: 30%;
+  right: 8%;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 0 15px rgba(53, 119, 241, 0.08);
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+.ornament-3 {
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  right: 35%;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 12px rgba(53, 119, 241, 0.06);
+  animation: float 7s ease-in-out infinite;
+}
+
+.ornament-4 {
+  width: 100px;
+  height: 100px;
+  top: 70%;
+  right: 15%;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 0 18px rgba(53, 119, 241, 0.09);
+  animation: float 9s ease-in-out infinite reverse;
+}
+
+.ornament-5 {
+  width: 40px;
+  height: 40px;
+  top: 85%;
+  right: 40%;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 10px rgba(53, 119, 241, 0.05);
+  animation: float 5s ease-in-out infinite;
+}
+
+.ornament-6 {
+  width: 140px;
+  height: 140px;
+  top: 40%;
+  right: -5%;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 25px rgba(53, 119, 241, 0.12);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+// Main background circle (largest one)
+.main-bg-circle {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  right: -15%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  backdrop-filter: blur(30px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  animation: rotate 20s linear infinite;
+}
+
+// Content overlay
+.content-overlay {
+  z-index: 10;
+  max-width: 450px;
+  margin-left: -50rem; // Move content even further to the left for perfect centering
+  padding-left: 380px; // Maintain padding for text readability
+}
+
+.circle-title {
+  font-size: 5rem;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+}
+
+.circle-description {
+  opacity: 0.85;
+  max-width: 400px;
+  margin: 0 auto 2rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.learn-more-btn {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #6c757d !important;
+  border: none;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Floating animation for ornaments
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+// Rotation animation for main circle
+@keyframes rotate {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+// Right column responsive adjustments
+.col-lg-6:last-child {
+  @media (max-width: 991.98px) {
+    display: none !important;
+  }
+}
+
+// Additional responsive adjustments for ornaments
+@media (min-width: 1600px) {
+  .content-overlay {
+    margin-left: -620px;
+    padding-left: 420px;
+  }
+}
+
+@media (max-width: 1400px) {
+  .ornament-1 { width: 100px; height: 100px; }
+  .ornament-2 { width: 70px; height: 70px; }
+  .ornament-4 { width: 85px; height: 85px; }
+  .ornament-6 { width: 120px; height: 120px; }
+  .main-bg-circle { width: 400px; height: 400px; }
+  .circle-title { font-size: 4rem; }
+
+  .content-overlay {
+    margin-left: -320px;
+    padding-left: 320px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .ornament-1 { width: 80px; height: 80px; }
+  .ornament-2 { width: 60px; height: 60px; }
+  .ornament-4 { width: 70px; height: 70px; }
+  .ornament-6 { width: 100px; height: 100px; }
+  .main-bg-circle { width: 350px; height: 350px; }
+  .circle-title { font-size: 3.5rem; }
+  .circle-description { font-size: 1rem; }
+
+  .content-overlay {
+    margin-left: -280px;
+    padding-left: 280px;
+  }
+}
+
+
+
+// Mobile adjustments
+@media (max-width: 991.98px) {
+  .row.g-0.min-vh-100 {
+    .col-lg-6:first-child {
+      width: 100%;
+      max-width: 100%;
+      flex: 0 0 100%;
+    }
+  }
+}
+
+// Background gradient adjustments for mobile
+@media (max-width: 991.98px) {
+  .auth-page-wrapper {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 25%, #d6336c 75%, #8B5DFF 100%);
+
+    .auth-form-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Social buttons
+.btn-outline-primary,
+.btn-outline-danger {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Custom input focus effects
+.form-control:focus {
+  background-color: #ffffff;
+  border-color: var(--bs-primary);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+// Text animations
+.text-center h4 {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.auth-form-container form {
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Right column content animations
+.col-lg-6:last-child .text-center {
+  animation: slideInRight 1s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Improved button styles
+.btn-light {
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    transform: translateY(-2px);
+  }
+}
+
+// Password toggle button improvements
+.btn-link {
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:hover {
+    transform: none !important;
+  }
+}

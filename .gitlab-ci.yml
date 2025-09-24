@@ -1,0 +1,62 @@
+stages:
+  - build
+  - sonar
+  - deploy
+
+variables:
+  GIT_STRATEGY: none
+
+build-job:
+  stage: build
+  image: node:${NODE_VERSION}
+  before_script:
+    - if [ ! -d "${PATH_PROJECT}" ]; then mkdir -p "${PATH_PROJECT}"; fi
+    - cd "${PATH_PROJECT}"
+    - if [ ! -d ".git" ]; then git init; git remote add origin https://gitlab-ci-token:${CI_JOB_TOKEN}@repository.aio.co.id/${CI_PROJECT_PATH}.git; fi
+    - if [ -f ".npmrc" ]; then rm -f .npmrc; fi
+    - echo "registry=${NEXUS_URL}" > .npmrc
+    - echo "${NEXUS_URL}:_authToken=${NEXUS_TOKEN}" >> .npmrc
+    - echo "${NEXUS_URL}:username=${NEXUS_USERNAME}" >> .npmrc
+    - echo "${NEXUS_URL}:password=${NEXUS_PASSWORD}" >> .npmrc
+  script:
+    - echo "check node and npm version before export PATH"
+    - node -v
+    - npm -v
+    - git config --global http.sslVerify false
+    - git pull https://gitlab-ci-token:${CI_JOB_TOKEN}@repository.aio.co.id/${CI_PROJECT_PATH}.git master --verbose
+    - npm config set registry "${NEXUS_URL}"
+    - npm config get registry
+    - if [ ! -d "${NODE_PATH}${NODE_VERSION}" ]; then nvm install ${NODE_VERSION}; fi
+    - export PATH="${NODE_PATH}${NODE_VERSION}/bin:$PATH"
+    - echo "check node and npm version after export PATH"
+    - node -v
+    - npm -v
+    - npm install --legacy-peer-deps --no-audit --verbose
+    - if [ -n "${BUILD_COMMAND}" ]; then eval "${BUILD_COMMAND}"; else echo "BUILD_COMMAND not defined"; exit 1; fi
+  only:
+    - master
+
+sonar-job:
+  stage: sonar
+  before_script:
+    - cd "${PATH_PROJECT}"
+  script:
+    - ${PATH_SONARSCANNER} -D"sonar.projectKey=${SONAR_PROJECTKEY}" -D"sonar.sources=." -D"sonar.host.url=${SONAR_URL}" -D"sonar.login=${SONAR_TOKEN}"
+  only:
+    - master
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploying the application..."
+    - if [ ! -d "${PATH_PROJECT}/${PATH_BUILD}" ]; then echo "Source directory not found!"; exit 1; fi
+    - if [ ! -d "${PATH_HTDOCS}" ]; then mkdir -p "${PATH_HTDOCS}"; fi
+    - rsync -av --delete "${PATH_PROJECT}/${PATH_BUILD}/" "${PATH_HTDOCS}/"
+    - echo "Deployment Successful!"
+    - echo "Sending message to Telegram..."
+    - |
+      message="<b>Deployment Successful!</b>%0A<b>Project</b>: ${CI_PROJECT_NAME}%0A<b>Branch</b>: ${CI_COMMIT_REF_NAME}%0A<b>Commit</b>: ${CI_COMMIT_SHORT_SHA}%0A<b>Message</b>: ${CI_COMMIT_MESSAGE}%0A<b>Author</b>: ${GITLAB_USER_NAME}"
+      curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+        -d "chat_id=${TELEGRAM_CHAT_ID}&text=${message}&parse_mode=HTML"
+  only:
+    - master

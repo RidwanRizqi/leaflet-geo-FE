@@ -1,0 +1,83 @@
+import { MenuItem } from './menu.model';
+
+export const MENU: MenuItem[] = [
+  {
+    id: 1,
+    label: 'MENUITEMS.MENU.TEXT',
+    icon: '',
+    isCollapsed: true,
+    link: '',
+    subItems: [],
+    isTitle: true,
+    badge: null,
+    parentId: 0,
+    isLayout: false,
+  },
+  // {
+  //   id: 4,
+  //   label: 'MENUITEMS.EVENTS.TEXT',
+  //   icon: 'ri-calendar-event-line',
+  //   isCollapsed: true,
+  //   link: '/events',
+  //   subItems: [],
+  //   isTitle: false,
+  //   badge: null,
+  //   parentId: 0,
+  //   isLayout: false,
+  // },
+  // {
+  //   id: 5,
+  //   label: 'MENUITEMS.COUNTDOWN.TEXT',
+  //   icon: 'ri-timer-line',
+  //   isCollapsed: true,
+  //   link: '/countdown-display',
+  //   subItems: [],
+  //   isTitle: false,
+  //   badge: {
+  //     variant: 'success',
+  //     text: 'Display'
+  //   },
+  //   parentId: 0,
+  //   isLayout: false,
+  // },
+  {
+    id: 6,
+    label: 'MENUITEMS.BIDANG.TEXT',
+    icon: 'ri-map-2-line',
+    isCollapsed: true,
+    link: '/bidang',
+    subItems: [
+      {
+        id: 61,
+        label: 'MENUITEMS.BIDANG.MAP.TEXT',
+        icon: 'ri-map-pin-line',
+        isCollapsed: true,
+        link: '/bidang/map',
+        subItems: [],
+        isTitle: false,
+        badge: null,
+        parentId: 6,
+        isLayout: false,
+      },
+      {
+        id: 62,
+        label: 'MENUITEMS.BIDANG.LIST.TEXT',
+        icon: 'ri-list-check-2',
+        isCollapsed: true,
+        link: '/bidang/list',
+        subItems: [],
+        isTitle: false,
+        badge: null,
+        parentId: 6,
+        isLayout: false,
+      }
+    ],
+    isTitle: false,
+    badge: {
+      variant: 'info',
+      text: 'Geo'
+    },
+    parentId: 0,
+    isLayout: false,
+  },
+];

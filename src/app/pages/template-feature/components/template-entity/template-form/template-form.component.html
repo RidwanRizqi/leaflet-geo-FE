@@ -1,0 +1,127 @@
+<!-- Modal Header -->
+<div class="modal-header">
+  <h4 class="modal-title">{{ modalTitle }}</h4>
+  <button type="button" class="btn-close" aria-label="Close" (click)="onCancel()"></button>
+</div>
+
+<!-- Modal Body -->
+<div class="modal-body">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <!-- Name Field -->
+    <div class="mb-3">
+      <label for="name" class="form-label">
+        Name <span class="text-danger">*</span>
+      </label>
+      <input
+        type="text"
+        id="name"
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('name')"
+        formControlName="name"
+        placeholder="Enter entity name">
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('name')">
+        {{ getFieldError('name') }}
+      </div>
+    </div>
+
+    <!-- Description Field -->
+    <div class="mb-3">
+      <label for="description" class="form-label">Description</label>
+      <textarea
+        id="description"
+        class="form-control"
+        [class.is-invalid]="isFieldInvalid('description')"
+        formControlName="description"
+        rows="3"
+        placeholder="Enter entity description">
+      </textarea>
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('description')">
+        {{ getFieldError('description') }}
+      </div>
+      <div class="form-text">
+        {{ form.get('description')?.value?.length || 0 }}/500 characters
+      </div>
+    </div>
+
+    <!-- Status Field -->
+    <div class="mb-3">
+      <label for="status" class="form-label">
+        Status <span class="text-danger">*</span>
+      </label>
+      <ng-select
+        id="status"
+        formControlName="status"
+        [class.is-invalid]="isFieldInvalid('status')"
+        placeholder="Select status"
+        [clearable]="false">
+        <ng-option *ngFor="let status of statusOptions" [value]="status">
+          {{ status | titlecase }}
+        </ng-option>
+      </ng-select>
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('status')">
+        {{ getFieldError('status') }}
+      </div>
+    </div>
+
+    <!-- Entity Info (Edit Mode Only) -->
+    <div *ngIf="isEditMode && entity" class="mb-3">
+      <div class="card bg-light">
+        <div class="card-body py-2">
+          <div class="row text-sm">
+            <div class="col-6">
+              <strong>Created:</strong><br>
+              <span class="text-muted">{{ entity.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <br>
+              <span class="text-muted" *ngIf="entity.createdBy">by {{ entity.createdBy }}</span>
+            </div>
+            <div class="col-6">
+              <strong>Last Updated:</strong><br>
+              <span class="text-muted">{{ entity.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <br>
+              <span class="text-muted" *ngIf="entity.updatedBy">by {{ entity.updatedBy }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Modal Footer -->
+<div class="modal-footer">
+  <div class="d-flex gap-2 w-100">
+    <!-- Reset Button -->
+    <button
+      type="button"
+      class="btn btn-soft-secondary"
+      (click)="onReset()"
+      [disabled]="formState.isLoading">
+      <i class="ri-restart-line align-bottom me-1"></i>
+      Reset
+    </button>
+
+    <!-- Spacer -->
+    <div class="flex-grow-1"></div>
+
+    <!-- Cancel Button -->
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="onCancel()"
+      [disabled]="formState.isLoading">
+      Cancel
+    </button>
+
+    <!-- Submit Button -->
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="onSubmit()"
+      [disabled]="form.invalid || formState.isLoading">
+      <span *ngIf="formState.isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      <i *ngIf="!formState.isLoading && isCreateMode" class="ri-add-line align-bottom me-1"></i>
+      <i *ngIf="!formState.isLoading && isEditMode" class="ri-save-line align-bottom me-1"></i>
+      {{ submitButtonText }}
+    </button>
+  </div>
+</div>

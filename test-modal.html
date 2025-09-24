@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Test Objek Pajak Modal</h2>
+
+        <!-- Test Data -->
+        <div id="testData" style="display: none;">
+            [
+                {
+                    "kdPropinsi": "35",
+                    "kdDati2": "08",
+                    "kdKecamatan": "061",
+                    "kdKelurahan": "003",
+                    "kdBlok": "002",
+                    "noUrut": "0335",
+                    "kdJnsOp": "0",
+                    "subjekPajakId": "3508211604800001",
+                    "noFormulirSpop": "20170019178",
+                    "noPersil": null,
+                    "jalanOp": "DSN KRAJAN",
+                    "blokKavNoOp": null,
+                    "rwOp": "03",
+                    "rtOp": "009",
+                    "kdStatusCabang": 0,
+                    "kdStatusWp": "1",
+                    "totalLuasBumi": 234,
+                    "totalLuasBng": 50,
+                    "njopBumi": 56862000,
+                    "njopBng": 29750000,
+                    "statusPetaOp": 1,
+                    "jnsTransaksiOp": "2",
+                    "tglPendataanOp": "2017-10-23",
+                    "nipPendata": "060000000",
+                    "tglPemeriksaanOp": "2017-10-23",
+                    "nipPemeriksaOp": "060000000",
+                    "tglPerekamanOp": "2017-10-23",
+                    "nipPerekamOp": "060000000",
+                    "noSertifikat": null,
+                    "keteranganOp": null,
+                    "keteranganSpop": null,
+                    "latitude": null,
+                    "longitude": null
+                },
+                {
+                    "kdPropinsi": "35",
+                    "kdDati2": "08",
+                    "kdKecamatan": "061",
+                    "kdKelurahan": "003",
+                    "kdBlok": "003",
+                    "noUrut": "0335",
+                    "kdJnsOp": "0",
+                    "subjekPajakId": "350806000300303350",
+                    "noFormulirSpop": "19940198035",
+                    "noPersil": null,
+                    "jalanOp": "DS GRATI",
+                    "blokKavNoOp": null,
+                    "rwOp": "00",
+                    "rtOp": "000",
+                    "kdStatusCabang": 0,
+                    "kdStatusWp": "1",
+                    "totalLuasBumi": 3314,
+                    "totalLuasBng": 0,
+                    "njopBumi": 119304000,
+                    "njopBng": 0,
+                    "statusPetaOp": 1,
+                    "jnsTransaksiOp": "1",
+                    "tglPendataanOp": "1995-01-13",
+                    "nipPendata": "060000000",
+                    "tglPemeriksaanOp": "1995-01-14",
+                    "nipPemeriksaOp": "060000000",
+                    "tglPerekamanOp": "1995-10-10",
+                    "nipPerekamOp": "060000000",
+                    "noSertifikat": null,
+                    "keteranganOp": null,
+                    "keteranganSpop": null,
+                    "latitude": null,
+                    "longitude": null
+                }
+            ]
+        </div>
+
+        <button class="btn btn-primary" onclick="showModal()">Test Modal</button>
+
+        <!-- Objek Pajak Modal -->
+        <div id="objekPajakModal" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="ri-file-list-line me-2"></i>
+                            Data Objek Pajak
+                        </h5>
+                        <button type="button" class="btn-close" onclick="closeModal()" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <!-- Debug Info -->
+                        <div class="alert alert-warning">
+                            <i class="ri-bug-line me-2"></i>
+                            <strong>Debug Info:</strong>
+                            Data length: <span id="dataLength">0</span>
+                        </div>
+
+                        <!-- Data List -->
+                        <div id="dataList" style="display: none;">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <i class="ri-information-line me-2"></i>
+                                        <strong id="dataCount">0</strong> data objek pajak ditemukan
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="row" id="dataCards">
+                                        <!-- Cards will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- No Data State -->
+                        <div id="noData" class="text-center py-4" style="display: none;">
+                            <i class="ri-file-list-line" style="font-size: 3rem; color: #6c757d;"></i>
+                            <p class="mt-2 text-muted">Tidak ada data objek pajak ditemukan</p>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            <i class="ri-close-line me-1"></i>
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showModal() {
+            const testData = JSON.parse(document.getElementById('testData').textContent);
+            console.log('Test data:', testData);
+
+            // Show modal
+            document.getElementById('objekPajakModal').style.display = 'block';
+            document.getElementById('objekPajakModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // Update debug info
+            document.getElementById('dataLength').textContent = testData.length;
+
+            if (testData.length > 0) {
+                // Show data list
+                document.getElementById('dataList').style.display = 'block';
+                document.getElementById('noData').style.display = 'none';
+                document.getElementById('dataCount').textContent = testData.length;
+
+                // Generate cards
+                const cardsContainer = document.getElementById('dataCards');
+                cardsContainer.innerHTML = '';
+
+                testData.forEach((objek, index) => {
+                    const cardHtml = `
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">
+                                        <i class="ri-building-line me-1"></i>
+                                        Objek Pajak #${index + 1}
+                                    </h6>
+                                    <span class="badge bg-primary">${objek.kdJnsOp}</span>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <p class="mb-1"><strong>Blok:</strong> ${objek.kdBlok}</p>
+                                            <p class="mb-1"><strong>Jenis OP:</strong> ${objek.kdJnsOp}</p>
+                                            <p class="mb-1"><strong>No Formulir:</strong> ${objek.noFormulirSpop || 'N/A'}</p>
+                                            <p class="mb-1"><strong>No Persil:</strong> ${objek.noPersil || 'N/A'}</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="mb-1"><strong>Luas Bumi:</strong> ${objek.totalLuasBumi || 0} m²</p>
+                                            <p class="mb-1"><strong>Luas Bangunan:</strong> ${objek.totalLuasBng || 0} m²</p>
+                                            <p class="mb-1"><strong>NJOP Bumi:</strong> Rp ${(objek.njopBumi || 0).toLocaleString()}</p>
+                                            <p class="mb-1"><strong>NJOP Bangunan:</strong> Rp ${(objek.njopBng || 0).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col-12">
+                                            <p class="mb-1"><strong>Alamat:</strong> ${objek.jalanOp || 'N/A'}</p>
+                                            <p class="mb-1"><strong>RT/RW:</strong> ${objek.rtOp || 'N/A'}/${objek.rwOp || 'N/A'}</p>
+                                            <p class="mb-1"><strong>Koordinat:</strong> ${objek.latitude || 'N/A'}, ${objek.longitude || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cardsContainer.innerHTML += cardHtml;
+                });
+            } else {
+                // Show no data
+                document.getElementById('dataList').style.display = 'none';
+                document.getElementById('noData').style.display = 'block';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('objekPajakModal').style.display = 'none';
+            document.getElementById('objekPajakModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>

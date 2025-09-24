@@ -1,0 +1,918 @@
+// Apple Glass design system
+.glass-element {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 12px 40px rgba(33, 150, 243, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -1px 0 rgba(33, 150, 243, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow:
+      0 16px 50px rgba(33, 150, 243, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -1px 0 rgba(33, 150, 243, 0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.main-content {
+  margin-left: 0 !important;
+}
+
+.glass-text {
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+// Main countdown display container
+.countdown-display {
+  min-height: 100vh;
+  width: 100vw;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.3)),
+    url('../../../assets/images/backgrounds/cloud-otsuka.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+
+  // Main content area
+  .main-content {
+    flex: 1;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    min-height: calc(100vh - 120px);
+
+    // Events header for carousel mode
+    .events-header {
+      @extend .glass-element;
+      border-radius: 20px;
+      padding: 2rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.25);
+      text-align: center;
+
+      .events-title {
+        @extend .glass-text;
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        background: linear-gradient(135deg, #1d1d1f 0%, #1976d2 50%, #2196f3 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 20px rgba(33, 150, 243, 0.2);
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+        animation: title-glow 3s ease-in-out infinite alternate;
+      }
+    }
+
+    // Events container
+    .events-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+
+      // Grid layout for 1-3 events
+      .events-grid {
+        display: grid;
+        gap: 2rem;
+        height: 100%;
+        align-items: stretch;
+
+        // Dynamic grid columns based on number of events
+        &:has(.event-card:nth-child(1):last-child) {
+          grid-template-columns: 1fr;
+          max-width: 800px;
+          margin: 0 auto;
+
+          .event-card {
+            @extend .glass-element;
+            border-radius: 25px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.25);
+            min-height: 600px;
+            transition: all 0.4s cubic-bezier(0.35, 0, 0.25, 1);
+
+            &:hover {
+              transform: translateY(-8px) scale(1.02);
+              box-shadow:
+                0 25px 60px rgba(33, 150, 243, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
+
+            // Priority-based styling
+            &.priority-critical {
+              border: 2px solid rgba(220, 53, 69, 0.3);
+              animation: critical-pulse 2s ease-in-out infinite;
+            }
+
+            &.priority-urgent {
+              border: 2px solid rgba(255, 193, 7, 0.3);
+            }
+
+            &.priority-normal {
+              border: 2px solid rgba(40, 167, 69, 0.3);
+            }
+          }
+        }
+
+        &:has(.event-card:nth-child(2):last-child) {
+          grid-template-columns: 1fr 1fr;
+
+          .event-card {
+            @extend .glass-element;
+            border-radius: 25px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.25);
+            min-height: 600px;
+            transition: all 0.4s cubic-bezier(0.35, 0, 0.25, 1);
+
+            &:hover {
+              transform: translateY(-8px) scale(1.02);
+              box-shadow:
+                0 25px 60px rgba(33, 150, 243, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
+
+            // Priority-based styling
+            &.priority-critical {
+              border: 2px solid rgba(220, 53, 69, 0.3);
+              animation: critical-pulse 2s ease-in-out infinite;
+            }
+
+            &.priority-urgent {
+              border: 2px solid rgba(255, 193, 7, 0.3);
+            }
+
+            &.priority-normal {
+              border: 2px solid rgba(40, 167, 69, 0.3);
+            }
+          }
+        }
+
+        &:has(.event-card:nth-child(3):last-child) {
+          grid-template-columns: repeat(3, 1fr);
+
+          .event-card {
+            @extend .glass-element;
+            border-radius: 25px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.25);
+            min-height: 600px;
+            transition: all 0.4s cubic-bezier(0.35, 0, 0.25, 1);
+
+            &:hover {
+              transform: translateY(-8px) scale(1.02);
+              box-shadow:
+                0 25px 60px rgba(33, 150, 243, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            }
+
+            // Priority-based styling
+            &.priority-critical {
+              border: 2px solid rgba(220, 53, 69, 0.3);
+              animation: critical-pulse 2s ease-in-out infinite;
+            }
+
+            &.priority-urgent {
+              border: 2px solid rgba(255, 193, 7, 0.3);
+            }
+
+            &.priority-normal {
+              border: 2px solid rgba(40, 167, 69, 0.3);
+            }
+          }
+        }
+      }
+
+      // Carousel layout for 4+ events using Swiper
+      .events-carousel {
+        position: relative;
+        border-radius: 25px;
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
+
+        .swiper {
+          width: 100%;
+          height: 100%;
+          border-radius: 25px;
+          padding: 20px 0;
+
+          .swiper-wrapper {
+            align-items: stretch;
+            height: 100%;
+          }
+
+          .swiper-slide {
+            height: auto;
+            display: flex;
+
+            &.event-card {
+              @extend .glass-element;
+              border-radius: 25px;
+              padding: 2rem;
+              display: flex;
+              flex-direction: column;
+              position: relative;
+              overflow: hidden;
+              background: rgba(255, 255, 255, 0.25);
+              min-height: 600px;
+              transition: all 0.4s cubic-bezier(0.35, 0, 0.25, 1);
+              width: 100%;
+              flex-shrink: 0;
+
+              &:hover {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow:
+                  0 25px 60px rgba(33, 150, 243, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.5);
+              }
+
+              // Priority-based styling
+              &.priority-critical {
+                border: 2px solid rgba(220, 53, 69, 0.3);
+                animation: critical-pulse 2s ease-in-out infinite;
+              }
+
+              &.priority-urgent {
+                border: 2px solid rgba(255, 193, 7, 0.3);
+              }
+
+              &.priority-normal {
+                border: 2px solid rgba(40, 167, 69, 0.3);
+              }
+            }
+          }
+
+        }
+      }
+
+      // Individual event card styling (shared between grid and carousel)
+      .event-card {
+        .event-content {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          text-align: center;
+        }
+
+        .priority-badge {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.7rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          z-index: 2;
+
+          &.critical {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+          }
+
+          &.urgent {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+          }
+
+          &.normal {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+          }
+        }
+
+        .event-image {
+          max-width: 100%;
+          max-height: 200px;
+          width: auto;
+          height: auto;
+          border-radius: 15px;
+          object-fit: contain;
+          margin: 1rem auto;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          transition: all 0.3s ease;
+
+          &:hover {
+            transform: scale(1.05);
+          }
+        }
+
+        .event-title {
+          @extend .glass-text;
+          font-size: 1.8rem;
+          font-weight: 700;
+          margin: 1rem 0;
+          line-height: 1.2;
+          background: linear-gradient(135deg, #1d1d1f 0%, #1976d2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .event-datetime {
+          @extend .glass-text;
+          font-size: 0.9rem;
+          color: #6c757d;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+
+          i {
+            color: #1976d2;
+          }
+        }
+
+        .countdown-main {
+          margin-top: auto;
+
+          .countdown-label {
+            @extend .glass-text;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1976d2;
+          }
+
+          .countdown-units {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+
+            .countdown-unit {
+              @extend .glass-element;
+              border-radius: 12px;
+              padding: 1rem 0.5rem;
+              text-align: center;
+              background: rgba(255, 255, 255, 0.2);
+              transition: all 0.3s ease;
+
+              &:hover {
+                transform: translateY(-4px);
+                background: rgba(255, 255, 255, 0.3);
+              }
+
+              .countdown-number {
+                @extend .glass-text;
+                font-size: 1.8rem;
+                font-weight: 800;
+                display: block;
+                margin-bottom: 0.25rem;
+                color: #1976d2;
+                font-feature-settings: 'tnum';
+              }
+
+              .countdown-label {
+                @extend .glass-text;
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                opacity: 0.8;
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Empty state
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+
+    .empty-icon {
+      font-size: 6rem;
+      opacity: 0.3;
+      margin-bottom: 2rem;
+    }
+
+    .empty-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1d1d1f;
+      margin-bottom: 1rem;
+    }
+
+    .empty-message {
+      font-size: 1.125rem;
+      color: #6c757d;
+      max-width: 400px;
+    }
+  }
+
+  // Footer
+  .glass-footer {
+    @extend .glass-element;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(33, 150, 243, 0.1);
+    margin-top: auto;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    min-height: 60px;
+
+    .last-updated {
+      font-size: 0.75rem;
+      color: #6c757d;
+      font-feature-settings: 'tnum';
+    }
+
+    .auto-refresh-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: #6c757d;
+
+      .refresh-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #6c757d;
+        animation: pulse 2s infinite;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes carousel-shimmer {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes critical-pulse {
+  0%, 100% {
+    border-color: rgba(220, 53, 69, 0.3);
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.3);
+  }
+  50% {
+    border-color: rgba(220, 53, 69, 0.6);
+    box-shadow: 0 0 0 8px rgba(220, 53, 69, 0.1);
+  }
+}
+
+@keyframes active-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes title-glow {
+  0% {
+    filter: drop-shadow(0 0 5px rgba(33, 150, 243, 0.3));
+  }
+  100% {
+    filter: drop-shadow(0 0 15px rgba(33, 150, 243, 0.5));
+  }
+}
+
+@keyframes pulse-critical {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes tl-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+// Responsive design
+@media (min-width: 1400px) {
+  .countdown-display {
+    .main-content {
+      .events-container {
+        max-width: 1300px;
+
+        .event-card {
+          min-height: 700px;
+
+          .event-title {
+            font-size: 2.2rem;
+          }
+
+          .countdown-main .countdown-units .countdown-unit {
+            .countdown-number {
+              font-size: 2.2rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .countdown-display {
+    .main-content {
+      .events-container {
+        max-width: 1100px;
+
+        .events-grid {
+          // Force 2 columns max on tablet
+          &:has(.event-card:nth-child(3):last-child) {
+            grid-template-columns: 1fr 1fr;
+
+            .event-card:nth-child(3) {
+              grid-column: 1 / -1;
+              max-width: 50%;
+              margin: 0 auto;
+            }
+          }
+        }
+
+        .event-card {
+          min-height: 550px;
+          padding: 1.5rem;
+
+          .event-image {
+            max-height: 180px;
+          }
+
+          .event-title {
+            font-size: 1.6rem;
+          }
+
+          .countdown-main .countdown-units {
+            gap: 0.5rem;
+
+            .countdown-unit {
+              padding: 0.75rem 0.5rem;
+
+              .countdown-number {
+                font-size: 1.5rem;
+              }
+
+              .countdown-label {
+                font-size: 0.65rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .countdown-display {
+    .main-content {
+      padding: 1rem 0.5rem;
+
+      .events-header {
+        padding: 1.5rem 1.5rem;
+        margin-bottom: 1.5rem;
+
+        .events-title {
+          font-size: 1.6rem;
+        }
+      }
+
+      .events-container {
+        .events-grid {
+          // Single column on mobile
+          grid-template-columns: 1fr !important;
+          gap: 1.5rem;
+        }
+
+        .events-carousel {
+          .carousel-track {
+            .carousel-item {
+              flex: 0 0 100%;
+              margin-right: 0;
+            }
+          }
+        }
+
+        .event-card {
+          min-height: 450px;
+          padding: 1.5rem 1rem;
+
+          .priority-badge {
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.65rem;
+          }
+
+          .event-image {
+            max-height: 150px;
+            margin: 0.75rem auto;
+          }
+
+          .event-title {
+            font-size: 1.4rem;
+            margin: 0.75rem 0;
+          }
+
+          .event-datetime {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+          }
+
+          .countdown-main {
+            .countdown-label {
+              font-size: 0.9rem;
+              margin-bottom: 1rem;
+            }
+
+            .countdown-units {
+              grid-template-columns: repeat(2, 1fr);
+              gap: 0.75rem;
+
+              .countdown-unit {
+                padding: 0.75rem 0.5rem;
+
+                .countdown-number {
+                  font-size: 1.4rem;
+                }
+
+                .countdown-label {
+                  font-size: 0.6rem;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Zoom protection - ensures footer is always visible
+@media screen and (min-zoom: 1.5), screen and (-webkit-min-device-pixel-ratio: 1.5) {
+  .countdown-display {
+    min-height: 100vh;
+    overflow-y: auto;
+
+    .main-content {
+      min-height: calc(100vh - 80px);
+    }
+
+    .glass-footer {
+      position: sticky;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(25px);
+      border-top: 2px solid rgba(33, 150, 243, 0.2);
+      z-index: 10;
+    }
+  }
+}
+
+// Additional protection for all zoom levels
+.countdown-display {
+  &.zoom-protected {
+    .glass-footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(30px);
+    }
+
+    .main-content {
+      padding-bottom: 80px;
+    }
+  }
+}
+
+// Large TV/4K display optimization
+@media (min-width: 1920px) {
+  .countdown-display {
+    .main-content {
+      .events-container {
+        max-width: 1600px;
+
+        .event-card {
+          min-height: 800px;
+
+          .event-image {
+            max-height: 300px;
+          }
+
+          .event-title {
+            font-size: 2.8rem;
+          }
+
+          .countdown-main .countdown-units {
+            gap: 1rem;
+
+            .countdown-unit {
+              padding: 1.25rem 1rem;
+
+              .countdown-number {
+                font-size: 2.8rem;
+              }
+
+              .countdown-label {
+                font-size: 0.8rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Time-based color styling (based on days remaining)
+.event-card {
+  // Safe zone - more than 40 days (Green)
+  &.time-safe {
+    border-color: rgba(34, 197, 94, 0.4) !important;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.1);
+
+    .countdown-unit .countdown-number {
+      color: #22c55e !important;
+      text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .countdown-unit .countdown-label {
+      color: #22c55e !important;
+      opacity: 0.8;
+    }
+
+    .countdown-main .countdown-label {
+      color: #22c55e !important;
+      opacity: 0.9;
+    }
+  }
+
+  // Warning zone - 15 to 40 days (Yellow)
+  &.time-warning {
+    border-color: rgba(251, 191, 36, 0.4) !important;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.1);
+
+    .countdown-unit .countdown-number {
+      color: #fbbf24 !important;
+      text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+
+    .countdown-unit .countdown-label {
+      color: #fbbf24 !important;
+      opacity: 0.8;
+    }
+
+    .countdown-main .countdown-label {
+      color: #fbbf24 !important;
+      opacity: 0.9;
+    }
+  }
+
+  // Urgent zone - less than 15 days (Red)
+  &.time-urgent {
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.1);
+    animation: urgent-pulse 2s ease-in-out infinite;
+
+    .countdown-unit .countdown-number {
+      color: #ef4444 !important;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+      animation: number-glow 1.5s ease-in-out infinite alternate;
+    }
+
+    .countdown-unit .countdown-label {
+      color: #ef4444 !important;
+      opacity: 0.8;
+      animation: label-glow 2s ease-in-out infinite alternate;
+    }
+
+    .countdown-main .countdown-label {
+      color: #ef4444 !important;
+      opacity: 0.9;
+      animation: label-glow 2s ease-in-out infinite alternate;
+    }
+  }
+}
+
+// Animation keyframes for urgent state
+@keyframes urgent-pulse {
+  0%, 100% {
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.2);
+  }
+}
+
+@keyframes number-glow {
+  0% {
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  100% {
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+}
+
+@keyframes label-glow {
+  0% {
+    opacity: 0.8;
+    text-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+  }
+  100% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+  }
+}

@@ -1,0 +1,676 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs
+  [title]="breadCrumbTitle"
+  [breadcrumbItems]="breadCrumbItems"
+></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between mb-3">
+      <button
+        class="btn btn-primary btn-label waves-effect waves-light"
+        (click)="openAddModal()"
+      >
+        <i class="ri-add-line label-icon align-middle fs-16 me-2"></i>
+        {{ "COMMON.LABEL.ADD" | translate }}
+      </button>
+             <div class="search-box ms-2">
+         <input
+           type="text"
+           class="form-control search"
+           [placeholder]="'COMMON.LABEL.SEARCH' | translate"
+           [(ngModel)]="searchTerm"
+           (input)="onSearchInput($event)"
+           (keyup.enter)="onSearch()"
+         />
+         <i class="ri-search-line search-icon" *ngIf="!isSearching"></i>
+         <div class="search-icon" *ngIf="isSearching">
+           <div class="spinner-border spinner-border-sm text-primary" role="status">
+             <span class="visually-hidden">Searching...</span>
+           </div>
+         </div>
+       </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div
+      *ngIf="totalRecords > 0; else noData"
+      class="table-responsive table-card mb-1"
+    >
+      <table class="table">
+        <thead>
+          <tr class="table-light text-muted">
+            <th scope="col">Employee</th>
+            <th scope="col">Supervisor</th>
+            <th scope="col">Line</th>
+            <th scope="col">Section</th>
+            <th scope="col">Group</th>
+            <th scope="col">Sub Section</th>
+            <th scope="col">Effective Date</th>
+            <th scope="col">Status</th>
+            <th scope="col" style="width: 150px;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of organizations; trackBy: trackByFn">
+                        <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-3">
+                  <!-- Profile Picture -->
+                  <img
+                    *ngIf="item.profile_pic && !item.imageError; else initialsAvatar"
+                    [src]="item.profile_pic"
+                    [alt]="item.employee_name"
+                    class="avatar-sm rounded-circle"
+                    (error)="onImageError($event, item)"
+                  />
+                  <!-- Initials Avatar -->
+                  <ng-template #initialsAvatar>
+                    <div class="avatar-title rounded-circle" [ngClass]="getAvatarClass(item.employee_name)">
+                      {{ getInitials(item.employee_name) }}
+                    </div>
+                  </ng-template>
+                </div>
+                <div>
+                  <div class="fw-medium">{{ item.employee_name }}</div>
+                  <small class="text-muted">{{ item.employee_code }}</small>
+                  <small class="text-muted d-block">{{ item.employee_position }}</small>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div *ngIf="item.supervisor_code; else noSupervisor">
+                <div class="fw-medium">{{ item.supervisor_name || '-' }}</div>
+                <small class="text-muted">{{ item.supervisor_code }}</small>
+              </div>
+              <ng-template #noSupervisor>
+                <span class="text-muted">No Supervisor</span>
+              </ng-template>
+            </td>
+            <td>
+              <span class="badge bg-soft-info text-info">
+                {{ item.line?.name || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-soft-warning text-warning">
+                {{ item.section?.name || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-soft-success text-success">
+                {{ item.group?.name || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-soft-secondary text-secondary">
+                {{ item.subSection?.name || 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <span class="text-muted">
+                {{ item.effective_date ? (formatDate(item.effective_date)) : 'N/A' }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex gap-1 flex-wrap">
+                <span class="badge bg-warning" *ngIf="item.is_shift">
+                  <i class="ri-time-line me-1"></i>Shift
+                </span>
+                <span class="badge bg-info" *ngIf="item.is_intern">
+                  <i class="ri-graduation-cap-line me-1"></i>Intern
+                </span>
+                <span class="badge bg-danger" *ngIf="item.is_maintenance">
+                  <i class="ri-tools-line me-1"></i>Maintenance
+                </span>
+                <span class="badge bg-success" *ngIf="!item.is_shift && !item.is_intern && !item.is_maintenance">
+                  <i class="ri-user-line me-1"></i>Non Shift
+                </span>
+              </div>
+            </td>
+                         <td>
+               <div class="hstack gap-2 fs-15">
+                 <button
+                   [ngbTooltip]="'View History'"
+                   class="btn btn-sm btn-info"
+                   (click)="openHistoryModal(item)"
+                 >
+                   <i class="ri-history-line"></i>
+                 </button>
+                 <button
+                   [ngbTooltip]="'COMMON.LABEL.EDIT' | translate"
+                   class="btn btn-sm btn-warning"
+                   (click)="openEditModal(item)"
+                 >
+                   <i class="ri-edit-line"></i>
+                 </button>
+                 <button
+                   [ngbTooltip]="'COMMON.LABEL.DELETE' | translate"
+                   class="btn btn-sm btn-danger"
+                   (click)="deleteOrganization(item)"
+                 >
+                   <i class="ri-delete-bin-5-line"></i>
+                 </button>
+               </div>
+             </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Data Template -->
+    <ng-template #noData>
+      <div class="noresult" *ngIf="organizations.length === 0">
+        <div class="text-center">
+          <lord-icon
+            src="https://cdn.lordicon.com/msoeawqm.json"
+            trigger="loop"
+            colors="primary:#405189,secondary:#0ab39c"
+            style="width: 75px; height: 75px"
+          >
+          </lord-icon>
+          <h5 class="mt-2">{{ "COMMON.LABEL.NODATA.TEXT" | translate }}</h5>
+          <p class="text-muted mb-0">
+            {{ "COMMON.LABEL.NODATA.PLACEHOLDER" | translate }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Pagination -->
+    <div class="row g-0 text-center text-sm-start align-items-center mb-4" *ngIf="totalRecords > 0">
+      <div class="col-sm-6">
+        <div>
+          <p class="mb-sm-0 text-muted">
+            {{ "COMMON.LABEL.SHOWING" | translate }} {{ startIndex + 1 }} {{ "COMMON.LABEL.TO" | translate }} {{ endIndex }} {{ "COMMON.LABEL.OF" | translate }} {{ totalRecords }} {{ "COMMON.LABEL.ENTRIES" | translate }}
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <ul class="pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="page === 1">
+            <a class="page-link" (click)="page > 1 && onPageChange(page - 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.BACK" | translate }}
+            </a>
+          </li>
+
+          <!-- Page Numbers -->
+          <ng-container *ngFor="let pageNum of [].constructor(totalPages); let i = index">
+            <li class="page-item" [class.active]="page === i + 1" *ngIf="i + 1 >= page - 2 && i + 1 <= page + 2">
+              <a class="page-link" (click)="onPageChange(i + 1)" style="cursor: pointer;">
+                {{ i + 1 }}
+              </a>
+            </li>
+          </ng-container>
+
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="page === totalPages">
+            <a class="page-link" (click)="page < totalPages && onPageChange(page + 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.NEXT" | translate }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<ng-template #addEditModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="myModalLabel">
+      {{ isEdit ? ('COMMON.LABEL.EDIT' | translate) : ('COMMON.LABEL.ADD' | translate) }} Organization
+    </h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="closeModal()"
+    ></button>
+  </div>
+
+  <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <div class="row">
+        <!-- Employee Code -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Employee <span class="text-danger">*</span></label>
+          <ng-select
+            [items]="employees"
+            bindLabel="display_name"
+            bindValue="employee_code"
+            placeholder="Type to search employee..."
+            formControlName="employee_code"
+            [clearable]="true"
+            [searchable]="true"
+            [typeahead]="employeeSearchSubject"
+            [loading]="false"
+            [class.is-invalid]="submitted && formControls['employee_code'].errors"
+          >
+            <ng-option *ngFor="let employee of employees" [value]="employee.employee_code">
+              <div class="d-flex flex-column">
+                <div class="fw-medium">{{ employee.employee_code }} - {{ employee.employee_name }}</div>
+                <small class="text-muted">{{ employee.position_desc }}</small>
+                <small class="text-muted">{{ employee.department_desc }}</small>
+              </div>
+            </ng-option>
+          </ng-select>
+          <div *ngIf="submitted && formControls['employee_code'].errors" class="invalid-feedback d-block">
+            Employee is required.
+          </div>
+        </div>
+
+        <!-- Supervisor Code -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Supervisor </label>
+          <ng-select
+            [items]="supervisors"
+            bindLabel="display_name"
+            bindValue="employee_code"
+            placeholder="Type to search supervisor..."
+            formControlName="supervisor_code"
+            [clearable]="true"
+            [searchable]="true"
+            [typeahead]="supervisorSearchSubject"
+            [loading]="false"
+            [class.is-invalid]="submitted && formControls['supervisor_code'].errors"
+          >
+            <ng-option *ngFor="let supervisor of supervisors" [value]="supervisor.employee_code">
+              <div class="d-flex flex-column">
+                <div class="fw-medium">{{ supervisor.employee_code }} - {{ supervisor.employee_name }}</div>
+                <small class="text-muted">{{ supervisor.position_desc }}</small>
+                <small class="text-muted">{{ supervisor.department_desc }}</small>
+              </div>
+            </ng-option>
+          </ng-select>
+          <div *ngIf="submitted && formControls['supervisor_code'].errors" class="invalid-feedback d-block">
+            Supervisor is required.
+          </div>
+        </div>
+
+        <!-- Department -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Department <span class="text-danger">*</span></label>
+          <ng-select
+            [items]="departments"
+            bindLabel="department_name"
+            bindValue="id"
+            placeholder="Select Department"
+            formControlName="department_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['department_id'].errors"
+          >
+            <ng-option *ngFor="let department of departments" [value]="department.id">
+              {{ department.department_name }}
+            </ng-option>
+          </ng-select>
+          <div *ngIf="submitted && formControls['department_id'].errors" class="invalid-feedback d-block">
+            Department is required.
+          </div>
+        </div>
+
+        <!-- Grade -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Grade <span class="text-danger">*</span></label>
+          <ng-select
+            [items]="grades"
+            bindLabel="grade_code"
+            bindValue="id"
+            placeholder="Select Grade"
+            formControlName="grade_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['grade_id'].errors"
+          >
+            <ng-option *ngFor="let grade of grades" [value]="grade.id">
+              {{ grade.grade_code }}
+            </ng-option>
+          </ng-select>
+          <div *ngIf="submitted && formControls['grade_id'].errors" class="invalid-feedback d-block">
+            Grade is required.
+          </div>
+        </div>
+
+        <!-- Line -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Line</label>
+          <ng-select
+            [items]="lines"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Select Line"
+            formControlName="line_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['line_id'].errors"
+          >
+          </ng-select>
+
+        </div>
+
+        <!-- Section -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Section</label>
+          <ng-select
+            [items]="sections"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Select Section"
+            formControlName="section_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['section_id'].errors"
+          >
+          </ng-select>
+
+        </div>
+
+        <!-- Group -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Group</label>
+          <ng-select
+            [items]="groups"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Select Group"
+            formControlName="group_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['group_id'].errors"
+          >
+          </ng-select>
+
+        </div>
+
+        <!-- Sub Section -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Sub Section</label>
+          <ng-select
+            [items]="subSections"
+            bindLabel="name"
+            bindValue="id"
+            placeholder="Select Sub Section"
+            formControlName="sub_section_id"
+            [clearable]="true"
+            [searchable]="true"
+            [class.is-invalid]="submitted && formControls['sub_section_id'].errors"
+          >
+          </ng-select>
+
+        </div>
+
+        <!-- Effective Date -->
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Effective Date</label>
+          <input
+            type="date"
+            class="form-control"
+            formControlName="effective_date"
+            [class.is-invalid]="submitted && formControls['effective_date'].errors"
+          />
+          <div *ngIf="submitted && formControls['effective_date'].errors" class="invalid-feedback d-block">
+            Effective date is required.
+          </div>
+        </div>
+
+        <!-- Is Shift -->
+        <div class="col-md-6 mb-3">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="is_shift"
+              formControlName="is_shift"
+            />
+            <label class="form-check-label" for="is_shift">
+              Is Shift Employee?
+            </label>
+          </div>
+        </div>
+
+        <!-- Is Intern -->
+        <div class="col-md-6 mb-3">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="is_intern"
+              formControlName="is_intern"
+            />
+            <label class="form-check-label" for="is_intern">
+              Is Intern?
+            </label>
+          </div>
+        </div>
+
+        <!-- Is Maintenance -->
+        <div class="col-md-6 mb-3">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              id="is_maintenance"
+              formControlName="is_maintenance"
+            />
+            <label class="form-check-label" for="is_maintenance">
+              Is Maintenance Employee?
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light"
+        (click)="closeModal()"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="fg.invalid && submitted"
+      >
+        {{ "COMMON.LABEL.SAVE" | translate }}
+      </button>
+         </div>
+   </form>
+ </ng-template>
+
+<!-- History Modal -->
+<ng-template #historyModal let-modal>
+  <div class="modal-header bg-primary text-white">
+    <div class="d-flex align-items-center">
+      <div class="me-3">
+        <div class="avatar-sm">
+          <div class="avatar-title rounded-circle bg-white text-primary">
+            <i class="ri-user-line"></i>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h4 class="modal-title mb-0" id="historyModalLabel">Position History</h4>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="btn-close btn-close-white"
+      aria-label="Close"
+      (click)="closeHistoryModal()"
+    ></button>
+  </div>
+
+  <div class="modal-body p-0">
+    <!-- Employee Summary Card -->
+    <div class="p-4 bg-light border-bottom">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h5 class="mb-1">{{ historyData?.employee_name || selectedEmployee?.employee_name }}</h5>
+          <p class="text-muted mb-1">{{ historyData?.employee_code || selectedEmployee?.employee_code }}</p>
+          <p class="mb-0"><strong>Current Position:</strong> {{ historyData?.employee_position || 'N/A' }}</p>
+          <p class="mb-0 text-muted">{{ historyData?.employee_department || 'N/A' }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <span class="badge bg-info fs-6">{{ historyData?.total_records || employeeHistory.length }} Position(s)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoadingHistory" class="text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading history...</span>
+      </div>
+      <h5>Loading Position History...</h5>
+      <p class="text-muted">Please wait while we fetch the employment history.</p>
+    </div>
+
+    <!-- History Timeline -->
+    <div *ngIf="!isLoadingHistory && employeeHistory.length > 0" class="p-4">
+
+      <!-- Timeline Container -->
+      <div class="timeline-container">
+        <div *ngFor="let record of employeeHistory; let i = index" class="timeline-item mb-4">
+
+          <!-- Timeline Dot & Line -->
+          <div class="timeline-dot-container">
+            <div class="timeline-dot" [ngClass]="record.is_active ? 'bg-success' : 'bg-secondary'">
+              <i [ngClass]="record.is_active ? 'ri-star-fill text-white' : 'ri-history-line text-white'"
+                 class="fs-6"></i>
+            </div>
+            <div class="timeline-line" *ngIf="i < employeeHistory.length - 1"></div>
+          </div>
+
+          <!-- Position Card -->
+          <div class="timeline-content">
+            <div class="card shadow-sm border-0">
+              <!-- Position Header -->
+              <div class="card-header bg-light border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <h5 class="mb-1 text-dark">{{ getPositionTitle(record) || 'Position Title N/A' }}</h5>
+                    <span class="badge fs-6" [ngClass]="record.is_active ? 'bg-success' : 'bg-secondary'">
+                      {{ record.is_active ? 'CURRENT POSITION' : 'PREVIOUS POSITION' }}
+                    </span>
+                  </div>
+                  <div class="text-end">
+                    <div class="text-muted">
+                      <small><strong>{{ formatDate(record.created_at) }}</strong></small>
+                    </div>
+                    <div *ngIf="!record.is_active" class="text-muted">
+                      <small>Until {{ formatDate(record.updated_at) }}</small>
+                    </div>
+                    <div *ngIf="record.is_active" class="text-success">
+                      <small><strong>Present</strong></small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Position Details -->
+              <div class="card-body">
+                <div class="row">
+                  <!-- Left Column -->
+                  <div class="col-md-6">
+                    <table class="table table-borderless table-sm mb-0">
+                      <tbody>
+                        <tr *ngIf="record.line?.name">
+                          <td class="fw-semibold text-muted" style="width: 30%;">Line:</td>
+                          <td>
+                            <span class="badge bg-primary bg-opacity-10 text-primary">{{ record.line.name }}</span>
+                          </td>
+                        </tr>
+                        <tr *ngIf="record.section?.name">
+                          <td class="fw-semibold text-muted">Section:</td>
+                          <td>
+                            <span class="badge bg-warning bg-opacity-10 text-warning">{{ record.section.name }}</span>
+                          </td>
+                        </tr>
+                        <tr *ngIf="record.group?.name">
+                          <td class="fw-semibold text-muted">Group:</td>
+                          <td>
+                            <span class="badge bg-success bg-opacity-10 text-success">{{ record.group.name }}</span>
+                          </td>
+                        </tr>
+                        <tr *ngIf="record.subSection?.name">
+                          <td class="fw-semibold text-muted">Sub Section:</td>
+                          <td>
+                            <span class="badge bg-info bg-opacity-10 text-info">{{ record.subSection.name }}</span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Right Column -->
+                  <div class="col-md-6">
+                    <table class="table table-borderless table-sm mb-0">
+                      <tbody>
+                        <tr *ngIf="record.supervisor_name">
+                          <td class="fw-semibold text-muted" style="width: 30%;">Supervisor:</td>
+                          <td>
+                            <div>{{ record.supervisor_name }}</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="fw-semibold text-muted">Duration:</td>
+                          <td>
+                            <span class="badge bg-info bg-opacity-10 text-info">
+                              <span *ngIf="record.is_active">
+                                {{ calculateDuration(record.created_at) }}
+                              </span>
+                              <span *ngIf="!record.is_active">
+                                {{ calculateDuration(record.created_at, record.updated_at) }}
+                              </span>
+                            </span>
+                          </td>
+                        </tr>
+                        <tr *ngIf="record.is_shift || record.is_intern || record.is_maintenance">
+                          <td class="fw-semibold text-muted">Status:</td>
+                          <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                              <span class="badge bg-warning" *ngIf="record.is_shift">
+                                <i class="ri-time-line me-1"></i>Shift
+                              </span>
+                              <span class="badge bg-info" *ngIf="record.is_intern">
+                                <i class="ri-graduation-cap-line me-1"></i>Intern
+                              </span>
+                              <span class="badge bg-danger" *ngIf="record.is_maintenance">
+                                <i class="ri-tools-line me-1"></i>Maintenance
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoadingHistory && employeeHistory.length === 0" class="text-center p-5">
+      <i class="ri-file-list-line text-muted opacity-50" style="font-size: 4rem;"></i>
+      <h5 class="mt-3 text-muted">No Position History Found</h5>
+      <p class="text-muted">This employee doesn't have any recorded position history.</p>
+    </div>
+  </div>
+
+  <div class="modal-footer bg-light">
+    <button type="button" class="btn btn-secondary" (click)="closeHistoryModal()">
+      <i class="ri-close-line me-1"></i>Close
+    </button>
+    <button type="button" class="btn btn-primary" *ngIf="historyData?.employee_code">
+      <i class="ri-download-line me-1"></i>Export History
+    </button>
+  </div>
+</ng-template>

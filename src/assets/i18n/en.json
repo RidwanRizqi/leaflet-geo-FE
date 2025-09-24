@@ -1,0 +1,686 @@
+{
+  "APPPAGE": {
+    "LOGIN": {
+      "WELCOMETITLE": "Welcome Back !",
+      "WELCOMEDESC": "Sign in to continue to SUPERAPPS.",
+      "REMEMBERME": "Remember me",
+      "SIGNINBTN": "Sign In",
+      "FORM": {
+        "EMPLOYEECODE": {
+          "TEXT": "Employee Code",
+          "PLACEHOLDER": "Enter Employee Code"
+        },
+        "PASSWORD": {
+          "TEXT": "Password",
+          "PLACEHOLDER": "Enter Password"
+        }
+      },
+      "ERRORMSG": {
+        "DEFAULT": "An error occurred",
+        "INVALIDUSER": "Invalid Employee Code or Password",
+        "INVALIDROLE": "Access denied. Your role is not set. Please contact support for assistance.",
+        "REQUIRED": " is required"
+      }
+    },
+    "APPLIST": {
+      "TITLE": "Application Lists",
+      "SUBTITLE": "Manage Applications",
+      "BREADCRUMB": {
+        "LABEL1": "App List"
+      },
+      "SEARCH": {
+        "TEXT": "Search",
+        "PLACEHOLDER": "Search Application"
+      },
+      "TOUR": {
+        "STEP0": {
+          "TITLE": "Welcome to the App List Tour",
+          "TEXT": "This tour will guide you through the features of the App List page. Click Next to continue."
+        },
+        "STEP1": {
+          "TITLE": "This is the App List Section",
+          "TEXT": "Here you can see a list of all available applications. Each card represents an application with its name, description, and other details. Click on an application card to view more details."
+        }
+      },
+      "ERRORMSG": {
+        "DEFAULT": "An error occurred",
+        "REMOTEFAILED": "Application failed to load. Please contact support for assistance."
+      }
+    },
+    "ORGANIZATIONLIST": {
+      "TITLE": "Organization List",
+      "SUBTITLE": "Manage Organization",
+      "LABEL": {
+        "MEMBERORGANIZATION": "Organization Member"
+      },
+      "BREADCRUMB": {
+        "LABEL1": "Organization List"
+      },
+      "DATATABLES": {
+        "EMPLOYEE": "Employee",
+        "DIVISION": "Division",
+        "DEPARTMENT": "Department",
+        "GRADE": "Grade",
+        "SECTION": "Section",
+        "SUBSECTION": "Subsection",
+        "ACTION": "Action"
+      },
+      "FORM": {
+        "EMPLOYEECODE": {
+          "TEXT": "Employee Name",
+          "PLACEHOLDER": "Enter Employee Name",
+          "INVALID": "Employee name is required."
+        },
+        "SUPERVISOR": {
+          "TEXT": "Supervisor Name",
+          "PLACEHOLDER": "Enter Supervisor Name",
+          "INVALID": "Supervisor is required."
+        },
+        "DIVISION": {
+          "TEXT": "Division",
+          "PLACEHOLDER": "Select Division",
+          "INVALID": "Division is required."
+        },
+        "DEPARTMENT": {
+          "TEXT": "Department",
+          "PLACEHOLDER": "Select Department",
+          "INVALID": "Department is required."
+        },
+        "GRADE": {
+          "TEXT": "Grade",
+          "PLACEHOLDER": "Select Grade",
+          "INVALID": "Grade is required."
+        },
+        "AREA": {
+          "TEXT": "Area",
+          "PLACEHOLDER": "Select Area",
+          "INVALID": "Area is required."
+        },
+        "GROUP": {
+          "TEXT": "Group",
+          "PLACEHOLDER": "Select Group",
+          "INVALID": "Group is required."
+        },
+        "LINESECTION": {
+          "TEXT": "Section",
+          "PLACEHOLDER": "Select Section",
+          "INVALID": "Section is required."
+        },
+        "SUBSECTION": {
+          "TEXT": "Subsection",
+          "PLACEHOLDER": "Select Subsection",
+          "INVALID": "Subsection is required."
+        },
+        "SHIFT": {
+          "TEXT": "Is Shift Employee?",
+          "PLACEHOLDER": "Select Shift",
+          "INVALID": "Shift is required."
+        },
+        "INTERN": {
+          "TEXT": "Is the employee currently an intern?",
+          "PLACEHOLDER": "Select Intern",
+          "INVALID": "Intern is required."
+        }
+      }
+    },
+    "ORGANIZATION": {
+      "TITLE": "Organization",
+      "SUBTITLE": "Sitemap Organization",
+      "BREADCRUMB": {
+        "LABEL1": "Organization"
+      }
+    },
+    "MASTERDATA": {
+      "GROUP": {
+        "TITLE": "Group",
+        "SUBTITLE": "Manage Groups",
+        "BREADCRUMB": {
+          "LABEL1": "Group"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Name",
+          "CREATED_AT": "Created At",
+          "ACTION": "Action"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Group Name",
+            "PLACEHOLDER": "Enter Group Name",
+            "INVALID": "Group name is required.",
+            "MAXLENGTH": "Group name must not exceed 255 characters."
+          }
+        }
+      },
+      "LINE": {
+        "TITLE": "Line",
+        "SUBTITLE": "Manage Lines",
+        "BREADCRUMB": {
+          "LABEL1": "Line"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Name",
+          "CREATED_AT": "Created At",
+          "ACTION": "Action"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Line Name",
+            "PLACEHOLDER": "Enter Line Name",
+            "INVALID": "Line name is required.",
+            "MAXLENGTH": "Line name must not exceed 255 characters."
+          }
+        }
+      },
+      "SECTION": {
+        "TITLE": "Section",
+        "SUBTITLE": "Manage Sections",
+        "BREADCRUMB": {
+          "LABEL1": "Section"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Name",
+          "PARENT": "Parent Section",
+          "CREATED_AT": "Created At",
+          "ACTION": "Action"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Section Name",
+            "PLACEHOLDER": "Enter Section Name",
+            "INVALID": "Section name is required.",
+            "MAXLENGTH": "Section name must not exceed 255 characters."
+          },
+          "PARENT": {
+            "TEXT": "Parent Section",
+            "PLACEHOLDER": "Select Parent Section",
+            "NO_PARENT": "No Parent (Root Section)",
+            "HELP": "Leave empty to create a root section, or select a parent to create a sub-section."
+          }
+        },
+        "LABELS": {
+          "ROOT_SECTION": "Root Section"
+        },
+        "MESSAGES": {
+          "CANNOT_DELETE_HAS_CHILDREN": "Cannot delete this section because it has child sections. Please delete the child sections first."
+        }
+      },
+      "SUBSECTION": {
+        "TITLE": "Sub Section",
+        "SUBTITLE": "Manage Sub Sections",
+        "BREADCRUMB": {
+          "LABEL1": "Sub Section"
+        },
+        "DATATABLES": {
+          "NAME": "Name",
+          "SECTION": "Section",
+          "MANPOWER_COUNT": "Total Manpower",
+          "CREATED_AT": "Created At",
+          "ACTION": "Action"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Sub Section Name",
+            "PLACEHOLDER": "Enter Sub Section Name",
+            "INVALID": "Sub section name is required.",
+            "MAXLENGTH": "Sub section name must not exceed 255 characters."
+          },
+          "SECTION": {
+            "TEXT": "Parent Section",
+            "PLACEHOLDER": "Select Parent Section",
+            "INVALID": "Parent section is required."
+          }
+        },
+        "MANPOWER": {
+          "TITLE": "Manpower Management (Optional)",
+          "ADD": "Add Manpower",
+          "ADD_FIRST": "Add First Manpower",
+          "ITEM": "Manpower",
+          "EMPTY": "No manpower assigned yet. Click the button below to add manpower allocation (optional).",
+          "HELP": "Add manpower allocations for different lines and groups. You can add multiple entries for different combinations. Manpower allocation is optional.",
+          "LINE": {
+            "TEXT": "Line",
+            "PLACEHOLDER": "Select Line",
+            "INVALID": "Line is required."
+          },
+          "GROUP": {
+            "TEXT": "Group",
+            "PLACEHOLDER": "Select Group",
+            "INVALID": "Group is required."
+          },
+          "COUNT": {
+            "TEXT": "Manpower Count",
+            "PLACEHOLDER": "Enter count",
+            "INVALID": "Manpower count is required.",
+            "MIN": "Manpower count must be at least 1."
+          }
+        },
+        "LABELS": {
+          "MANPOWER_ITEMS": "manpower items",
+          "PEOPLE": "people"
+        }
+      },
+      "EMAILRECIPIENT": {
+        "TITLE": "Email Recipient",
+        "SUBTITLE": "Manage Email Recipients",
+        "BREADCRUMB": {
+          "LABEL1": "Email Recipient"
+        },
+        "DATATABLES": {
+          "EMPLOYEE_CODE": "Employee Code",
+          "EMPLOYEE_NAME": "Employee Name",
+          "EMAIL": "Email",
+          "DEPARTMENT": "Department",
+          "RECIPIENT_TYPE": "Recipient Type",
+          "CREATED_AT": "Created At",
+          "ACTION": "Action"
+        },
+        "FORM": {
+          "EMPLOYEE_CODE": {
+            "TEXT": "Employee Code",
+            "PLACEHOLDER": "Type to search employee...",
+            "INVALID": "Employee code is required."
+          },
+          "RECIPIENT_TYPE": {
+            "TEXT": "Recipient Type",
+            "PLACEHOLDER": "Select recipient type",
+            "INVALID": "Recipient type is required.",
+            "HELP": "To: Primary recipient | CC: Carbon copy | BCC: Blind carbon copy"
+          }
+        },
+        "TYPES": {
+          "TO": "To",
+          "CC": "CC",
+          "BCC": "BCC"
+        },
+        "SEARCH": {
+          "HINT": "Search by employee name, email, or department..."
+        }
+      }
+    }
+  },
+  "REMOTEPAGE": {
+    "SUMMARYFORMINPUT": {
+      "TITLE": "Summary Form Input",
+      "BREADCRUMB": {
+        "LABEL1": "Form Dynamic",
+        "LABEL2": "Summary Form Input"
+      },
+      "FORM": {
+        "LOTNO": {
+          "TEXT": "Lot Number",
+          "PLACEHOLDER": "Enter lot number"
+        },
+        "MATERIAL": {
+          "TEXT": "Material",
+          "PLACEHOLDER": "Enter material"
+        },
+        "CYCLE": {
+          "TEXT": "Cycle Type",
+          "PLACEHOLDER": "Enter cycle type"
+        },
+        "BTNLISTPRO": {
+          "TEXT": "List PRO"
+        }
+      },
+      "CARDS": {
+        "HOUR": {
+          "TEXT": "Hour"
+        },
+        "START": {
+          "TEXT": "Start"
+        },
+        "END": {
+          "TEXT": "End"
+        }
+      },
+      "BTNUPLOADDATASHIFT": "Upload Data Shift",
+      "TABLEFORM": {
+        "COLUMNS": {
+          "LASTCHECKSHEET": "Last Checkseet",
+          "COMPLETED": "Completed",
+          "FORMNAME": "Form Name",
+          "PERIODIC": "Periodic",
+          "STANDARD": "Standard",
+          "STATUS": "Status",
+          "APPROVE": "Approve",
+          "OUTSPEC": "Outspec",
+          "SUMMARY": "Summary",
+          "ACTION": "Action"
+        }
+      },
+      "TABLEHYGIENE": {
+        "TITLE": "Personal Hygiene",
+        "BTNAPPROVE": "Approve Hygiene",
+        "COLUMNS": {
+          "EMPLOYEE": "Employee",
+          "SECTION": "Section",
+          "CREATEDAT": "Created At",
+          "SHIFT": "Shift",
+          "STATUS": {
+            "TEXT": "Status",
+            "OPTIONS": {
+              "APPROVED": "Approved",
+              "NOTYET": "Not Yet"
+            }
+          },
+          "ACTION": "Action"
+        }
+      },
+      "TABLEABNORMALITAS": {
+        "TITLE": "Abnormality",
+        "BTNAPPROVE": "Approve Abnormality",
+        "COLUMNS": {
+          "PROBLEM": "Problem",
+          "REASON": "Reason",
+          "START": "Start Time",
+          "END": "End Time",
+          "DOWNTIME": "Downtime",
+          "DELAY": "Delay Time",
+          "STATUS": {
+            "TEXT": "Status",
+            "OPTIONS": {
+              "DONE": "Done",
+              "NOTYET": "Not Yet"
+            }
+          },
+          "ACTION": "Action"
+        }
+      },
+      "TIMELINE": {
+        "TITLE": "Checksheet History",
+        "STATUS": {
+          "COMPLETED": "Completed",
+          "PENDING": "Pending"
+        },
+        "APPROVEDBY": "Approved By"
+      }
+    }
+  },
+  "HEADER": {
+    "MORE": {
+      "TEXT": "More"
+    }
+  },
+  "COMMON": {
+    "ERRORMSG": {
+      "400": "Invalid Request.",
+      "401": "Unauthorized - Unauthorized access to this resource.",
+      "403": "Forbidden - You do not have permission to access this resource.",
+      "404": "Resource not found.",
+      "409": "Duplicate entry error.",
+      "500": "Internal server error.",
+      "MULTIDEL": "Please select at least one checkbox",
+      "DEFAULT": "An error occurred"
+    },
+    "SUCCESSMSG": {
+      "ADD": "Form submitted successfully.",
+      "UPDATE": "Form updated successfully.",
+      "DELETE": "Record deleted successfully.",
+      "APPROVE": "Record approved successfully.",
+      "REJECT": "Record rejected successfully.",
+      "READ": "The document has been read",
+      "NOTIFPENDING": "On porgress sending notification. You can check the status on Notification Log Menu",
+      "NOTIF": "The notification has been sent.",
+      "COPYURL": "URL copied to clipboard successfully!",
+      "OTHER": "Action completed successfully."
+    },
+    "CUSTOMMODAL": {
+      "ERRORTEXT": "Oops...! Something went Wrong !",
+      "SUCCESSTEXT": "Well done !",
+      "WARNINGTEXT": "Oops! Double-check before you proceed.",
+      "CONFIRMTEXT": "Are you sure ?",
+      "DELETETEXT": "You are about to delete the selected data. This action cannot be undone.",
+      "APPROVALTEXT": "You are about to approve the selected data. This action cannot be undone.",
+      "REJECTTEXT": "You are about to reject the selected data. Please fill the reject description below.",
+      "REGENERATETEXT": "You are about to re-generate the published document. This action cannot be undone.",
+      "PUBLISHINGTEXT": "You are about to publish the selected document. Please ensure you have reviewed the following options before proceeding:",
+      "REJECTINPUT": "Reject description...",
+      "REJECTINPUTERROR": "Please enter the reject description.",
+      "BTNAPPROVE": "Yes, Approve it!",
+      "BTNREJECT": "Yes, Reject it!",
+      "BTNDELETE": "Yes, Delete it!",
+      "BTNREGENERATE": "Yes, Re-generate it!",
+      "BTNPUBLISH": "Yes, Publish it!",
+      "BTNCLOSE": "Close",
+      "BTNOK": "Okay"
+    },
+    "LABEL": {
+      "DETAIL": "Detail",
+      "ADD": "Add",
+      "EDIT": "Edit",
+      "VIEW": "View",
+      "DELETE": "Delete",
+      "MULTIDEL": "Multiple Delete",
+      "MORE": "More",
+      "DOWNLOAD": "Download",
+      "APPROVE": "Approve",
+      "REJECT": "Reject",
+      "READ": "Read",
+      "UPLOAD": {
+        "TEXT": "Choose File",
+        "PLACEHOLDER": "No file uploaded yet"
+      },
+      "NODATA": {
+        "TEXT": "No Data Available",
+        "PLACEHOLDER": "We're sorry, but we couldn't find any data matching your request. Please check your input or try again later."
+      },
+      "OF": "of",
+      "CONFIRM": "Confirm",
+      "SECONDSAGO": "seconds ago",
+      "MINUTESAGO": "minutes ago",
+      "HOURSAGO": "hours ago",
+      "DAYSAGO": "days ago",
+      "MONTHSAGO": "months ago",
+      "YEARSAGO": "years ago",
+      "SHOWING": "Showing",
+      "TO": "to",
+      "ENTRIES": "entries",
+      "WARNINGSS": "Screenshots are prohibited!",
+      "TELEGRAMNOTIF": "Send Telegram Notification",
+      "WANOTIF": "Send Whatsapp Notification",
+      "EMAILNOTIF": "Send Email Notification",
+      "TIMELINE": "Timeline",
+      "REQUEST": "Request",
+      "REVISION": "Revision",
+      "NOTE": "Note",
+      "DEPARTMENT": "Department",
+      "EMPLOYEE": "Employee",
+      "WAITINGAPPROVAL": "Waiting approval from",
+      "WAITINGSUBMISSION": "Waiting submission from",
+      "MARKALLASREAD": "Mark all as read",
+      "NORECIPIENTS": "No recipients found for the notification.",
+      "PRIVATE": "Private",
+      "DOCUMENT": "Document",
+      "OPTIONAL": "Optional",
+      "SHARE": "Share to ...",
+      "APPROVED": "Approved",
+      "PENDING": "Pending",
+      "SEARCH": "Search...",
+      "SAVE": "Save"
+    },
+    "OCHA": {
+      "TEXT": "How can I help you?",
+      "DESC": "Hi, I’m OCHA! Your virtual assistant—ask me anytime!",
+      "GREET": {
+        "MORNING": "Good Morning",
+        "AFTERNOON": "Good Afternoon",
+        "EVENING": "Good Evening",
+        "DEFAULT": "Hi"
+      },
+      "QUESTION1": "List the documents that you can assist me with!"
+    }
+  },
+  "TOPBAR": {
+    "WELCOME": "Hi",
+    "USER": {
+      "PROFILE": "Profile",
+      "LOGOUT": "Logout"
+    },
+    "NOTIFICATION": {
+      "TEXT": "Notifications",
+      "NEW": "New",
+      "TABS": {
+        "ALL": "All",
+        "APPROVAL": "Approvals",
+        "ALERT": "Alerts"
+      },
+      "MORE": "Load More",
+      "NODATA": "Hey! You have no any notifications"
+    }
+  },
+  "EVENTS": {
+    "TITLE": "Event Management",
+    "SUBTITLE": "Manage Events",
+    "BREADCRUMB": {
+      "LABEL1": "Events"
+    },
+    "BUTTONS": {
+      "ADD": "Add Event",
+      "EDIT": "Edit Event",
+      "DELETE": "Delete",
+      "DELETE_SELECTED": "Delete Selected",
+      "SAVE": "Save Event",
+      "UPDATE": "Update Event",
+      "CANCEL": "Cancel",
+      "DEACTIVATE": "Deactivate"
+    },
+    "FORM": {
+      "EVENT_NAME": {
+        "LABEL": "Event Name",
+        "PLACEHOLDER": "Enter event name",
+        "REQUIRED": "Event name is required",
+        "MAXLENGTH": "Event name cannot exceed 255 characters"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Description",
+        "PLACEHOLDER": "Enter event description"
+      },
+      "EVENT_DATE": {
+        "LABEL": "Event Date & Time",
+        "REQUIRED": "Event date is required"
+      },
+      "LOCATION": {
+        "LABEL": "Location",
+        "PLACEHOLDER": "Enter event location"
+      },
+      "STATUS": {
+        "LABEL": "Status",
+        "REQUIRED": "Status is required",
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "COMPLETED": "Completed"
+      },
+      "EVENT_IMAGE": {
+        "LABEL": "Event Image",
+        "HELP": "Select an image file (JPG, PNG). Maximum size: 10MB",
+        "CURRENT": "Current Image",
+        "CURRENT_HELP": "Select a new image to replace this one",
+        "PREVIEW": "Selected Image"
+      }
+    },
+    "TABLE": {
+      "EVENT_NAME": "Event Name",
+      "DESCRIPTION": "Description",
+      "EVENT_DATE": "Event Date",
+      "DATE_TIME": "Date & Time",
+      "LOCATION": "Location",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search events...",
+      "ALL_STATUS": "All Status"
+    },
+    "FILTER": {
+      "ALL_STATUS": "All Status"
+    },
+    "PAGINATION": {
+      "SHOWING": "Showing",
+      "TO": "to",
+      "OF": "of",
+      "ENTRIES": "entries"
+    },
+    "MESSAGES": {
+      "CREATED": "Event created successfully",
+      "UPDATED": "Event updated successfully",
+      "DELETED": "Event deleted successfully",
+      "DEACTIVATED": "Event deactivated successfully",
+      "BULK_DELETED": "Events deleted successfully",
+      "ERROR_LOADING": "Error loading events",
+      "ERROR_SAVING": "Error saving event",
+      "ERROR_DELETING": "Error deleting event",
+      "ERROR_DEACTIVATING": "Error deactivating event",
+      "SELECT_EVENTS": "Please select events to delete",
+      "CONFIRM_DELETE": "Are you sure you want to delete this event? This action cannot be undone.",
+      "CONFIRM_BULK_DELETE": "Are you sure you want to delete {count} selected events?",
+      "NO_DATA": "No events found",
+      "NO_DATA_DESC": "Create your first event to get started.",
+      "LOADING": "Loading..."
+    },
+    "NODATA": {
+      "TITLE": "No events found",
+      "MESSAGE": "Create your first event to get started."
+    }
+  },
+  "MENUITEMS": {
+    "MENU": {
+      "TEXT": "MENU"
+    },
+    "APPLIST": {
+      "TEXT": "Application List"
+    },
+    "ORGANIZATION": {
+      "TEXT": "Organization"
+    },
+    "EVENTS": {
+      "TEXT": "Events"
+    },
+    "COUNTDOWN": {
+      "TEXT": "Countdown Display"
+    },
+    "BIDANG": {
+      "TEXT": "Bidang",
+      "MAP": {
+        "TEXT": "Map View"
+      },
+      "LIST": {
+        "TEXT": "List View"
+      }
+    },
+    "ORGANIZATIONLIST": {
+      "TEXT": "Organization List"
+    },
+    "MASTERDATA": {
+      "TEXT": "Master Data",
+      "GROUP": {
+        "TEXT": "Group"
+      },
+      "LINE": {
+        "TEXT": "Line"
+      },
+      "ORGANIZATION": {
+        "TEXT": "Organization"
+      },
+      "SECTION": {
+        "TEXT": "Section"
+      },
+      "SUBSECTION": {
+        "TEXT": "Sub Section"
+      },
+      "EMAILRECIPIENT": {
+        "TEXT": "Email Recipient"
+      }
+    }
+  },
+  "TOUR": {
+    "BUTTON": {
+      "EXIT": "Exit",
+      "NEXT": "Next",
+      "BACK": "Back",
+      "FINISH": "Thank you!"
+    }
+  }
+}

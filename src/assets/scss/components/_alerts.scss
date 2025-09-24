@@ -1,0 +1,421 @@
+//
+// alerts.scss
+//
+
+// alert-label-icon
+
+.alert-label-icon {
+    position: relative;
+    padding-left: 60px;
+    border: 0;
+
+    .label-icon {
+        position: absolute;
+        width: 45px;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background-color: rgba($white, 0.15);
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    // label arrow
+    &.label-arrow {
+        overflow: hidden;
+        .label-icon {
+            &:after {
+                content: "";
+                position: absolute;
+                border: 6px solid transparent;
+                border-left-color: $primary;
+                right: -12px;
+            }
+        }
+    }
+}
+
+
+// Alert border left example
+
+.alert-border-left {
+    border-left: 3px solid;
+}
+
+// alert top border example
+
+.alert-top-border {
+    background-color: var(--#{$prefix}secondary-bg);
+    border-color: var(--#{$prefix}border-color);
+    border-top: 2px solid;
+    color: var(--#{$prefix}body-color);
+}
+
+//alert additional example
+
+.alert-additional { 
+    padding: 0;
+
+    .alert-body{
+        padding: $alert-padding-y $alert-padding-x;
+    }
+    .alert-content {
+        padding: $alert-padding-y $alert-padding-x;
+        border-bottom-left-radius: $alert-border-radius;
+        border-bottom-right-radius: $alert-border-radius;
+        margin: 0 (-$alert-border-width) (-$alert-border-width) (-$alert-border-width);
+    }
+}
+
+// rounded label example
+
+.rounded-label {
+    .label-icon {
+        width: 45px;
+        height: 26px;
+        left: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 0 30px 30px 0;
+    }
+}
+
+// Glass Design Alert in Cards - Enhanced Liquid Glass
+.card {
+    .alert {
+        // Enhanced liquid glass effect for alerts - More transparent and fluid
+        border-radius: 16px;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+        
+        // Enhanced glass background with stronger transparency
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06),
+                    0 3px 10px rgba(0, 0, 0, 0.04),
+                    0 1px 4px rgba(0, 0, 0, 0.02),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+                    inset 0 0 15px rgba(255, 255, 255, 0.1);
+        
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        // Enhanced liquid glass reflection for alerts
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(180deg, 
+                rgba(255, 255, 255, 0.5) 0%, 
+                rgba(255, 255, 255, 0.25) 30%,
+                rgba(255, 255, 255, 0.12) 60%,
+                rgba(255, 255, 255, 0.05) 80%,
+                transparent 100%);
+            border-radius: 16px 16px 0 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        // Ensure alert content is above reflection
+        > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        // Alert di card body bagian atas
+        &:first-child {
+            border-radius: 18px 18px 16px 16px;
+            margin-top: -2px;
+        }
+        
+        // Alert di card body p-0 (full width)
+        .card-body.p-0 & {
+            border-radius: 16px 16px 12px 12px;
+            margin: 0;
+        }
+        
+        // Smooth transitions
+        transition: all 0.2s ease;
+        
+        // Enhanced hover effect for glass alerts
+        &:hover {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08),
+                        0 4px 12px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+                        inset 0 0 20px rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+    }
+    
+    // Alert tanpa border radius default
+    .alert.rounded-0 {
+        border-radius: 16px 16px 12px 12px !important;
+    }
+    
+    // Alert di card header
+    .card-header .alert {
+        border-radius: 12px;
+        margin: 0;
+    }
+    
+    // Alert di card footer
+    .card-footer .alert {
+        border-radius: 12px;
+        margin: 0;
+    }
+}
+
+// Dark mode alerts in cards - Enhanced liquid glass
+@if $enable-dark-mode {
+    @include color-mode(dark, true) {
+        .card .alert {
+            background: rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                        0 2px 8px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                        inset 0 0 15px rgba(255, 255, 255, 0.03);
+            
+            // Dark mode reflection
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(255, 255, 255, 0.1) 0%, 
+                    rgba(255, 255, 255, 0.05) 40%,
+                    rgba(255, 255, 255, 0.02) 70%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(0, 0, 0, 0.2);
+                border-color: rgba(255, 255, 255, 0.18);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4),
+                            0 3px 12px rgba(0, 0, 0, 0.3),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                            inset 0 0 20px rgba(255, 255, 255, 0.05);
+            }
+        }
+    }
+}
+
+// Responsive alert in cards
+@media (max-width: 576px) {
+    .card {
+        .alert {
+            border-radius: 8px;
+            
+            &:first-child,
+            &.rounded-0 {
+                border-radius: 12px 12px 8px 8px !important;
+            }
+        }
+    }
+}
+
+// Alert example loop
+
+@each $color, $value in $theme-colors {
+
+    // alert border left
+    .alert-border-left {
+        &.alert-#{$color} {
+            border-left-color: var(--#{$prefix}#{$color});
+        }
+    }
+
+    // alert top border
+    .alert-top-border {
+        &.alert-#{$color} {
+            border-top-color: var(--#{$prefix}#{$color});
+        }
+    }
+    
+    // Glass design alert colors in cards
+    .card .alert {
+        &.alert-#{$color} {
+            background: rgba($value, 0.1);
+            border-color: rgba($value, 0.2);
+            
+            &:hover {
+                background: rgba($value, 0.15);
+                border-color: rgba($value, 0.3);
+            }
+        }
+    }
+
+    // rounded label
+
+    .rounded-label {
+        &.alert-#{$color} {
+            .label-icon {
+                background-color: var(--#{$prefix}#{$color});
+                color: color-contrast($value);
+            }
+        }
+    }
+
+    // label arrow
+
+    .label-arrow {
+        &.alert-#{$color} {
+            .label-icon {
+                color: color-contrast($value);
+                background-color: var(--#{$prefix}#{$color});
+                &:after {
+                    border-left-color: var(--#{$prefix}#{$color}) !important;
+                }
+            }
+        }
+    }
+
+    .alert{
+        &.alert-#{$color} {
+            .btn-close::after{
+                color: var(--#{$prefix}#{$color});
+            }
+        }
+        
+    }
+
+    //alert additional example
+    .alert-additional {
+        &.alert-#{$color} {
+            .alert-content {
+                background-color: var(--#{$prefix}#{$color});
+                color: color-contrast($value);
+            }
+        }
+    }   
+}
+
+// Colored alert variants with liquid glass effect
+.card {
+    .alert {
+        &.alert-primary {
+            background: rgba(var(--#{$prefix}primary-rgb), 0.12);
+            border-color: rgba(var(--#{$prefix}primary-rgb), 0.25);
+            color: rgb(var(--#{$prefix}primary-rgb));
+            
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(var(--#{$prefix}primary-rgb), 0.25) 0%, 
+                    rgba(var(--#{$prefix}primary-rgb), 0.12) 30%,
+                    rgba(var(--#{$prefix}primary-rgb), 0.06) 60%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(var(--#{$prefix}primary-rgb), 0.18);
+                border-color: rgba(var(--#{$prefix}primary-rgb), 0.35);
+            }
+        }
+        
+        &.alert-success {
+            background: rgba(var(--#{$prefix}success-rgb), 0.12);
+            border-color: rgba(var(--#{$prefix}success-rgb), 0.25);
+            color: rgb(var(--#{$prefix}success-rgb));
+            
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(var(--#{$prefix}success-rgb), 0.25) 0%, 
+                    rgba(var(--#{$prefix}success-rgb), 0.12) 30%,
+                    rgba(var(--#{$prefix}success-rgb), 0.06) 60%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(var(--#{$prefix}success-rgb), 0.18);
+                border-color: rgba(var(--#{$prefix}success-rgb), 0.35);
+            }
+        }
+        
+        &.alert-warning {
+            background: rgba(var(--#{$prefix}warning-rgb), 0.12);
+            border-color: rgba(var(--#{$prefix}warning-rgb), 0.25);
+            color: rgb(var(--#{$prefix}warning-rgb));
+            
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(var(--#{$prefix}warning-rgb), 0.25) 0%, 
+                    rgba(var(--#{$prefix}warning-rgb), 0.12) 30%,
+                    rgba(var(--#{$prefix}warning-rgb), 0.06) 60%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(var(--#{$prefix}warning-rgb), 0.18);
+                border-color: rgba(var(--#{$prefix}warning-rgb), 0.35);
+            }
+        }
+        
+        &.alert-danger {
+            background: rgba(var(--#{$prefix}danger-rgb), 0.12);
+            border-color: rgba(var(--#{$prefix}danger-rgb), 0.25);
+            color: rgb(var(--#{$prefix}danger-rgb));
+            
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(var(--#{$prefix}danger-rgb), 0.25) 0%, 
+                    rgba(var(--#{$prefix}danger-rgb), 0.12) 30%,
+                    rgba(var(--#{$prefix}danger-rgb), 0.06) 60%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(var(--#{$prefix}danger-rgb), 0.18);
+                border-color: rgba(var(--#{$prefix}danger-rgb), 0.35);
+            }
+        }
+        
+        &.alert-info {
+            background: rgba(var(--#{$prefix}info-rgb), 0.12);
+            border-color: rgba(var(--#{$prefix}info-rgb), 0.25);
+            color: rgb(var(--#{$prefix}info-rgb));
+            
+            &::before {
+                background: linear-gradient(180deg, 
+                    rgba(var(--#{$prefix}info-rgb), 0.25) 0%, 
+                    rgba(var(--#{$prefix}info-rgb), 0.12) 30%,
+                    rgba(var(--#{$prefix}info-rgb), 0.06) 60%,
+                    transparent 100%);
+            }
+            
+            &:hover {
+                background: rgba(var(--#{$prefix}info-rgb), 0.18);
+                border-color: rgba(var(--#{$prefix}info-rgb), 0.35);
+            }
+        }
+    }
+}
+
+.alert-dismissible {
+    .btn-close {
+        background: transparent !important;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+            background: rgba(0, 0, 0, 0.1) !important;
+            transform: scale(1.1);
+        }
+        
+        &::after {
+            background: transparent !important;
+            content: "\F0156" !important;
+            font-size: 18px;
+            line-height:15px;
+            font-family: "Material Design Icons" !important;
+        }
+    }
+}

@@ -1,0 +1,141 @@
+<div class="countdown-display" [class.zoom-protected]="isZoomProtected">
+  <!-- Main content area -->
+  <main class="main-content" *ngIf="events.length > 0">
+    <!-- Header with navigation for carousel mode -->
+    <div class="events-header" *ngIf="events.length > 3">
+      <h2 class="events-title"> Exciting Events Ahead - Don't Miss Out!</h2>
+    </div>
+
+    <!-- Events grid container -->
+    <div class="events-container" [class.carousel-mode]="events.length > 3">
+      <!-- Display all events when 1-3 events -->
+      <div class="events-grid" *ngIf="events.length <= 3" [@eventsGrid]="eventsGridState">
+        <div
+          *ngFor="let event of events; let i = index"
+          class="event-card"
+          [class]="'priority-' + event.priority + ' ' + getTimeBasedColor(event)"
+          [@eventCard]="i"
+        >
+          <div class="event-content">
+            <!-- Event image -->
+            <img
+              *ngIf="event.event_image"
+              [src]="getEventImageUrl(event.event_image)"
+              [alt]="event.event_name"
+              class="event-image"
+              (load)="onImageLoad($event)"
+              (error)="onImageError($event)"
+            />
+
+            <!-- Event title -->
+            <h2 class="event-title">{{ event.event_name }}</h2>
+
+            <!-- Event date and time -->
+            <div class="event-datetime">
+              <i class="far fa-calendar"></i>
+              {{ formatDate(event.event_date) }} at {{ formatTime(event.event_date) }}
+            </div>
+
+            <!-- Main countdown display -->
+            <div class="countdown-main">
+              <div class="countdown-label">Time Remaining</div>
+              <div class="countdown-units">
+                <div class="countdown-unit">
+                  <div class="countdown-number">{{ formatNumber(event.countdown.days) }}</div>
+                  <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-number">{{ formatNumber(event.countdown.hours) }}</div>
+                  <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-number">{{ formatNumber(event.countdown.minutes) }}</div>
+                  <div class="countdown-label">Minutes</div>
+                </div>
+                <div class="countdown-unit">
+                  <div class="countdown-number">{{ formatNumber(event.countdown.seconds) }}</div>
+                  <div class="countdown-label">Seconds</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carousel mode when more than 3 events -->
+      <div class="events-carousel" *ngIf="events.length > 3">
+        <div class="swiper" #swiperContainer>
+          <div class="swiper-wrapper">
+            <div
+              *ngFor="let event of events; let i = index"
+              class="swiper-slide event-card"
+              [class]="'priority-' + event.priority + ' ' + getTimeBasedColor(event)"
+            >
+              <div class="event-content">
+                <!-- Event image -->
+                <img
+                  *ngIf="event.event_image"
+                  [src]="getEventImageUrl(event.event_image)"
+                  [alt]="event.event_name"
+                  class="event-image"
+                  (load)="onImageLoad($event)"
+                  (error)="onImageError($event)"
+                />
+
+                <!-- Event title -->
+                <h2 class="event-title">{{ event.event_name }}</h2>
+
+                <!-- Event date and time -->
+                <div class="event-datetime">
+                  <i class="far fa-calendar"></i>
+                  {{ formatDate(event.event_date) }} at {{ formatTime(event.event_date) }}
+                </div>
+
+                <!-- Main countdown display -->
+                <div class="countdown-main">
+                  <div class="countdown-label">Time Remaining</div>
+                  <div class="countdown-units">
+                    <div class="countdown-unit">
+                      <div class="countdown-number">{{ formatNumber(event.countdown.days) }}</div>
+                      <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-unit">
+                      <div class="countdown-number">{{ formatNumber(event.countdown.hours) }}</div>
+                      <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-unit">
+                      <div class="countdown-number">{{ formatNumber(event.countdown.minutes) }}</div>
+                      <div class="countdown-label">Minutes</div>
+                    </div>
+                    <div class="countdown-unit">
+                      <div class="countdown-number">{{ formatNumber(event.countdown.seconds) }}</div>
+                      <div class="countdown-label">Seconds</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="events.length === 0">
+    <div class="empty-icon">📅</div>
+    <div class="empty-title">No Events Yet!</div>
+    <div class="empty-message">Stay tuned! Amazing events are coming your way soon!</div>
+  </div>
+
+  <!-- Footer with last update time -->
+  <footer class="glass-footer">
+    <div class="last-updated">
+      Last updated: {{ getLastUpdateTime() }}
+    </div>
+    <div class="auto-refresh-indicator">
+      <span class="refresh-dot"></span>
+      Auto-refreshing every 5 minutes to keep you updated!
+    </div>
+  </footer>
+</div>

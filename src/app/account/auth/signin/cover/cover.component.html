@@ -1,0 +1,175 @@
+<div class="auth-page-wrapper">
+  <!-- Floating Alert -->
+  <div
+    *ngIf="alertMessage"
+    class="alert position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg text-white d-flex align-items-center justify-content-between gap-3"
+    [ngClass]="{
+      'bg-success border-success': alertType === 'success',
+      'bg-danger border-danger': alertType === 'danger'
+    }"
+    role="alert"
+    style="z-index: 1055; min-width: 320px; max-width: 90vw;"
+  >
+    <div class="d-flex align-items-center">
+      <strong *ngIf="alertType === 'success'">Yey! Everything worked!</strong>
+      <strong *ngIf="alertType === 'danger'">Oh no! Something went wrong!</strong>
+      <span> - {{ alertMessage }}</span>
+    </div>
+    <button
+      type="button"
+      class="btn-close btn-close-white ms-2"
+      aria-label="Close"
+      (click)="alertMessage = null"
+    ></button>
+  </div>
+  <!-- auth page content -->
+  <div class="auth-page-content">
+    <div class="container-fluid p-0">
+      <div class="row g-0 min-vh-100">
+        <!-- Left Column - Login Form -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center position-relative form-column">
+
+          <!-- Decorative Elements for Left Side -->
+          <div class="form-accent accent-1"></div>
+          <div class="form-accent accent-2"></div>
+          <div class="form-accent accent-3"></div>
+          <div class="form-accent accent-4"></div>
+          <div class="form-accent accent-5"></div>
+          <div class="form-accent accent-6"></div>
+          <div class="form-accent accent-7"></div>
+
+          <!-- Geometric shapes -->
+          <div class="geometric-shape shape-1"></div>
+          <div class="geometric-shape shape-2"></div>
+          <div class="geometric-shape shape-3"></div>
+          <div class="geometric-shape shape-4"></div>
+          <div class="geometric-shape shape-5"></div>
+
+          <!-- Additional decorative lines -->
+          <div class="decorative-line line-1"></div>
+          <div class="decorative-line line-2"></div>
+          <div class="decorative-line line-3"></div>
+
+          <!-- Floating dots -->
+          <div class="floating-dot dot-1"></div>
+          <div class="floating-dot dot-2"></div>
+          <div class="floating-dot dot-3"></div>
+          <div class="floating-dot dot-4"></div>
+          <div class="floating-dot dot-5"></div>
+
+          <div class="auth-form-container p-5" style="max-width: 480px; width: 100%;">
+            <!-- Glass reflection effect -->
+            <div class="glass-reflection"></div>
+
+            <!-- Logo and Title -->
+            <!-- <div class="text-center mb-4">
+              <div class="auth-logo mb-3">
+                logo pisan nde kene mantep jane
+
+                <div class="circle-logo d-inline-flex align-items-center justify-content-center"
+                     style="width: 60px; height: 60px; border: 3px solid var(--bs-primary); border-radius: 50%; margin-bottom: 1rem;">
+                  <i class="ri-circle-line" style="font-size: 24px; color: var(--bs-primary);"></i>
+                </div>
+              </div>
+              <h4 class="mb-0" style="color: #6c757d; font-weight: 400;">Login Superapp Production</h4>
+            </div> -->
+
+            <!-- Login Form -->
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <div class="mb-3">
+                <label class="form-label text-muted" for="employeeCode">Employee Code:</label>
+                <input type="text"
+                       class="form-control"
+                       id="employeeCode"
+                       formControlName="employeeCode"
+                       [ngClass]="{ 'is-invalid': submitted && f['employeeCode'].errors }"
+                       placeholder="Enter your employee code"
+                       style="border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 14px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 4px 15px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3); transition: all 0.2s ease;">
+                @if (submitted && f['employeeCode'].errors) {
+                  <div class="invalid-feedback">
+                    @if(f['employeeCode'].errors['required']){
+                      <div>employee code is required</div>}
+                    @if(f['employeeCode'].errors['employeeCode']){
+                      <div>employee code must be a valid</div>}
+                  </div>
+                }
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label text-muted" for="password-input">Password:</label>
+                <div class="position-relative">
+                  <input [type]="fieldTextType ? 'text' : 'password'"
+                         class="form-control pe-5"
+                         placeholder="Enter your password"
+                         id="password-input"
+                         formControlName="password"
+                         [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+                         style="border: 1px solid rgba(255,255,255,0.25); border-radius: 12px; padding: 14px; background: rgba(255,255,255,0.15); backdrop-filter: blur(20px) saturate(180%); box-shadow: 0 4px 15px rgba(31, 38, 135, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3); transition: all 0.2s ease;">
+                  <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted h-100 pe-3"
+                      type="button"
+                      id="password-addon"
+                      (click)="toggleFieldTextType()">
+                      <i class="mdi align-middle"
+                      [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}">
+                      </i>
+                  </button>
+                  @if (submitted && f['password'].errors) {
+                    <div class="invalid-feedback">
+                      @if(f['password'].errors['required']){
+                        <span>Password is required</span>}
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="auth-remember-check">
+                  <label class="form-check-label text-muted" for="auth-remember-check">Remember me</label>
+                </div>
+                <a routerLink="/pass-reset/basic" class="text-primary text-decoration-none">Forgot password?</a>
+              </div> -->
+
+              <div class="mb-4">
+                <button class="btn w-100 text-white fw-medium"
+                        type="submit"
+                        style="background: linear-gradient(135deg, #2196f3 0%, #4fc3f7 100%); border: 1px solid rgba(255, 255, 255, 0.25); border-radius: 12px; padding: 14px; font-size: 16px; box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3); backdrop-filter: blur(20px) saturate(180%); transition: all 0.2s ease; font-weight: 500;">
+                  Log In
+                </button>
+              </div>
+
+              <div class="text-center mb-4">
+                <span class="text-muted">PT Amerta Indah Otsuka</span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Right Column - Circle Branding -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center position-relative overflow-hidden curved-background">
+
+          <!-- Multiple Background Ornaments -->
+          <div class="ornament-circle ornament-2"></div>
+          <div class="ornament-circle ornament-3"></div>
+          <div class="ornament-circle ornament-4"></div>
+          <div class="ornament-circle ornament-5"></div>
+          <div class="ornament-circle ornament-6"></div>
+
+          <!-- Main large background circle -->
+          <div class="main-bg-circle"></div>
+
+          <div class="text-center text-white position-relative content-overlay p-5">
+            <img src="assets/images/logo-light.png" alt="Logo" class="mb-4 circle-logo" style="max-height: 120px; width: auto; filter: brightness(0) invert(1);">
+            <p class="lead mb-4 circle-description">
+              “Keberagaman adalah Awal dari Inovasi. Sebagai individu, karyawan kami memiliki keunikan dan potensi yang berbeda-beda. PT Amerta Indah Otsuka senantiasa menghargai keberagaman, memberikan kesempatan yang sama bagi setiap individu tanpa memandang usia, jenis kelamin, agama, ras, dan kebangsaan untuk terus berkembang. Dengan semangat inilah, para karyawan PT Amerta Indah Otsuka bekerja secara profesional.”
+            </p>
+            <!-- <button class="btn btn-light btn-lg rounded-pill px-4 py-2 learn-more-btn">
+              <span class="me-2">Learn More</span>
+              <i class="ri-play-circle-fill"></i>
+            </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

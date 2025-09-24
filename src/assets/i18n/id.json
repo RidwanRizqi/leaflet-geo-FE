@@ -1,0 +1,677 @@
+{
+  "APPPAGE": {
+    "LOGIN": {
+      "WELCOMETITLE": "Selamat Datang kembali !",
+      "WELCOMEDESC": "Masuk untuk melanjutkan ke SuperApps.",
+      "REMEMBERME": "Ingat saya",
+      "SIGNINBTN": "Masuk",
+      "FORM": {
+        "EMPLOYEECODE": {
+          "TEXT": "Kode karyawan",
+          "PLACEHOLDER": "Masukkan kode karyawan"
+        },
+        "PASSWORD": {
+          "TEXT": "Kata sandi",
+          "PLACEHOLDER": "Masukkan kata sandi"
+        }
+      },
+      "ERRORMSG": {
+        "DEFAULT": "Terjadi kesalahan",
+        "INVALIDUSER": "Kode atau kata sandi karyawan yang tidak valid",
+        "INVALIDROLE": "Akses ditolak. ",
+        "REQUIRED": " diperlukan"
+      }
+    },
+    "APPLIST": {
+      "TITLE": "Daftar Aplikasi",
+      "SUBTITLE": "Mengelola aplikasi",
+      "BREADCRUMB": {
+        "LABEL1": "Daftar Aplikasi"
+      },
+      "SEARCH": {
+        "TEXT": "Mencari",
+        "PLACEHOLDER": "Aplikasi pencarian"
+      },
+      "TOUR": {
+        "STEP0": {
+          "TITLE": "Selamat datang di Tur Daftar Aplikasi",
+          "TEXT": "Tur ini akan memandu Anda melalui fitur-fitur pada halaman Daftar Aplikasi. Klik Berikutnya untuk melanjutkan."
+        },
+        "STEP1": {
+          "TITLE": "Ini adalah Bagian Daftar Aplikasi",
+          "TEXT": "Di sini Anda dapat melihat daftar semua aplikasi yang tersedia. Setiap kartu mewakili aplikasi dengan nama, deskripsi, dan detail lainnya. Klik pada kartu aplikasi untuk melihat detail lebih lanjut."
+        }
+      },
+      "ERRORMSG": {
+        "DEFAULT": "Terjadi kesalahan",
+        "REMOTEFAILED": "Aplikasi gagal dimuat. Silakan hubungi support untuk bantuan."
+      }
+    },
+    "ORGANIZATIONLIST": {
+      "TITLE": "Daftar Organisasi",
+      "SUBTITLE": "Mengelola Organisasi",
+      "LABEL": {
+        "MEMBERORGANIZATION": "Anggota Organisasi"
+      },
+      "BREADCRUMB": {
+        "LABEL1": "Daftar Organisasi"
+      },
+      "DATATABLES": {
+        "EMPLOYEE": "Karyawan",
+        "DIVISION": "Divisi",
+        "DEPARTMENT": "Departemen",
+        "GRADE": "Grade",
+        "SECTION": "Bagian",
+        "SUBSECTION": "Subbagian",
+        "ACTION": "Tindakan"
+      },
+      "FORM": {
+        "EMPLOYEECODE": {
+          "TEXT": "Nama Karyawan",
+          "PLACEHOLDER": "Masukkan Nama Karyawan",
+          "INVALID": "Nama karyawan wajib diisi."
+        },
+        "SUPERVISOR": {
+          "TEXT": "Nama Supervisor",
+          "PLACEHOLDER": "Masukkan Nama Supervisor",
+          "INVALID": "Supervisor wajib diisi."
+        },
+        "DIVISION": {
+          "TEXT": "Divisi",
+          "PLACEHOLDER": "Pilih Divisi",
+          "INVALID": "Divisi wajib diisi."
+        },
+        "DEPARTMENT": {
+          "TEXT": "Departemen",
+          "PLACEHOLDER": "Pilih Departemen",
+          "INVALID": "Departemen wajib diisi."
+        },
+        "GRADE": {
+          "TEXT": "Grade",
+          "PLACEHOLDER": "Pilih Grade",
+          "INVALID": "Grade wajib diisi."
+        },
+        "AREA": {
+          "TEXT": "Area",
+          "PLACEHOLDER": "Pilih Area",
+          "INVALID": "Area wajib diisi."
+        },
+        "GROUP": {
+          "TEXT": "Grup",
+          "PLACEHOLDER": "Pilih Grup",
+          "INVALID": "Grup wajib diisi."
+        },
+        "LINESECTION": {
+          "TEXT": "Bagian",
+          "PLACEHOLDER": "Pilih Bagian",
+          "INVALID": "Bagian wajib diisi."
+        },
+        "SUBSECTION": {
+          "TEXT": "Subbagian",
+          "PLACEHOLDER": "Pilih Subbagian",
+          "INVALID": "Subbagian wajib diisi."
+        },
+        "SHIFT": {
+          "TEXT": "Apakah Pegawai Shift?",
+          "PLACEHOLDER": "Pilih Shift",
+          "INVALID": "Shift wajib diisi."
+        },
+        "INTERN": {
+          "TEXT": "Apakah Pegawai Sedang Melakukan Magang?",
+          "PLACEHOLDER": "Pilih Magang",
+          "INVALID": "Magang wajib diisi."
+        }
+      }
+    },
+    "ORGANIZATION": {
+      "TITLE": "Organisasi",
+      "SUBTITLE": "Peta Organisasi",
+      "BREADCRUMB": {
+        "LABEL1": "Organisasi"
+      }
+    },
+    "MASTERDATA": {
+      "GROUP": {
+        "TITLE": "Grup",
+        "SUBTITLE": "Mengelola Grup",
+        "BREADCRUMB": {
+          "LABEL1": "Grup"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Nama",
+          "CREATED_AT": "Dibuat Pada",
+          "ACTION": "Aksi"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Nama Grup",
+            "PLACEHOLDER": "Masukkan Nama Grup",
+            "INVALID": "Nama grup wajib diisi.",
+            "MAXLENGTH": "Nama grup tidak boleh melebihi 255 karakter."
+          }
+        }
+      },
+      "LINE": {
+        "TITLE": "Line",
+        "SUBTITLE": "Mengelola Line",
+        "BREADCRUMB": {
+          "LABEL1": "Line"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Nama",
+          "CREATED_AT": "Dibuat Pada",
+          "ACTION": "Aksi"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Nama Line",
+            "PLACEHOLDER": "Masukkan Nama Line",
+            "INVALID": "Nama line wajib diisi.",
+            "MAXLENGTH": "Nama line tidak boleh melebihi 255 karakter."
+          }
+        }
+      },
+      "SECTION": {
+        "TITLE": "Section",
+        "SUBTITLE": "Mengelola Section",
+        "BREADCRUMB": {
+          "LABEL1": "Section"
+        },
+        "DATATABLES": {
+          "ID": "ID",
+          "NAME": "Nama",
+          "PARENT": "Parent Section",
+          "CREATED_AT": "Dibuat Pada",
+          "ACTION": "Aksi"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Nama Section",
+            "PLACEHOLDER": "Masukkan Nama Section",
+            "INVALID": "Nama section wajib diisi.",
+            "MAXLENGTH": "Nama section tidak boleh melebihi 255 karakter."
+          },
+          "PARENT": {
+            "TEXT": "Parent Section",
+            "PLACEHOLDER": "Pilih Parent Section",
+            "NO_PARENT": "Tidak Ada Parent (Root Section)",
+            "HELP": "Kosongkan untuk membuat root section, atau pilih parent untuk membuat sub-section."
+          }
+        },
+        "LABELS": {
+          "ROOT_SECTION": "Root Section"
+        },
+        "MESSAGES": {
+          "CANNOT_DELETE_HAS_CHILDREN": "Tidak dapat menghapus section ini karena memiliki child section. Silakan hapus child section terlebih dahulu."
+        }
+      },
+      "SUBSECTION": {
+        "TITLE": "Sub Section",
+        "SUBTITLE": "Mengelola Sub Section",
+        "BREADCRUMB": {
+          "LABEL1": "Sub Section"
+        },
+        "DATATABLES": {
+          "NAME": "Nama",
+          "SECTION": "Section",
+          "MANPOWER_COUNT": "Total Manpower",
+          "CREATED_AT": "Dibuat Pada",
+          "ACTION": "Aksi"
+        },
+        "FORM": {
+          "NAME": {
+            "TEXT": "Nama Sub Section",
+            "PLACEHOLDER": "Masukkan Nama Sub Section",
+            "INVALID": "Nama sub section wajib diisi.",
+            "MAXLENGTH": "Nama sub section tidak boleh melebihi 255 karakter."
+          },
+          "SECTION": {
+            "TEXT": "Parent Section",
+            "PLACEHOLDER": "Pilih Parent Section",
+            "INVALID": "Parent section wajib diisi."
+          }
+        },
+        "MANPOWER": {
+          "TITLE": "Manajemen Manpower (Opsional)",
+          "ADD": "Tambah Manpower",
+          "ADD_FIRST": "Tambah Manpower Pertama",
+          "ITEM": "Manpower",
+          "EMPTY": "Belum ada manpower yang ditugaskan. Klik tombol di bawah untuk menambah alokasi manpower (opsional).",
+          "HELP": "Tambahkan alokasi manpower untuk berbagai line dan group. Anda dapat menambah beberapa entri untuk kombinasi yang berbeda. Alokasi manpower bersifat opsional.",
+          "LINE": {
+            "TEXT": "Line",
+            "PLACEHOLDER": "Pilih Line",
+            "INVALID": "Line wajib diisi."
+          },
+          "GROUP": {
+            "TEXT": "Group",
+            "PLACEHOLDER": "Pilih Group",
+            "INVALID": "Group wajib diisi."
+          },
+          "COUNT": {
+            "TEXT": "Jumlah Manpower",
+            "PLACEHOLDER": "Masukkan jumlah",
+            "INVALID": "Jumlah manpower wajib diisi.",
+            "MIN": "Jumlah manpower minimal 1."
+          }
+        },
+        "LABELS": {
+          "MANPOWER_ITEMS": "item manpower",
+          "PEOPLE": "orang"
+        }
+      },
+      "EMAILRECIPIENT": {
+        "TITLE": "Penerima Email",
+        "SUBTITLE": "Mengelola Penerima Email",
+        "BREADCRUMB": {
+          "LABEL1": "Penerima Email"
+        },
+        "DATATABLES": {
+          "EMPLOYEE_CODE": "Kode Karyawan",
+          "EMPLOYEE_NAME": "Nama Karyawan",
+          "EMAIL": "Email",
+          "DEPARTMENT": "Departemen",
+          "RECIPIENT_TYPE": "Tipe Penerima",
+          "CREATED_AT": "Dibuat Pada",
+          "ACTION": "Aksi"
+        },
+        "FORM": {
+          "EMPLOYEE_CODE": {
+            "TEXT": "Kode Karyawan",
+            "PLACEHOLDER": "Ketik untuk mencari karyawan...",
+            "INVALID": "Kode karyawan wajib diisi."
+          },
+          "RECIPIENT_TYPE": {
+            "TEXT": "Tipe Penerima",
+            "PLACEHOLDER": "Pilih tipe penerima",
+            "INVALID": "Tipe penerima wajib diisi.",
+            "HELP": "To: Penerima utama | CC: Salinan karbon | BCC: Salinan karbon tersembunyi"
+          }
+        },
+        "TYPES": {
+          "TO": "Kepada",
+          "CC": "CC",
+          "BCC": "BCC"
+        },
+        "SEARCH": {
+          "HINT": "Cari berdasarkan nama karyawan, email, atau departemen..."
+        }
+      }
+    }
+  },
+  "REMOTEPAGE": {
+    "SUMMARYFORMINPUT": {
+      "TITLE": "Input bentuk ringkasan",
+      "BREADCRUMB": {
+        "LABEL1": "Bentuk dinamis",
+        "LABEL2": "Input bentuk ringkasan"
+      },
+      "FORM": {
+        "LOTNO": {
+          "TEXT": "Nomor lot",
+          "PLACEHOLDER": "Masukkan nomor lot"
+        },
+        "MATERIAL": {
+          "TEXT": "Bahan",
+          "PLACEHOLDER": "Masukkan materi"
+        },
+        "CYCLE": {
+          "TEXT": "Jenis siklus",
+          "PLACEHOLDER": "Masukkan tipe siklus"
+        },
+        "BTNLISTPRO": {
+          "TEXT": "Daftar Pro"
+        }
+      },
+      "CARDS": {
+        "HOUR": {
+          "TEXT": "Jam"
+        },
+        "START": {
+          "TEXT": "Awal"
+        },
+        "END": {
+          "TEXT": "Akhir"
+        }
+      },
+      "BTNUPLOADDATASHIFT": "Unggah shift data",
+      "TABLEFORM": {
+        "COLUMNS": {
+          "LASTCHECKSHEET": "Checkseet terakhir",
+          "COMPLETED": "Selesai",
+          "FORMNAME": "Nama bentuk",
+          "PERIODIC": "Berkala",
+          "STANDARD": "Standar",
+          "STATUS": "Status",
+          "APPROVE": "Menyetujui",
+          "OUTSPEC": "Outspec",
+          "SUMMARY": "Ringkasan",
+          "ACTION": "Tindakan"
+        }
+      },
+      "TABLEHYGIENE": {
+        "TITLE": "Kebersihan Pribadi",
+        "BTNAPPROVE": "Menyetujui kebersihan",
+        "COLUMNS": {
+          "EMPLOYEE": "Karyawan",
+          "SECTION": "Bagian",
+          "CREATEDAT": "Dibuat di",
+          "SHIFT": "Menggeser",
+          "STATUS": {
+            "TEXT": "Status",
+            "OPTIONS": {
+              "APPROVED": "Disetujui",
+              "NOTYET": "Belum"
+            }
+          },
+          "ACTION": "Tindakan"
+        }
+      },
+      "TABLEABNORMALITAS": {
+        "TITLE": "Kelainan",
+        "BTNAPPROVE": "Menyetujui kelainan",
+        "COLUMNS": {
+          "PROBLEM": "Masalah",
+          "REASON": "Alasan",
+          "START": "Waktu mulai",
+          "END": "Waktu akhir",
+          "DOWNTIME": "Downtime",
+          "DELAY": "Waktu tunda",
+          "STATUS": {
+            "TEXT": "Status",
+            "OPTIONS": {
+              "DONE": "Selesai",
+              "NOTYET": "Belum"
+            }
+          },
+          "ACTION": "Tindakan"
+        }
+      },
+      "TIMELINE": {
+        "TITLE": "Riwayat pemeriksaan",
+        "STATUS": {
+          "COMPLETED": "Selesai",
+          "PENDING": "Tertunda"
+        },
+        "APPROVEDBY": "Disetujui oleh"
+      }
+    }
+  },
+  "HEADER": {
+    "MORE": {
+      "TEXT": "Lagi"
+    }
+  },
+  "COMMON": {
+    "ERRORMSG": {
+      "400": "Permintaan tidak valid.",
+      "401": "Tidak sah - akses tidak sah ke sumber daya ini.",
+      "403": "Terlarang - Anda tidak memiliki izin untuk mengakses sumber daya ini.",
+      "404": "Sumber daya tidak ditemukan.",
+      "409": "Kesalahan entri duplikat.",
+      "500": "Kesalahan server internal.",
+      "MULTIDEL": "Pilih setidaknya satu kotak centang",
+      "DEFAULT": "Terjadi kesalahan"
+    },
+    "SUCCESSMSG": {
+      "ADD": "Formulir berhasil diserahkan.",
+      "UPDATE": "Formulir diperbarui dengan sukses.",
+      "DELETE": "Rekam berhasil dihapus.",
+      "APPROVE": "Catatan yang disetujui dengan sukses.",
+      "REJECT": "Catatan ditolak dengan sukses.",
+      "READ": "Dokumen telah dibaca",
+      "NOTIFPENDING": "Pada pemberitahuan pengiriman lorgress. ",
+      "NOTIF": "Pemberitahuan telah dikirim.",
+      "COPYURL": "URL disalin ke clipboard dengan sukses!",
+      "OTHER": "Tindakan selesai dengan sukses."
+    },
+    "CUSTOMMODAL": {
+      "ERRORTEXT": "Ups ...! ",
+      "SUCCESSTEXT": "Bagus sekali !",
+      "WARNINGTEXT": "Ups! ",
+      "CONFIRMTEXT": "Apa kamu yakin ?",
+      "DELETETEXT": "Anda akan menghapus data yang dipilih. ",
+      "APPROVALTEXT": "Anda akan menyetujui data yang dipilih. ",
+      "REJECTTEXT": "Anda akan menolak data yang dipilih. ",
+      "REGENERATETEXT": "Anda akan menghasilkan kembali dokumen yang diterbitkan. ",
+      "PUBLISHINGTEXT": "Anda akan mempublikasikan dokumen yang dipilih. ",
+      "REJECTINPUT": "Tolak deskripsi ...",
+      "REJECTINPUTERROR": "Harap masukkan deskripsi tolak.",
+      "BTNAPPROVE": "Ya, setujui!",
+      "BTNREJECT": "Ya, tolak!",
+      "BTNDELETE": "Ya, hapus!",
+      "BTNREGENERATE": "Ya, ganti kembali!",
+      "BTNPUBLISH": "Ya, Publikasikannya!",
+      "BTNCLOSE": "Menutup",
+      "BTNOK": "Oke"
+    },
+    "LABEL": {
+      "DETAIL": "Detail",
+      "ADD": "Menambahkan",
+      "EDIT": "Edit",
+      "VIEW": "Melihat",
+      "DELETE": "Menghapus",
+      "MULTIDEL": "Beberapa hapus",
+      "MORE": "Lagi",
+      "DOWNLOAD": "Unduh",
+      "APPROVE": "Menyetujui",
+      "REJECT": "Menolak",
+      "READ": "Membaca",
+      "UPLOAD": {
+        "TEXT": "Pilih File",
+        "PLACEHOLDER": "Belum ada file yang diunggah"
+      },
+      "NODATA": {
+        "TEXT": "Tidak ada data yang tersedia",
+        "PLACEHOLDER": "Kami minta maaf, tetapi kami tidak dapat menemukan data yang cocok dengan permintaan Anda. "
+      },
+      "OF": "dari",
+      "CONFIRM": "Mengonfirmasi",
+      "SECONDSAGO": "detik yang lalu",
+      "MINUTESAGO": "menit yang lalu",
+      "HOURSAGO": "beberapa jam yang lalu",
+      "DAYSAGO": "hari yang lalu",
+      "MONTHSAGO": "bulan yang lalu",
+      "YEARSAGO": "bertahun -tahun yang lalu",
+      "SHOWING": "Menunjukkan",
+      "TO": "ke",
+      "ENTRIES": "entri",
+      "WARNINGSS": "Tangkapan layar dilarang!",
+      "TELEGRAMNOTIF": "Kirim pemberitahuan telegram",
+      "WANOTIF": "Kirim pemberitahuan Whatsapp",
+      "EMAILNOTIF": "Kirim pemberitahuan email",
+      "TIMELINE": "Timeline",
+      "REQUEST": "Meminta",
+      "REVISION": "Revisi",
+      "NOTE": "Catatan",
+      "DEPARTMENT": "Departemen",
+      "EMPLOYEE": "Karyawan",
+      "WAITINGAPPROVAL": "Menunggu persetujuan dari",
+      "WAITINGSUBMISSION": "Pengajuan menunggu dari",
+      "MARKALLASREAD": "Tandai semua seperti yang dibaca",
+      "NORECIPIENTS": "Tidak ada penerima yang ditemukan untuk pemberitahuan.",
+      "PRIVATE": "Pribadi",
+      "DOCUMENT": "Dokumen",
+      "OPTIONAL": "Opsional",
+      "SHARE": "Bagikan ke ...",
+      "APPROVED": "Disetujui",
+      "PENDING": "Tertunda",
+      "SEARCH": "Mencari...",
+      "SAVE": "Simpan"
+    },
+    "OCHA": {
+      "TEXT": "Bagaimana saya bisa membantu Anda?",
+      "DESC": "Hai, saya Ocha! ",
+      "GREET": {
+        "MORNING": "Selamat pagi",
+        "AFTERNOON": "Selamat siang",
+        "EVENING": "Selamat malam",
+        "DEFAULT": "Hai"
+      },
+      "QUESTION1": "Sebutkan dokumen yang dapat Anda bantu!"
+    }
+  },
+  "TOPBAR": {
+    "WELCOME": "Hai",
+    "USER": {
+      "PROFILE": "Profil",
+      "LOGOUT": "Logout"
+    },
+    "NOTIFICATION": {
+      "TEXT": "Pemberitahuan",
+      "NEW": "Baru",
+      "TABS": {
+        "ALL": "Semua",
+        "APPROVAL": "Persetujuan",
+        "ALERT": "Peringatan"
+      },
+      "MORE": "Memuat lebih banyak",
+      "NODATA": "Hai! "
+    }
+  },
+  "EVENTS": {
+    "TITLE": "Manajemen Event",
+    "SUBTITLE": "Kelola Event",
+    "BREADCRUMB": {
+      "LABEL1": "Event"
+    },
+    "BUTTONS": {
+      "ADD": "Tambah Event",
+      "EDIT": "Edit Event",
+      "DELETE": "Hapus",
+      "DELETE_SELECTED": "Hapus Yang Dipilih",
+      "SAVE": "Simpan Event",
+      "UPDATE": "Update Event",
+      "CANCEL": "Batal",
+      "DEACTIVATE": "Nonaktifkan"
+    },
+    "FORM": {
+      "EVENT_NAME": {
+        "LABEL": "Nama Event",
+        "PLACEHOLDER": "Masukkan nama event",
+        "REQUIRED": "Nama event harus diisi",
+        "MAXLENGTH": "Nama event tidak boleh lebih dari 255 karakter"
+      },
+      "DESCRIPTION": {
+        "LABEL": "Deskripsi",
+        "PLACEHOLDER": "Masukkan deskripsi event"
+      },
+      "EVENT_DATE": {
+        "LABEL": "Tanggal & Waktu Event",
+        "REQUIRED": "Tanggal event harus diisi"
+      },
+      "LOCATION": {
+        "LABEL": "Lokasi",
+        "PLACEHOLDER": "Masukkan lokasi event"
+      },
+      "STATUS": {
+        "LABEL": "Status",
+        "REQUIRED": "Status harus dipilih",
+        "ACTIVE": "Aktif",
+        "INACTIVE": "Tidak Aktif",
+        "COMPLETED": "Selesai"
+      },
+      "EVENT_IMAGE": {
+        "LABEL": "Gambar Event",
+        "HELP": "Pilih file gambar (JPG, PNG). Ukuran maksimal: 10MB",
+        "CURRENT": "Gambar Saat Ini",
+        "CURRENT_HELP": "Pilih gambar baru untuk mengganti yang ini",
+        "PREVIEW": "Gambar Terpilih"
+      }
+    },
+    "TABLE": {
+      "EVENT_NAME": "Nama Event",
+      "DESCRIPTION": "Deskripsi",
+      "EVENT_DATE": "Tanggal Event",
+      "DATE_TIME": "Tanggal & Waktu",
+      "LOCATION": "Lokasi",
+      "STATUS": "Status",
+      "ACTIONS": "Aksi"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Cari event...",
+      "ALL_STATUS": "Semua Status"
+    },
+    "FILTER": {
+      "ALL_STATUS": "Semua Status"
+    },
+    "PAGINATION": {
+      "SHOWING": "Menampilkan",
+      "TO": "sampai",
+      "OF": "dari",
+      "ENTRIES": "entri"
+    },
+    "MESSAGES": {
+      "CREATED": "Event berhasil dibuat",
+      "UPDATED": "Event berhasil diupdate",
+      "DELETED": "Event berhasil dihapus",
+      "DEACTIVATED": "Event berhasil dinonaktifkan",
+      "BULK_DELETED": "Event berhasil dihapus",
+      "ERROR_LOADING": "Error memuat event",
+      "ERROR_SAVING": "Error menyimpan event",
+      "ERROR_DELETING": "Error menghapus event",
+      "ERROR_DEACTIVATING": "Error menonaktifkan event",
+      "SELECT_EVENTS": "Silakan pilih event yang akan dihapus",
+      "CONFIRM_DELETE": "Apakah Anda yakin ingin menghapus event ini? Aksi ini tidak dapat dibatalkan.",
+      "CONFIRM_BULK_DELETE": "Apakah Anda yakin ingin menghapus {count} event yang dipilih?",
+      "NO_DATA": "Tidak ada event ditemukan",
+      "NO_DATA_DESC": "Buat event pertama Anda untuk memulai.",
+      "LOADING": "Memuat..."
+    },
+    "NODATA": {
+      "TITLE": "Tidak ada event ditemukan",
+      "MESSAGE": "Buat event pertama Anda untuk memulai."
+    }
+  },
+  "MENUITEMS": {
+    "MENU": {
+      "TEXT": "MENU"
+    },
+    "APPLIST": {
+      "TEXT": "Daftar Aplikasi"
+    },
+    "ORGANIZATION": {
+      "TEXT": "Organisasi"
+    },
+    "EVENTS": {
+      "TEXT": "Event"
+    },
+    "COUNTDOWN": {
+      "TEXT": "Tampilan Countdown"
+    },
+    "ORGANIZATIONLIST": {
+      "TEXT": "Daftar Organisasi"
+    },
+    "MASTERDATA": {
+      "TEXT": "Master Data",
+      "GROUP": {
+        "TEXT": "Grup"
+      },
+      "LINE": {
+        "TEXT": "Line"
+      },
+      "ORGANIZATION": {
+        "TEXT": "Organisasi"
+      },
+      "SECTION": {
+        "TEXT": "Bagian"
+      },
+      "SUBSECTION": {
+        "TEXT": "Sub Bagian"
+      },
+      "EMAILRECIPIENT": {
+        "TEXT": "Penerima Email"
+      }
+    }
+  },
+  "TOUR": {
+    "BUTTON": {
+      "EXIT": "Keluar",
+      "NEXT": "Berikutnya",
+      "BACK": "Kembali",
+      "FINISH": "Terima kasih!"
+    }
+  }
+}
