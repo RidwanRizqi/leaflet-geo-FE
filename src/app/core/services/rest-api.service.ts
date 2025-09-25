@@ -533,4 +533,20 @@ export class RestApiService {
             .pipe(map((response) => response.data || response));
     }
 
+    // ------------------------------ Bidang with Count APIs
+    getKecamatanWithCount(kdProp: string, kdDati2: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bidang/kecamatan-with-count/${kdProp}/${kdDati2}`)
+            .pipe(map((response) => response.data || response));
+    }
+
+    getKelurahanWithCount(kdProp: string, kdDati2: string, kdKec: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bidang/kelurahan-with-count/${kdProp}/${kdDati2}/${kdKec}`)
+            .pipe(map((response) => response.data || response));
+    }
+
+    getTotalBidangCount(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bidang/total-count`)
+            .pipe(map((response) => response.totalBidang || 0));
+    }
+
 }

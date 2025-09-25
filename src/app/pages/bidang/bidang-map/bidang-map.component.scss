@@ -32,6 +32,30 @@
   }
 }
 
+.boundary-popup {
+  min-width: 180px;
+  text-align: center;
+
+  h6 {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+
+    strong {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+}
+
+
 // Spinner animation
 .spin {
   animation: spin 1s linear infinite;
@@ -248,7 +272,7 @@ h6.text-primary {
   .info-item {
     margin-bottom: 1rem !important;
   }
-  
+
   .card-body {
     padding: 1.5rem !important;
   }
@@ -294,7 +318,7 @@ h6.text-primary {
     font-weight: 600;
     display: flex;
     align-items: center;
-    
+
     i {
       font-size: 0.75rem;
     }
@@ -303,17 +327,17 @@ h6.text-primary {
   .tooltip-body {
     padding: 10px 12px;
     background: white;
-    
+
     .tooltip-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 4px;
-      
+
       &:last-child {
         margin-bottom: 0;
       }
-      
+
       .tooltip-label {
         font-size: 0.75rem;
         color: #6c757d;
@@ -321,7 +345,7 @@ h6.text-primary {
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
-      
+
       .tooltip-value {
         font-size: 0.8rem;
         color: #212529;
@@ -341,7 +365,7 @@ h6.text-primary {
     border-radius: 0 0 6px 6px;
     text-align: center;
     border-top: 1px solid #dee2e6;
-    
+
     small {
       font-size: 0.7rem;
       color: #6c757d;
@@ -364,25 +388,25 @@ h6.text-primary {
 .bidang-popup {
   padding: 16px;
   min-width: 250px;
-  
+
   h6 {
     color: #0d6efd;
     margin-bottom: 12px;
     font-size: 1rem;
     font-weight: 600;
   }
-  
+
   p {
     margin-bottom: 6px;
     font-size: 0.875rem;
     line-height: 1.4;
-    
+
     strong {
       color: #495057;
       font-weight: 600;
     }
   }
-  
+
   .btn {
     font-size: 0.8rem;
     padding: 6px 12px;

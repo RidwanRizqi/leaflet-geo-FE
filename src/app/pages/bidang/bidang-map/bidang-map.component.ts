@@ -37,6 +37,13 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   isLoadingKelurahan = false;
   isLoadingBidang = false;
 
+  // Total count
+  totalBidangCount = 0;
+  isLoadingTotalCount = false;
+
+  // Boundary data
+  boundaryLayer: L.GeoJSON | null = null;
+
   // Objek Pajak data
   objekPajakData: any[] = [];
   selectedObjekPajak: any = null;
@@ -46,7 +53,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private restApiService: RestApiService) { }
 
   ngOnInit(): void {
-    // Load kecamatan data on init
+    // Load total count and kecamatan data on init
+    this.loadTotalBidangCount();
     this.loadKecamatanData();
   }
 
@@ -59,6 +67,17 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.map) {
+      // Remove boundary layer
+      if (this.boundaryLayer) {
+        this.map.removeLayer(this.boundaryLayer);
+        this.boundaryLayer = null;
+      }
+      // Remove geoJson layer
+      if (this.geoJsonLayer) {
+        this.map.removeLayer(this.geoJsonLayer);
+        this.geoJsonLayer = null;
+      }
+      // Remove map
       this.map.remove();
     }
   }
@@ -66,16 +85,19 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private initMap(): void {
     if (this.mapContainer && !this.map) {
       try {
-        // Basic Leaflet map initialization
+        // Basic Leaflet map initialization - Center di Lumajang
         this.map = L.map(this.mapContainer.nativeElement, {
-          center: [-7.250445, 112.768845],
-          zoom: 10
+          center: [-8.1335, 113.2246], // Koordinat Lumajang
+          zoom: 11
         });
 
       // Add OpenStreetMap tiles
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(this.map);
+
+      // Add Lumajang boundary
+      this.loadLumajangBoundary();
 
         console.log('Map initialized successfully');
       } catch (error) {
@@ -100,13 +122,35 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Load kecamatan data from API
+   * Load total bidang count
+   */
+  loadTotalBidangCount(): void {
+    this.isLoadingTotalCount = true;
+    this.restApiService.getTotalBidangCount().subscribe({
+      next: (count) => {
+        console.log('Total bidang count:', count);
+        this.totalBidangCount = count;
+        this.isLoadingTotalCount = false;
+      },
+      error: (error) => {
+        console.error('Error loading total bidang count:', error);
+        this.isLoadingTotalCount = false;
+      }
+    });
+  }
+
+  /**
+   * Load kecamatan data from API with count
    */
   loadKecamatanData(): void {
     this.isLoadingKecamatan = true;
-    this.restApiService.getRefKecamatan().subscribe({
+    // Use hardcoded values for now - in real app, these should come from user selection or config
+    const kdProp = '35'; // Jawa Timur
+    const kdDati2 = '08'; // Lumajang (kode kabupaten Lumajang di Jawa Timur)
+
+    this.restApiService.getKecamatanWithCount(kdProp, kdDati2).subscribe({
       next: (response) => {
-        console.log('Kecamatan response:', response);
+        console.log('Kecamatan with count response:', response);
         this.kecamatanList = response;
         this.isLoadingKecamatan = false;
         console.log('Kecamatan list loaded:', this.kecamatanList.length, 'items');
@@ -119,7 +163,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Load kelurahan data based on selected kecamatan
+   * Load kelurahan data based on selected kecamatan with count
    */
   loadKelurahanData(): void {
     if (!this.selectedKecamatan) {
@@ -128,13 +172,13 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isLoadingKelurahan = true;
-    this.restApiService.getRefKelurahanByKecamatan(
+    this.restApiService.getKelurahanWithCount(
       this.selectedKecamatan.kdPropinsi,
       this.selectedKecamatan.kdDati2,
       this.selectedKecamatan.kdKecamatan
     ).subscribe({
       next: (response) => {
-        console.log('Kelurahan response:', response);
+        console.log('Kelurahan with count response:', response);
         this.kelurahanList = response;
         this.isLoadingKelurahan = false;
         // Reset selected kelurahan when kecamatan changes
@@ -357,6 +401,65 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.currentPage = 0;
       this.loadBidangData();
     }
+  }
+
+
+  /**
+   * Load Lumajang boundary from GeoJSON file
+   */
+  private loadLumajangBoundary(): void {
+    if (!this.map) return;
+
+    // Remove existing boundary if any
+    if (this.boundaryLayer) {
+      this.map.removeLayer(this.boundaryLayer);
+    }
+
+    // Load GeoJSON file
+    fetch('/assets/lumajang-boundary.json')
+      .then(response => response.json())
+      .then(data => {
+        // Create boundary layer
+        this.boundaryLayer = L.geoJSON(data, {
+          style: {
+            color: '#ff6b6b',
+            weight: 3,
+            opacity: 0.8,
+            fillColor: '#ff6b6b',
+            fillOpacity: 0.1
+          },
+          onEachFeature: (feature, layer) => {
+            // Add popup for boundary
+            layer.bindPopup(`
+              <div class="boundary-popup">
+                <h6 class="mb-2">
+                  <i class="ri-map-pin-line me-1"></i>
+                  ${feature.properties.name}
+                </h6>
+                <p class="mb-1"><strong>Provinsi:</strong> ${feature.properties.province}</p>
+                <p class="mb-0"><strong>Type:</strong> ${feature.properties.type}</p>
+              </div>
+            `);
+          }
+        });
+
+        // Add boundary to map
+        if (this.map) {
+          this.boundaryLayer.addTo(this.map);
+        }
+
+        // Fit map to show boundary
+        if (this.map && this.boundaryLayer) {
+          this.map.fitBounds(this.boundaryLayer.getBounds(), {
+            padding: [20, 20]
+          });
+        }
+
+        console.log('Lumajang boundary loaded successfully');
+      })
+      .catch(error => {
+        console.error('Error loading Lumajang boundary:', error);
+      });
   }
 
   /**

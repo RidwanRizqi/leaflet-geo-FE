@@ -2,10 +2,22 @@
   <div class="col-12">
     <div class="card">
       <div class="card-header">
-        <h4 class="card-title mb-0">
-          <i class="ri-map-2-line me-2"></i>
-          Bidang Map View - Filter by Location
-        </h4>
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="card-title mb-0">
+            <i class="ri-map-2-line me-2"></i>
+            Bidang Map View - Filter by Location
+          </h4>
+          <div class="d-flex align-items-center">
+            <span *ngIf="isLoadingTotalCount" class="badge bg-secondary me-2">
+              <i class="ri-loader-4-line spin me-1"></i>
+              Loading...
+            </span>
+            <span *ngIf="!isLoadingTotalCount" class="badge bg-primary fs-6">
+              <i class="ri-map-pin-line me-1"></i>
+              Total Bidang di Kabupaten Lumajang : {{ totalBidangCount | number }}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div class="card-body">
@@ -26,7 +38,7 @@
               <option
                 *ngFor="let kecamatan of kecamatanList"
                 [ngValue]="kecamatan">
-                {{ kecamatan.nmKecamatan }} ({{ kecamatan.kdKecamatan }})
+                {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
               </option>
             </select>
             <div *ngIf="isLoadingKecamatan" class="form-text">
@@ -50,7 +62,7 @@
               <option
                 *ngFor="let kelurahan of kelurahanList"
                 [ngValue]="kelurahan">
-                {{ kelurahan.nmKelurahan }} ({{ kelurahan.kdKelurahan }})
+                {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
               </option>
             </select>
             <div *ngIf="isLoadingKelurahan" class="form-text">
@@ -102,14 +114,24 @@
         <!-- Data Info -->
         <div *ngIf="!isLoadingBidang && !errorMessage && geoJsonData.length > 0" class="mt-3">
           <div class="alert alert-success">
-            <strong>Bidang Data Loaded:</strong> {{ getPaginationInfo() }}
-            <div *ngIf="selectedKecamatan" class="mt-1">
-              <small>
-                <strong>Kecamatan:</strong> {{ selectedKecamatan.nmKecamatan }} ({{ selectedKecamatan.kdKecamatan }})
-                <span *ngIf="selectedKelurahan">
-                  | <strong>Kelurahan:</strong> {{ selectedKelurahan.nmKelurahan }} ({{ selectedKelurahan.kdKelurahan }})
-                </span>
-              </small>
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <strong>Bidang Data Loaded:</strong> {{ getPaginationInfo() }}
+                <div *ngIf="selectedKecamatan" class="mt-1">
+                  <small>
+                    <strong>Kecamatan:</strong> {{ selectedKecamatan.nmKecamatan }} ({{ selectedKecamatan.kdKecamatan }})
+                    <span *ngIf="selectedKelurahan">
+                      | <strong>Kelurahan:</strong> {{ selectedKelurahan.nmKelurahan }} ({{ selectedKelurahan.kdKelurahan }})
+                    </span>
+                  </small>
+                </div>
+              </div>
+              <div class="text-end">
+                <small class="text-muted">
+                  <i class="ri-information-line me-1"></i>
+                  Total Database: {{ totalBidangCount | number }} bidang
+                </small>
+              </div>
             </div>
           </div>
 
