@@ -28,6 +28,8 @@ export interface KelurahanBoundary {
   kd_kel: string;
   nama: string;
   geom: string;  // WKB hex string (will be converted to GeoJSON)
+  geometry?: string; // GeoJSON string (converted from WKB by backend)
+  jumlah_bidang?: number; // Count of bidang from local database
   is_active: boolean;
 }
 
@@ -264,4 +266,6 @@ export class BprdApiService {
 
     return this.http.post<any>(proxyUrl, tematikRequest, { headers });
   }
+
+
 }
