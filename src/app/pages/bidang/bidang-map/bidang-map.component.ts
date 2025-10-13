@@ -1780,7 +1780,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
             cssColor = `rgb(${r},${g},${b})`;
-            console.log(`🎨 Converted color ${layer.color} to ${cssColor}`);
+            console.log(`🎨 Converted layer ${key} color ${layer.color} to ${cssColor}`);
           } else {
             // If it's already in a valid CSS format, use as is
             cssColor = layer.color;
@@ -1790,7 +1790,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.tematikLayersArray.push({
           key: key,
           ...layer,
-          color: cssColor // Use converted CSS color
+          color: cssColor, // Use converted CSS color
+          label: layer.label || `Layer ${key}` // Add default label
         });
       }
 
@@ -1825,19 +1826,54 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       if (layer.data && Array.isArray(layer.data)) {
         layer.data.forEach((bidang: any) => {
           if (bidang.geojson) {
-            // Add layer information to feature properties
+            // Debug: Check bidang structure
+            console.log(`🔍 Processing bidang:`, {
+              nop: bidang.nop,
+              hasGeojson: !!bidang.geojson,
+              geojsonType: bidang.geojson?.type,
+              layerKey: layer.key,
+              layerColor: layer.color
+            });
+
+            // Create proper GeoJSON Feature structure
+            let geometry;
+            if (bidang.geojson.coordinates) {
+              // If geojson has coordinates directly, it's a geometry object
+              geometry = {
+                type: bidang.geojson.type,
+                coordinates: bidang.geojson.coordinates
+              };
+            } else if (bidang.geojson.geometry) {
+              // If geojson has geometry property, use it
+              geometry = bidang.geojson.geometry;
+            } else {
+              // Fallback: treat the whole geojson as geometry
+              geometry = bidang.geojson;
+            }
+
             const feature = {
-              ...bidang.geojson,
+              type: 'Feature',
+              geometry: geometry,
               properties: {
-                ...bidang.geojson.properties,
+                // First add existing properties from geojson
+                ...(bidang.geojson.properties || {}),
+                // Then add all bidang properties
                 ...bidang,
+                // Finally add layer metadata (these will override any conflicts)
                 layerKey: layer.key,
                 layerLabel: layer.label || `Layer ${layer.key}`,
-                layerColor: layer.color
+                layerColor: layer.color,
+                // Ensure essential properties are always available
+                nop: bidang.nop || 'N/A',
+                id: bidang.id || `${layer.key}_${bidang.nop || Math.random()}`
               }
             };
-            console.log(`✅ Added bidang ${bidang.nop} with color ${layer.color}`);
+
+            console.log(`✅ Added bidang ${bidang.nop} with color ${layer.color} to layer ${layer.key}`);
+            console.log(`🔧 Feature properties:`, feature.properties);
             allFeatures.push(feature);
+          } else {
+            console.warn(`⚠️ Bidang ${bidang.nop} has no geojson data`);
           }
         });
       }
@@ -1853,8 +1889,36 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // Create GeoJSON layer for tematik data
     this.tematikLayer = L.geoJSON(allFeatures, {
       style: (feature: any) => {
+        // Debug: Check feature structure
+        if (!feature.properties) {
+          console.error(`❌ Feature has no properties:`, feature);
+          return {
+            fillColor: '#ff0000', // Red for error
+            weight: 2,
+            opacity: 1,
+            color: '#ff0000',
+            fillOpacity: 0.6
+          };
+        }
+
         const layerColor = feature.properties.layerColor || '#3388ff';
-        console.log(`🎨 Applying color ${layerColor} to bidang:`, feature.properties.nop);
+        const nop = feature.properties.nop || 'UNKNOWN';
+        const layerKey = feature.properties.layerKey || 'UNKNOWN';
+
+        // Only log if properties are missing (to reduce console spam)
+        if (!feature.properties.layerColor || !feature.properties.nop || !feature.properties.layerKey) {
+          console.warn(`⚠️ Missing properties for feature:`, {
+            layerKey: layerKey,
+            layerColor: layerColor,
+            nop: nop,
+            hasLayerColor: !!feature.properties.layerColor,
+            hasNop: !!feature.properties.nop,
+            hasLayerKey: !!feature.properties.layerKey,
+            allProperties: Object.keys(feature.properties)
+          });
+        } else {
+          console.log(`🎨 Applying style to bidang ${nop}: color=${layerColor}, layer=${layerKey}`);
+        }
 
         return {
           fillColor: layerColor,
