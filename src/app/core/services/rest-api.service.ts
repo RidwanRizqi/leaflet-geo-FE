@@ -549,4 +549,55 @@ export class RestApiService {
             .pipe(map((response) => response.totalBidang || 0));
     }
 
+    // ------------------------------ Shapefile APIs
+    /**
+     * Get Lumajang kabupaten boundary from shapefile
+     */
+    getLumajangBoundary(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `shapefile/lumajang/boundary`)
+            .pipe(map((response) => response));
+    }
+
+    /**
+     * Get specific kecamatan boundary by name
+     */
+    getKecamatanBoundaryByName(namaKecamatan: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `shapefile/lumajang/kecamatan/${encodeURIComponent(namaKecamatan)}`)
+            .pipe(map((response) => response));
+    }
+
+    /**
+     * Get specific kelurahan boundary by name
+     */
+    getKelurahanBoundaryByName(namaKelurahan: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `shapefile/lumajang/kelurahan/${encodeURIComponent(namaKelurahan)}`)
+            .pipe(map((response) => response));
+    }
+
+    /**
+     * Get all kecamatan boundaries
+     */
+    getAllKecamatanBoundaries(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `shapefile/lumajang/kecamatan`)
+            .pipe(map((response) => response));
+    }
+
+    /**
+     * Get all kelurahan boundaries
+     */
+    getAllKelurahanBoundaries(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `shapefile/lumajang/kelurahan`)
+            .pipe(map((response) => response));
+    }
+
+    // ------------------------------ BPRD External API Methods
+    /**
+     * Get all kecamatan boundaries from external BPRD API
+     * This replaces the old shapefile-based boundaries
+     */
+    getBprdKecamatanBoundaries(): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bprd/boundaries`)
+            .pipe(map((response) => response));
+    }
+
 }

@@ -88,6 +88,148 @@
                 <i class="ri-refresh-line me-1"></i>
                 Clear Map
               </button>
+              <button
+                class="btn btn-outline-info"
+                (click)="toggleKecamatanLabels()"
+                title="Toggle Kecamatan Labels">
+                <i class="ri-text me-1"></i>
+                {{ showKecamatanLabels ? 'Hide' : 'Show' }} Labels
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tematik Filter Section -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="card border-info">
+              <div class="card-header bg-info text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0">
+                    <i class="ri-palette-line me-2"></i>
+                    Tematik Filter
+                  </h6>
+                  <button
+                    class="btn btn-sm btn-light"
+                    (click)="openTematikModal()"
+                    type="button">
+                    <i class="ri-settings-3-line me-1"></i>
+                    Setup Filter
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Current Tematik Status -->
+                <div class="row" *ngIf="!hasTematikLayers">
+                  <div class="col-12">
+                    <div class="text-center py-3">
+                      <i class="ri-palette-line display-6 text-muted"></i>
+                      <p class="text-muted mt-2 mb-0">Belum ada filter tematik yang aktif</p>
+                      <small class="text-muted">Klik "Setup Filter" untuk mengatur filter tematik</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Active Tematik Display -->
+                <div class="row" *ngIf="hasTematikLayers">
+                  <div class="col-12">
+                    <div class="alert alert-info">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                          <h6><i class="ri-palette-line me-2"></i>Filter Tematik Aktif</h6>
+                          <p class="mb-0">
+                            <strong>Jenis:</strong> {{ getTematikTypeLabel() }} |
+                            <strong>Kecamatan:</strong> {{ getTematikKecamatanName() }} |
+                            <strong>Tahun:</strong> {{ selectedTematikTahun }}
+                          </p>
+                        </div>
+                        <button
+                          class="btn btn-outline-secondary btn-sm"
+                          (click)="clearTematikData()"
+                          title="Clear Tematik">
+                          <i class="ri-close-line"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Tematik Legend -->
+                    <div class="card bg-light">
+                      <div class="card-header">
+                        <h6 class="mb-0">
+                          <i class="ri-palette-line me-2"></i>
+                          Legend Tematik
+                        </h6>
+                      </div>
+                      <div class="card-body">
+                        <div class="d-flex flex-wrap gap-3">
+                          <div *ngFor="let layer of tematikLayersArray" class="d-flex align-items-center">
+                            <div
+                              class="legend-color-box me-2"
+                              [style.background-color]="layer.color"
+                              style="width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 3px;">
+                            </div>
+                            <span class="small">{{ layer.label }} ({{ layer.data.length }})</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Breadcrumb -->
+        <div class="row mb-3" *ngIf="navigationStack.length > 0">
+          <div class="col-12">
+            <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded">
+              <div class="d-flex align-items-center">
+                <i class="ri-navigation-line me-2 text-primary"></i>
+                <span class="fw-bold me-2">Navigasi:</span>
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                      <a href="javascript:void(0)" (click)="goToLevel('kecamatan')" class="text-decoration-none">
+                        <i class="ri-home-line me-1"></i>Semua Kecamatan
+                      </a>
+                    </li>
+                    <li class="breadcrumb-item" *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
+                      <span class="text-muted">{{ selectedKecamatanForDrilldown?.nama }}</span>
+                    </li>
+                    <li class="breadcrumb-item" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
+                      <span class="text-muted">{{ selectedKelurahanForDrilldown?.nama }}</span>
+                    </li>
+                    <li class="breadcrumb-item" *ngIf="currentLevel === 'bidang'">
+                      <span class="text-muted">{{ selectedBlokForDrilldown?.nama }}</span>
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+              <div class="d-flex gap-2">
+                <button
+                  *ngIf="currentLevel === 'kelurahan'"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="goBack()"
+                  title="Kembali ke Kecamatan">
+                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Kecamatan
+                </button>
+                <button
+                  *ngIf="currentLevel === 'blok'"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="goBack()"
+                  title="Kembali ke Kelurahan">
+                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Kelurahan
+                </button>
+                <button
+                  *ngIf="currentLevel === 'bidang'"
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="goBack()"
+                  title="Kembali ke Blok">
+                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Blok
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -471,6 +613,217 @@
         <button type="button" class="btn btn-secondary" (click)="closeObjekPajakModal()">
           <i class="ri-close-line me-1"></i>
           Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bidang Detail Modal -->
+<div class="modal fade" [class.show]="showBidangModal" [style.display]="showBidangModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-labelledby="bidangDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="bidangDetailModalLabel">
+          <i class="ri-building-line me-2"></i>
+          Detail Bidang - Info NOP
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeBidangDetailModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Loading State -->
+        <div *ngIf="isLoadingBidangDetail" class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Memuat detail bidang...</p>
+        </div>
+
+        <!-- Bidang Detail Content -->
+        <div *ngIf="!isLoadingBidangDetail && selectedBidangDetail" class="bidang-detail-content">
+          <!-- NOP Header -->
+          <div class="alert alert-info">
+            <h6 class="mb-2">
+              <i class="ri-number-0 me-1"></i>
+              <strong>NOP: {{ selectedBidangDetail.nop }}</strong>
+            </h6>
+            <p class="mb-0">
+              <strong>Tahun Pajak:</strong> {{ selectedBidangDetail.pbbTahun }}
+            </p>
+          </div>
+
+          <!-- Data Objek Pajak -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <h6 class="border-bottom pb-2 mb-3">
+                <i class="ri-building-2-line me-1"></i>
+                Data Objek Pajak
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Alamat OP:</strong> {{ selectedBidangDetail.alamatOP }}</p>
+              <p class="mb-2"><strong>Luas Tanah:</strong> <span [innerHTML]="selectedBidangDetail.luasTanah"></span></p>
+              <p class="mb-2"><strong>Luas Bangunan:</strong> <span [innerHTML]="selectedBidangDetail.luasBangunan"></span></p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Jenis Tanah:</strong> {{ selectedBidangDetail.jpt }}</p>
+              <p class="mb-2"><strong>Jenis Bangunan:</strong> {{ selectedBidangDetail.jpb || 'N/A' }}</p>
+              <p class="mb-2"><strong>Jumlah Bangunan:</strong> {{ selectedBidangDetail.jumlahBangunan }}</p>
+              <p class="mb-2"><strong>Kode ZNT:</strong> {{ selectedBidangDetail.kodeZNT }}</p>
+            </div>
+          </div>
+
+          <!-- Data Wajib Pajak -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <h6 class="border-bottom pb-2 mb-3">
+                <i class="ri-user-line me-1"></i>
+                Data Wajib Pajak
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Nama WP:</strong> {{ selectedBidangDetail.namaWP }}</p>
+              <p class="mb-2"><strong>NPWP:</strong> {{ selectedBidangDetail.npwp || 'N/A' }}</p>
+              <p class="mb-2"><strong>Status WP:</strong> {{ selectedBidangDetail.statusWP }}</p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>Pekerjaan WP:</strong> {{ selectedBidangDetail.pekerjaanWP }}</p>
+              <p class="mb-2"><strong>Alamat WP:</strong> {{ selectedBidangDetail.alamatWP }}</p>
+            </div>
+          </div>
+
+          <!-- Data NJOP dan PBB -->
+          <div class="row mb-3">
+            <div class="col-12">
+              <h6 class="border-bottom pb-2 mb-3">
+                <i class="ri-money-dollar-circle-line me-1"></i>
+                NJOP dan PBB
+              </h6>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>NJOP Bumi:</strong> Rp {{ selectedBidangDetail.njopBumi | number }}</p>
+              <p class="mb-2"><strong>NJOP Bangunan:</strong> Rp {{ selectedBidangDetail.njopBangunan | number }}</p>
+              <p class="mb-2"><strong>NJOP Total:</strong> <span class="fw-bold text-primary">Rp {{ selectedBidangDetail.njopTotal | number }}</span></p>
+            </div>
+            <div class="col-md-6">
+              <p class="mb-2"><strong>PBB Terhutang:</strong> <span class="fw-bold text-success">Rp {{ selectedBidangDetail.pbbTerhutang | number }}</span></p>
+              <p class="mb-2"><strong>Status Bayar:</strong> <span [innerHTML]="selectedBidangDetail.statusBayar"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="!isLoadingBidangDetail && !selectedBidangDetail" class="text-center py-4">
+          <i class="ri-error-warning-line" style="font-size: 3rem; color: #dc3545;"></i>
+          <p class="mt-2 text-muted">Gagal memuat detail bidang</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeBidangDetailModal()">
+          <i class="ri-close-line me-1"></i>
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tematik Filter Modal -->
+<div class="modal fade" [class.show]="showTematikModal" [style.display]="showTematikModal ? 'block' : 'none'" tabindex="-1" role="dialog" aria-labelledby="tematikModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="tematikModalLabel">
+          <i class="ri-palette-line me-2"></i>
+          Setup Filter Tematik
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeTematikModal()" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <!-- Jenis Tematik -->
+          <div class="mb-3">
+            <label for="modalTematikTypeSelect" class="form-label">
+              <i class="ri-paint-brush-line me-1"></i>
+              Jenis Tematik <span class="text-danger">*</span>
+            </label>
+            <select
+              id="modalTematikTypeSelect"
+              class="form-select"
+              [(ngModel)]="selectedTematikType"
+              name="tematikType">
+              <option value="">-- Pilih Jenis Tematik --</option>
+              <option value="gunaTanah">Guna Tanah</option>
+              <option value="klasifikasi">Klasifikasi</option>
+              <option value="zona">Zona Nilai Tanah</option>
+            </select>
+          </div>
+
+          <!-- Kecamatan -->
+          <div class="mb-3">
+            <label for="modalTematikKecamatanSelect" class="form-label">
+              <i class="ri-map-pin-line me-1"></i>
+              Kecamatan <span class="text-danger">*</span>
+            </label>
+            <select
+              id="modalTematikKecamatanSelect"
+              class="form-select"
+              [(ngModel)]="selectedTematikKecamatan"
+              name="tematikKecamatan"
+              (ngModelChange)="onTematikKecamatanChange()">
+              <option value="">-- Pilih Kecamatan --</option>
+              <option
+                *ngFor="let kecamatan of kecamatanList"
+                [value]="kecamatan.kdKecamatan">
+                {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
+              </option>
+            </select>
+          </div>
+
+          <!-- Kelurahan -->
+          <div class="mb-3">
+            <label for="modalTematikKelurahanSelect" class="form-label">
+              <i class="ri-home-line me-1"></i>
+              Kelurahan <span class="text-danger">*</span>
+            </label>
+            <select
+              id="modalTematikKelurahanSelect"
+              class="form-select"
+              [(ngModel)]="selectedTematikKelurahan"
+              name="tematikKelurahan"
+              [disabled]="!selectedTematikKecamatan || isLoadingKelurahan">
+              <option value="">-- Pilih Kelurahan --</option>
+              <option
+                *ngFor="let kelurahan of kelurahanList"
+                [value]="kelurahan.kdKelurahan">
+                {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
+              </option>
+            </select>
+            <div *ngIf="isLoadingKelurahan" class="form-text">
+              <i class="ri-loader-4-line spin me-1"></i>
+              Loading kelurahan...
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeTematikModal()">
+          <i class="ri-close-line me-1"></i>
+          Batal
+        </button>
+        <button
+          type="button"
+          class="btn btn-info"
+          (click)="loadTematikData()"
+          [disabled]="!selectedTematikType || !selectedTematikKecamatan || !selectedTematikKelurahan || isLoadingTematik">
+          <i class="ri-palette-line me-1" *ngIf="!isLoadingTematik"></i>
+          <i class="ri-loader-4-line spin me-1" *ngIf="isLoadingTematik"></i>
+          <span *ngIf="!isLoadingTematik">Load Tematik</span>
+          <span *ngIf="isLoadingTematik">Loading...</span>
         </button>
       </div>
     </div>

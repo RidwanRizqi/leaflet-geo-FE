@@ -55,6 +55,117 @@
   }
 }
 
+// Kecamatan label styling
+::ng-deep .kecamatan-label {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #2c3e50;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #2c3e50;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: normal; // Allow multi-line
+  min-width: 120px;
+  max-width: 180px;
+
+  // Remove the default arrow/pointer
+  &::before {
+    display: none;
+  }
+
+  // Style for the kecamatan name (first line)
+  div:first-child {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    margin-bottom: 2px;
+  }
+
+  // Style for the bidang count (second line)
+  div:last-child {
+    font-size: 10px;
+    font-weight: 600;
+    color: #2563eb;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  // Responsive font sizing
+  @media (max-width: 768px) {
+    font-size: 9px;
+    padding: 4px 8px;
+    min-width: 100px;
+
+    div:first-child {
+      font-size: 9px;
+    }
+
+    div:last-child {
+      font-size: 8px;
+    }
+  }
+}
+
+// Make labels visible at all zoom levels but adjust size
+::ng-deep .leaflet-tooltip.kecamatan-label {
+  opacity: 0.9 !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Kelurahan label styling (green theme for drill-down)
+::ng-deep .kelurahan-label {
+  background: rgba(240, 253, 244, 0.95); // Light green background
+  border: 2px solid #16a34a; // Green border
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 10px;
+  color: #16a34a; // Green text
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  // Remove the default arrow/pointer
+  &::before {
+    display: none;
+  }
+
+  // Ensure text is readable
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+
+  // Responsive font sizing
+  @media (max-width: 768px) {
+    font-size: 8px;
+    padding: 3px 6px;
+  }
+}
+
+// Make kelurahan labels visible with nice effects
+::ng-deep .leaflet-tooltip.kelurahan-label {
+  opacity: 0.9 !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
 
 // Spinner animation
 .spin {
@@ -412,5 +523,92 @@ h6.text-primary {
     padding: 6px 12px;
     border-radius: 6px;
     font-weight: 500;
+  }
+}
+
+// Blok label styling (orange theme)
+::ng-deep .blok-label {
+  background: rgba(254, 243, 199, 0.95) !important; // Light orange background
+  border: 2px solid #ea580c !important; // Orange border
+  color: #ea580c !important;
+  font-size: 9px !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2) !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    background: rgba(254, 215, 170, 0.98) !important;
+    border-color: #c2410c !important;
+    color: #c2410c !important;
+  }
+}
+
+// Bidang label styling (purple theme)
+::ng-deep .bidang-label {
+  background: rgba(243, 232, 255, 0.95) !important; // Light purple background
+  border: 2px solid #9333ea !important; // Purple border
+  color: #9333ea !important;
+  font-size: 8px !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.2) !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    background: rgba(233, 213, 255, 0.98) !important;
+    border-color: #7c3aed !important;
+    color: #7c3aed !important;
+  }
+}
+
+/* Navigation Breadcrumb Styles */
+.breadcrumb {
+  .breadcrumb-item {
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        color: #004499;
+        text-decoration: underline;
+      }
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+
+    &:not(.active) {
+      color: #6c757d;
+    }
+  }
+}
+
+.btn-outline-primary {
+  border-color: #0066cc;
+  color: #0066cc;
+
+  &:hover {
+    background-color: #0066cc;
+    border-color: #0066cc;
+    color: white;
+  }
+
+  i {
+    font-size: 0.9rem;
   }
 }
