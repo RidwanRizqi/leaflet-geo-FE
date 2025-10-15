@@ -1240,19 +1240,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                   opacity: 0.9
                 });
 
-                // Enhanced popup with detailed info
-                const popupContent = `
-                  <div class="kelurahan-popup">
-                    <h4>${kelurahanName}</h4>
-                    <p><strong>Kode Kelurahan:</strong> ${kdKel}</p>
-                    <p><strong>Jumlah Bidang:</strong> <span class="bidang-count">${bidangCount}</span></p>
-                    <p><strong>Kecamatan:</strong> ${kecamatanName}</p>
-                    <p><small><em>Data merged based on kd_kel</em></small></p>
-                  </div>
-                `;
-                layer.bindPopup(popupContent);
-
-                // Hover effects and click handler
+                // Hover effects and click handler (NO POPUP)
                 layer.on({
                   mouseover: (e) => {
                     const targetLayer = e.target;
@@ -1269,8 +1257,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                   },
                   click: (e) => {
                     L.DomEvent.stopPropagation(e);
-                    console.log(`🏗️📊 Clicked kelurahan: ${kelurahanName} (${kdKel}) - ${bidangCount} bidang`);
-                    layer.openPopup();
+                    console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
+                    // Load blok boundaries for this kelurahan
+                    // Need kdKec from current kecamatan context
+                    const currentKdKec = this.selectedKecamatan?.kdKecamatan || '001'; // fallback
+                    this.loadBlokBoundaries(currentKdKec, kdKel, kelurahanName, e.target);
                   }
                 });
               }
