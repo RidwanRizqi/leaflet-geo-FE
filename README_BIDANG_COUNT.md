@@ -34,7 +34,7 @@ Hasil Visual:
 ## 📝 File yang Diubah
 
 ### 1. TypeScript Logic
-**File:** `bidang-map.component.ts`
+**File:** `thematic-map.component.ts`
 
 **Yang ditambahkan:**
 ```typescript
@@ -55,7 +55,7 @@ const labelHtml = `
 ```
 
 ### 2. Styling (CSS)
-**File:** `bidang-map.component.scss`
+**File:** `thematic-map.component.scss`
 
 **Yang ditambahkan:**
 ```scss
@@ -250,8 +250,8 @@ Total Overhead: ~12KB ✅
 ```
 leaflet-geo-FE/
 ├── src/app/pages/bidang/bidang-map/
-│   ├── bidang-map.component.ts    ← UPDATED (merge logic)
-│   └── bidang-map.component.scss  ← UPDATED (multi-line style)
+│   ├── thematic-map.component.ts    ← UPDATED (merge logic)
+│   └── thematic-map.component.scss  ← UPDATED (multi-line style)
 │
 └── Documentation/
     ├── KECAMATAN_BIDANG_COUNT_LABEL.md       ← NEW (technical docs)

@@ -5,7 +5,7 @@ Updated the `bidang-map` component to implement location-based filtering where u
 
 ## Changes Made
 
-### 1. Component TypeScript (`bidang-map.component.ts`)
+### 1. Component TypeScript (`thematic-map.component.ts`)
 
 #### Added Imports
 - `FormsModule` for two-way data binding with dropdowns
@@ -36,7 +36,7 @@ isLoadingBidang = false;
 - `ngAfterViewInit()` - Removed automatic bidang data loading
 - `loadBidangData()` - Updated to use filtered endpoints based on selection
 
-### 2. Component HTML (`bidang-map.component.html`)
+### 2. Component HTML (`thematic-map.component.html`)
 
 #### Added Filter Controls Section
 ```html
@@ -88,7 +88,7 @@ isLoadingBidang = false;
 - `getBidangByKelurahanGeometry()` - Get bidang with geometry by kelurahan
 - `searchBidang()` - Search bidang with flexible parameters
 
-### 4. Component Styling (`bidang-map.component.scss`)
+### 4. Component Styling (`thematic-map.component.scss`)
 
 #### Added Styles
 - **Spinner Animation**: `.spin` class with rotating animation

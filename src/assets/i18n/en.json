@@ -650,6 +650,15 @@
         "TEXT": "List View"
       }
     },
+    "THEMATIC": {
+      "TEXT": "Thematic",
+      "MAP": {
+        "TEXT": "Thematic Map"
+      },
+      "LIST": {
+        "TEXT": "List View"
+      }
+    },
     "ORGANIZATIONLIST": {
       "TEXT": "Organization List"
     },

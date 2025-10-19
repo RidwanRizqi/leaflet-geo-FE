@@ -1,0 +1,698 @@
+.map-container {
+  height: 500px;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.bidang-popup {
+  min-width: 200px;
+
+  h6 {
+    color: #495057;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+
+    strong {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+}
+
+.boundary-popup {
+  min-width: 180px;
+  text-align: center;
+
+  h6 {
+    color: #dc3545;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+
+    strong {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+}
+
+// Kecamatan label styling
+::ng-deep .kecamatan-label {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid #2c3e50;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: bold;
+  font-size: 11px;
+  color: #2c3e50;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  white-space: normal; // Allow multi-line
+  min-width: 120px;
+  max-width: 180px;
+
+  // Remove the default arrow/pointer
+  &::before {
+    display: none;
+  }
+
+  // Style for the kecamatan name (first line)
+  div:first-child {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    margin-bottom: 2px;
+  }
+
+  // Style for the bidang count (second line)
+  div:last-child {
+    font-size: 10px;
+    font-weight: 600;
+    color: #2563eb;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  // Responsive font sizing
+  @media (max-width: 768px) {
+    font-size: 9px;
+    padding: 4px 8px;
+    min-width: 100px;
+
+    div:first-child {
+      font-size: 9px;
+    }
+
+    div:last-child {
+      font-size: 8px;
+    }
+  }
+}
+
+// Make labels visible at all zoom levels but adjust size
+::ng-deep .leaflet-tooltip.kecamatan-label {
+  opacity: 0.9 !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Kelurahan label styling (green theme for drill-down)
+::ng-deep .kelurahan-label {
+  background: rgba(240, 253, 244, 0.95); // Light green background
+  border: 2px solid #16a34a; // Green border
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-weight: bold;
+  font-size: 10px;
+  color: #16a34a; // Green text
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.3);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  // Remove the default arrow/pointer
+  &::before {
+    display: none;
+  }
+
+  // Ensure text is readable
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+
+  // Responsive font sizing
+  @media (max-width: 768px) {
+    font-size: 8px;
+    padding: 3px 6px;
+  }
+}
+
+// Make kelurahan labels visible with nice effects
+::ng-deep .leaflet-tooltip.kelurahan-label {
+  opacity: 0.9 !important;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+// Spinner animation
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Filter controls styling
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+.form-select {
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+
+  &:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+
+  &:disabled {
+    background-color: #e9ecef;
+    opacity: 0.65;
+  }
+}
+
+.form-text {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+// Button styling
+.btn {
+  border-radius: 0.375rem;
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+// Alert styling
+.alert {
+  border-radius: 0.375rem;
+  border: none;
+
+  &.alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+  }
+
+  &.alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+  }
+
+  &.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+  }
+}
+
+// Modal styling
+.modal {
+  z-index: 1055;
+
+  .modal-dialog {
+    max-width: 90vw;
+  }
+
+  .modal-content {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+
+  .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 0.5rem 0.5rem 0 0;
+
+    .modal-title {
+      font-weight: 600;
+      color: #495057;
+    }
+  }
+
+  .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
+// Card styling for objek pajak
+.card {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid #dee2e6;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+
+  &.border-primary {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+  }
+
+  .card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+
+    h6 {
+      color: #495057;
+      font-weight: 600;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+    }
+  }
+
+  .card-body {
+    p {
+      margin-bottom: 0.25rem;
+      font-size: 0.875rem;
+      color: #6c757d;
+
+      strong {
+        color: #495057;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Button styling
+.btn {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// Single data display styling
+.info-item {
+  .form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    line-height: 1.4;
+  }
+}
+
+// Card styling for single data
+.card {
+  &.border-0 {
+    border-radius: 0.75rem;
+
+    .card-header {
+      border-radius: 0.75rem 0.75rem 0 0;
+      border: none;
+
+      h5 {
+        font-weight: 600;
+      }
+
+      .badge {
+        font-size: 0.875rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.5rem;
+      }
+    }
+
+    .card-body {
+      border-radius: 0 0 0.75rem 0.75rem;
+    }
+  }
+}
+
+// Section headers
+h6.text-primary {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+// Value styling
+.text-success.fw-bold {
+  font-size: 1.1rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .info-item {
+    margin-bottom: 1rem !important;
+  }
+
+  .card-body {
+    padding: 1.5rem !important;
+  }
+}
+
+// Leaflet Tooltip Styling
+:host ::ng-deep .bidang-tooltip-container {
+  .leaflet-tooltip {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid #0d6efd !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    padding: 0 !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    max-width: 200px !important;
+  }
+
+  .leaflet-tooltip-top::before {
+    border-top-color: #0d6efd !important;
+  }
+
+  .leaflet-tooltip-bottom::before {
+    border-bottom-color: #0d6efd !important;
+  }
+
+  .leaflet-tooltip-left::before {
+    border-left-color: #0d6efd !important;
+  }
+
+  .leaflet-tooltip-right::before {
+    border-right-color: #0d6efd !important;
+  }
+}
+
+// Custom tooltip content styling
+.bidang-tooltip {
+  .tooltip-header {
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+
+    i {
+      font-size: 0.75rem;
+    }
+  }
+
+  .tooltip-body {
+    padding: 10px 12px;
+    background: white;
+
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .tooltip-label {
+        font-size: 0.75rem;
+        color: #6c757d;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .tooltip-value {
+        font-size: 0.8rem;
+        color: #212529;
+        font-weight: 600;
+        text-align: right;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .tooltip-footer {
+    background: #f8f9fa;
+    padding: 6px 12px;
+    border-radius: 0 0 6px 6px;
+    text-align: center;
+    border-top: 1px solid #dee2e6;
+
+    small {
+      font-size: 0.7rem;
+      color: #6c757d;
+    }
+  }
+}
+
+// Popup styling improvements
+:host ::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+:host ::ng-deep .leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.bidang-popup {
+  padding: 16px;
+  min-width: 250px;
+
+  h6 {
+    color: #0d6efd;
+    margin-bottom: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 6px;
+    font-size: 0.875rem;
+    line-height: 1.4;
+
+    strong {
+      color: #495057;
+      font-weight: 600;
+    }
+  }
+
+  .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+}
+
+// Blok label styling (orange theme)
+::ng-deep .blok-label {
+  background: rgba(254, 243, 199, 0.95) !important; // Light orange background
+  border: 2px solid #ea580c !important; // Orange border
+  color: #ea580c !important;
+  font-size: 9px !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  padding: 2px 6px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2) !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    background: rgba(254, 215, 170, 0.98) !important;
+    border-color: #c2410c !important;
+    color: #c2410c !important;
+  }
+}
+
+// Bidang label styling (purple theme)
+::ng-deep .bidang-label {
+  background: rgba(243, 232, 255, 0.95) !important; // Light purple background
+  border: 2px solid #9333ea !important; // Purple border
+  color: #9333ea !important;
+  font-size: 8px !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  padding: 2px 5px !important;
+  border-radius: 3px !important;
+  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.2) !important;
+  white-space: nowrap !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+
+  &:hover {
+    opacity: 1 !important;
+    transform: scale(1.05);
+    background: rgba(233, 213, 255, 0.98) !important;
+    border-color: #7c3aed !important;
+    color: #7c3aed !important;
+  }
+}
+
+/* Navigation Breadcrumb Styles */
+.breadcrumb {
+  .breadcrumb-item {
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        color: #004499;
+        text-decoration: underline;
+      }
+
+      i {
+        font-size: 0.9rem;
+      }
+    }
+
+    &:not(.active) {
+      color: #6c757d;
+    }
+  }
+}
+
+.btn-outline-primary {
+  border-color: #0066cc;
+  color: #0066cc;
+
+  &:hover {
+    background-color: #0066cc;
+    border-color: #0066cc;
+    color: white;
+  }
+
+  i {
+    font-size: 0.9rem;
+  }
+}
+
+// Bidang Count Legend Styles
+.bidang-count-legend {
+  background-color: white !important;
+  padding: 10px !important;
+  border: 2px solid #ccc !important;
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  line-height: 18px !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  h4 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+
+    .legend-color {
+      width: 20px;
+      height: 15px;
+      display: inline-block;
+      margin-right: 8px;
+      border: 1px solid #999;
+      border-radius: 2px;
+    }
+
+    span {
+      font-size: 11px;
+      color: #555;
+    }
+  }
+}
+
+// Kelurahan popup with count styles
+.kelurahan-popup {
+  min-width: 220px;
+
+  h4 {
+    color: #16a34a;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+  }
+
+  p {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+
+    strong {
+      color: #374151;
+      font-weight: 600;
+    }
+
+    .bidang-count {
+      color: #16a34a;
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+  }
+}
+
+// Kelurahan label with count styles
+.kelurahan-label-with-count {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  color: #374151 !important;
+  border: 1px solid #16a34a !important;
+  border-radius: 4px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+  white-space: pre-line !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+}

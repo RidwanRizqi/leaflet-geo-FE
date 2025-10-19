@@ -84,9 +84,9 @@ Authorization: Bearer {token}
 - ensureAuthAndGetBoundaries() // Auto-login + fetch
 ```
 
-**2. Updated Component: `BidangMapComponent`**
+**2. Updated Component: `ThematicMapComponent`**
 ```typescript
-// File: src/app/pages/bidang/bidang-map/bidang-map.component.ts
+// File: src/app/pages/bidang/bidang-map/thematic-map.component.ts
 - loadBprdKecamatanBoundaries() // Load dari BPRD API
 - convertBprdGeomToGeoJSON() // Convert geom ke GeoJSON
 - generateColorForKecamatan() // Generate warna boundary

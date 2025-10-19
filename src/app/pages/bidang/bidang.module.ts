@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { BidangMapComponent } from './bidang-map/bidang-map.component';
 import { BidangListComponent } from './bidang-list/bidang-list.component';
+import {ThematicMapComponent} from "./thematic-map/thematic-map.component";
 
 const routes: Routes = [
   {
@@ -13,6 +14,10 @@ const routes: Routes = [
   {
     path: 'map',
     component: BidangMapComponent
+  },
+  {
+    path: 'thematic-map',
+    component: ThematicMapComponent
   },
   {
     path: 'list',

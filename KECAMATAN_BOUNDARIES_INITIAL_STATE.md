@@ -5,7 +5,7 @@ Updated the Bidang Map component to display all kecamatan boundaries within Kabu
 
 ## Changes Made
 
-### 1. **Component Properties** (`bidang-map.component.ts`)
+### 1. **Component Properties** (`thematic-map.component.ts`)
 
 Added new property to manage kecamatan boundaries layer:
 
@@ -113,7 +113,7 @@ Endpoint: `GET /api/shapefile/lumajang/kecamatan`
 
 ## Files Modified
 
-- `src/app/pages/bidang/bidang-map/bidang-map.component.ts`
+- `src/app/pages/bidang/bidang-map/thematic-map.component.ts`
 
 ## Testing
 

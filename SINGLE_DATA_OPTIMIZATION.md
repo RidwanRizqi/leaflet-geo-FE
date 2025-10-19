@@ -225,12 +225,12 @@ Grid Layout → Clickable Cards → Selection
 
 ## Files Modified
 
-1. **`bidang-map.component.html`**
+1. **`thematic-map.component.html`**
    - Added conditional rendering untuk single/multiple data
    - Enhanced single data layout dengan sections
    - Maintained multiple data fallback
 
-2. **`bidang-map.component.scss`**
+2. **`thematic-map.component.scss`**
    - Added styling untuk single data display
    - Enhanced card design
    - Responsive adjustments

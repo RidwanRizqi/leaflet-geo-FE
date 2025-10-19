@@ -90,7 +90,7 @@ const label = `${kecamatanName}\n${jumlahBidang} Bidang`;
 
 ## 🎨 Implementation Details
 
-### 1. Component Logic (`bidang-map.component.ts`)
+### 1. Component Logic (`thematic-map.component.ts`)
 
 #### Data Properties:
 ```typescript
@@ -169,7 +169,7 @@ layer.bindPopup(`
 `);
 ```
 
-### 2. Styling (`bidang-map.component.scss`)
+### 2. Styling (`thematic-map.component.scss`)
 
 #### Multi-line Label Styling:
 ```scss
@@ -534,8 +534,8 @@ exportLabelsAsImage(): void {
 - **Scalable** - Works efficiently with current dataset
 
 ### Files Modified:
-- `bidang-map.component.ts` - Merge logic, label HTML, popup update
-- `bidang-map.component.scss` - Multi-line label styling
+- `thematic-map.component.ts` - Merge logic, label HTML, popup update
+- `thematic-map.component.scss` - Multi-line label styling
 
 ---
 

@@ -60,6 +60,18 @@ export const MENU: MenuItem[] = [
         isLayout: false,
       },
       {
+        id: 61,
+        label: 'MENUITEMS.THEMATIC.MAP.TEXT',
+        icon: 'ri-map-pin-line',
+        isCollapsed: true,
+        link: '/bidang/thematic-map',
+        subItems: [],
+        isTitle: false,
+        badge: null,
+        parentId: 6,
+        isLayout: false,
+      },
+      {
         id: 62,
         label: 'MENUITEMS.BIDANG.LIST.TEXT',
         icon: 'ri-list-check-2',

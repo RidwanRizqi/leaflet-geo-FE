@@ -49,7 +49,7 @@ boundary.kd_kec === kecamatan.kdKecamatan
 ## 🛠️ Files Modified
 
 ### 1. TypeScript Component
-**File:** `src/app/pages/bidang/bidang-map/bidang-map.component.ts`
+**File:** `src/app/pages/bidang/bidang-map/thematic-map.component.ts`
 
 **Changes:**
 ```typescript
@@ -93,7 +93,7 @@ const labelHtml = `
 ---
 
 ### 2. SCSS Styling
-**File:** `src/app/pages/bidang/bidang-map/bidang-map.component.scss`
+**File:** `src/app/pages/bidang/bidang-map/thematic-map.component.scss`
 
 **Changes:**
 ```scss
@@ -470,8 +470,8 @@ Usability: Maintained ✅
 ### For Developers:
 ```
 Key Files:
-- bidang-map.component.ts (logic)
-- bidang-map.component.scss (styling)
+- thematic-map.component.ts (logic)
+- thematic-map.component.scss (styling)
 - KECAMATAN_BIDANG_COUNT_LABEL.md (docs)
 
 Key Functions:

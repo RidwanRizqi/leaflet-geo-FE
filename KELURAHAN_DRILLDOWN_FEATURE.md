@@ -170,7 +170,7 @@ getKelurahanBoundariesViaBackend(kdKec: string): Observable<KelurahanBoundary[]>
 
 ---
 
-#### 2. Updated: `bidang-map.component.ts`
+#### 2. Updated: `thematic-map.component.ts`
 
 **New Properties:**
 ```typescript
@@ -252,7 +252,7 @@ constructor(...) {
 
 ---
 
-#### 3. Updated: `bidang-map.component.scss`
+#### 3. Updated: `thematic-map.component.scss`
 
 **New Styling for Kelurahan Labels:**
 ```scss
@@ -681,8 +681,8 @@ private loadKelurahanBoundaries(kdKec: string, name: string, layer: any): void {
 
 **Frontend:**
 - `bprd-api.service.ts` (UPDATED)
-- `bidang-map.component.ts` (UPDATED)
-- `bidang-map.component.scss` (UPDATED)
+- `thematic-map.component.ts` (UPDATED)
+- `thematic-map.component.scss` (UPDATED)
 
 ---
 

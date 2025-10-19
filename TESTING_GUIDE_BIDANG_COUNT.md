@@ -274,7 +274,7 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/bidang/kecamatan-with-count/35
 ```
 
 **Fix:**
-1. Open `bidang-map.component.scss`
+1. Open `thematic-map.component.scss`
 2. Find `.kecamatan-label`
 3. Verify `white-space: normal`
 4. Save and refresh browser

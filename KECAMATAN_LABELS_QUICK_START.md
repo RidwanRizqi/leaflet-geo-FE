@@ -271,9 +271,9 @@ if (this.showKecamatanLabels) {
 - **Flexible** - User can hide if needed
 
 ### Files Modified:
-- `bidang-map.component.ts` - Logic and state
-- `bidang-map.component.html` - Toggle button
-- `bidang-map.component.scss` - Label styling
+- `thematic-map.component.ts` - Logic and state
+- `thematic-map.component.html` - Toggle button
+- `thematic-map.component.scss` - Label styling
 
 ---
 

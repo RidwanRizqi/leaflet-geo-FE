@@ -286,7 +286,7 @@ LEFT JOIN SYSTEM.REF_DATI2 dati2 ON op.KD_PROPINSI = dati2.KD_PROPINSI
 - **`DatObjekPajakController.java`**: Updated to use reference data
 
 ### 2. **Frontend Files**:
-- **`bidang-map.component.html`**: Updated display to show reference data
+- **`thematic-map.component.html`**: Updated display to show reference data
 
 ## Testing Scenarios
 

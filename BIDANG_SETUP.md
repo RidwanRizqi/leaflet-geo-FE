@@ -12,7 +12,7 @@ This document describes the setup and usage of the Bidang Geo Mapping feature in
 
 ## Components
 
-### 1. BidangMapComponent (`/bidang/map`)
+### 1. ThematicMapComponent (`/bidang/map`)
 - Displays bidang data on an interactive Leaflet map
 - Converts WKT geometry to GeoJSON for map rendering
 - Shows popup information on polygon click

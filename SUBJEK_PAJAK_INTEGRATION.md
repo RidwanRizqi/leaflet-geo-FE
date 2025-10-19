@@ -68,7 +68,7 @@ Endpoint `GET /api/dat-objek-pajak/{kdPropinsi}/{kdDati2}/{kdKecamatan}/{kdKelur
 
 ## Frontend Integration ✅
 
-### 1. **Updated Data Handling** (`bidang-map.component.ts`):
+### 1. **Updated Data Handling** (`thematic-map.component.ts`):
 
 ```typescript
 // BEFORE - Only objek pajak data
@@ -86,7 +86,7 @@ if (response.objekPajak) {
 }
 ```
 
-### 2. **Enhanced Modal Display** (`bidang-map.component.html`):
+### 2. **Enhanced Modal Display** (`thematic-map.component.html`):
 
 #### **Objek Pajak Information**:
 - Blok, Jenis OP, No Formulir, No Persil
@@ -206,11 +206,11 @@ http://localhost:8080/api/dat-objek-pajak/35/08/100/006/001/0055/0
 
 ## Files Modified
 
-1. **`src/app/pages/bidang/bidang-map/bidang-map.component.ts`**
+1. **`src/app/pages/bidang/bidang-map/thematic-map.component.ts`**
    - Updated `loadObjekPajakData()` to merge subjek pajak data
    - Enhanced data handling for complete information
 
-2. **`src/app/pages/bidang/bidang-map/bidang-map.component.html`**
+2. **`src/app/pages/bidang/bidang-map/thematic-map.component.html`**
    - Added subjek pajak information section
    - Enhanced modal layout with visual separation
    - Responsive design for better UX

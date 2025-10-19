@@ -32,7 +32,7 @@ Menambahkan fitur untuk menampilkan **nama kecamatan** secara permanen di tengah
 
 ### 1. Component TypeScript Changes
 
-**File:** `bidang-map.component.ts`
+**File:** `thematic-map.component.ts`
 
 #### Added Property:
 ```typescript
@@ -80,7 +80,7 @@ toggleKecamatanLabels(): void {
 
 ### 2. HTML Template Changes
 
-**File:** `bidang-map.component.html`
+**File:** `thematic-map.component.html`
 
 #### Added Toggle Button:
 ```html
@@ -99,7 +99,7 @@ toggleKecamatanLabels(): void {
 
 ### 3. SCSS Styling Changes
 
-**File:** `bidang-map.component.scss`
+**File:** `thematic-map.component.scss`
 
 #### Added Custom Label Styles:
 ```scss
@@ -292,17 +292,17 @@ toggleKecamatanLabels(): void {
 ## Files Modified
 
 ### TypeScript:
-- ✅ `src/app/pages/bidang/bidang-map/bidang-map.component.ts`
+- ✅ `src/app/pages/bidang/bidang-map/thematic-map.component.ts`
   - Added `showKecamatanLabels` property
   - Modified `onEachFeature` to conditionally show labels
   - Added `toggleKecamatanLabels()` method
 
 ### HTML:
-- ✅ `src/app/pages/bidang/bidang-map/bidang-map.component.html`
+- ✅ `src/app/pages/bidang/bidang-map/thematic-map.component.html`
   - Added toggle button in filter controls
 
 ### SCSS:
-- ✅ `src/app/pages/bidang/bidang-map/bidang-map.component.scss`
+- ✅ `src/app/pages/bidang/bidang-map/thematic-map.component.scss`
   - Added `.kecamatan-label` custom styles
   - Added hover effects and responsive sizing
 
