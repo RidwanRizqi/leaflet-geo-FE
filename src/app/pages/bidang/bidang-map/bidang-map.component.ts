@@ -1468,7 +1468,13 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               const props = feature.properties || {};
               const kdBlok = props.kd_blok || 'N/A';
 
-
+              // Add label for blok
+              layer.bindTooltip(kdBlok, {
+                permanent: true,
+                direction: 'center',
+                className: 'blok-label',
+                opacity: 0.9
+              });
 
               // Hover effects and click handler
               layer.on({
@@ -1627,7 +1633,12 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               // Extract no_urut directly (it should be available now)
               const noUrut = props.no_urut || 'UNKNOWN';
 
-
+              layer.bindTooltip(noUrut, {
+                permanent: true,
+                direction: 'center',
+                className: 'bidang-label',
+                opacity: 0.9
+              });
 
               // Hover effects and click handler
               layer.on({
@@ -1757,6 +1768,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.blokBoundariesLayer = null;
     }
 
+    // Restore kelurahan layer style
+    if (this.kelurahanBoundariesLayer) {
+      this.kelurahanBoundariesLayer.resetStyle();
+    }
+
     // Reset navigation state
     this.selectedKelurahanForDrilldown = null;
     this.currentLevel = 'kelurahan';
@@ -1771,6 +1787,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.bidangBoundariesLayer && this.map) {
       this.map.removeLayer(this.bidangBoundariesLayer);
       this.bidangBoundariesLayer = null;
+    }
+
+    // Restore blok layer style
+    if (this.blokBoundariesLayer) {
+      this.blokBoundariesLayer.resetStyle();
     }
 
     // Reset navigation state
@@ -1909,28 +1930,19 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     switch (this.currentLevel) {
       case 'kelurahan':
         this.clearKelurahanView();
-        this.currentLevel = 'kecamatan';
-        this.selectedKecamatanForDrilldown = null;
         break;
-
       case 'blok':
         this.clearBlokView();
-        this.currentLevel = 'kelurahan';
-        this.selectedKelurahanForDrilldown = null;
         break;
-
       case 'bidang':
         this.clearBidangView();
-        this.currentLevel = 'blok';
-        this.selectedBlokForDrilldown = null;
         break;
-
       default:
         console.log('Already at top level (kecamatan)');
-        break;
+        return; // Nothing to do
     }
 
-    // Update navigation stack
+    // Pop from stack after handling the view change
     if (this.navigationStack.length > 0) {
       this.navigationStack.pop();
     }
