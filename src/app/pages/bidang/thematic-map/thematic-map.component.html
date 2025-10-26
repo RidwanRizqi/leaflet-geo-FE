@@ -5,7 +5,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <h4 class="card-title mb-0">
             <i class="ri-map-2-line me-2"></i>
-            Bidang Map View - Filter by Location
+            Thematic Map View
           </h4>
           <div class="d-flex align-items-center">
             <span *ngIf="isLoadingTotalCount" class="badge bg-secondary me-2">
@@ -22,92 +22,6 @@
 
       <div class="card-body">
         <!-- Filter Controls -->
-        <div class="row mb-3">
-          <div class="col-md-4">
-            <label for="kecamatanSelect" class="form-label">
-              <i class="ri-map-pin-line me-1"></i>
-              Pilih Kecamatan
-            </label>
-            <select
-              id="kecamatanSelect"
-              class="form-select"
-              [(ngModel)]="selectedKecamatan"
-              (ngModelChange)="onKecamatanChange()"
-              [disabled]="isLoadingKecamatan">
-              <option value="">-- Pilih Kecamatan --</option>
-              <option
-                *ngFor="let kecamatan of kecamatanList"
-                [ngValue]="kecamatan">
-                {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-            <div *ngIf="isLoadingKecamatan" class="form-text">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading kecamatan...
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <label for="kelurahanSelect" class="form-label">
-              <i class="ri-home-line me-1"></i>
-              Pilih Kelurahan
-            </label>
-            <select
-              id="kelurahanSelect"
-              class="form-select"
-              [(ngModel)]="selectedKelurahan"
-              (ngModelChange)="onKelurahanChange()"
-              [disabled]="isLoadingKelurahan || !selectedKecamatan">
-              <option value="">-- Pilih Kelurahan (Opsional) --</option>
-              <option
-                *ngFor="let kelurahan of kelurahanList"
-                [ngValue]="kelurahan">
-                {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-            <div *ngIf="isLoadingKelurahan" class="form-text">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading kelurahan...
-            </div>
-          </div>
-
-          <div class="col-md-4">
-            <label class="form-label">&nbsp;</label>
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-primary"
-                (click)="loadBidangByKecamatan()"
-                [disabled]="!selectedKecamatan || isLoadingBidang">
-                <i class="ri-search-line me-1"></i>
-                Load Data
-              </button>
-              <button
-                class="btn btn-outline-secondary"
-                (click)="clearMap()"
-                [disabled]="!selectedKecamatan">
-                <i class="ri-refresh-line me-1"></i>
-                Clear Map
-              </button>
-              <button
-                class="btn btn-outline-info"
-                (click)="toggleKecamatanLabels()"
-                title="Toggle Kecamatan Labels">
-                <i class="ri-text me-1"></i>
-                {{ showKecamatanLabels ? 'Hide' : 'Show' }} Labels
-              </button>
-              <button
-                class="btn btn-outline-success"
-                (click)="showKelurahanWithCount()"
-                [disabled]="!selectedKecamatan"
-                title="Show Kelurahan with Bidang Count">
-                <i class="ri-bar-chart-box-line me-1"></i>
-                Kelurahan + Count
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tematik Filter Section -->
         <div class="row mb-3">
           <div class="col-12">
             <div class="card border-info">
