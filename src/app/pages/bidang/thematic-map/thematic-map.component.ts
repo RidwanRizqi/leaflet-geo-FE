@@ -1433,7 +1433,78 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    console.log(`🏗️ Loading blok boundaries for ${kelurahanName} (${kdKec}/${kdKel})`);
+    console.log(`🏗️📊 Loading blok boundaries with count for ${kelurahanName} (${kdKec}/${kdKel})`);
+
+    // Try to sync selectedKecamatan with clicked kecamatan for consistent parameters
+    const matchingKecamatan = this.kecamatanList?.find(kec => kec.kdKecamatan === kdKec);
+    if (matchingKecamatan && !this.selectedKecamatan) {
+      console.log(`🔄 Auto-selecting kecamatan for consistent parameters:`, matchingKecamatan);
+      this.selectedKecamatan = matchingKecamatan;
+    }
+
+    // Get propinsi and dati2 from clicked kecamatan properties or selected kecamatan
+    let kdProp, kdDati2, kdKecParam, kdKelParam;
+
+    if (this.selectedKecamatan) {
+      // Use selectedKecamatan from dropdown (most reliable)
+      kdProp = this.selectedKecamatan.kdPropinsi;
+      kdDati2 = this.selectedKecamatan.kdDati2;
+      kdKecParam = this.selectedKecamatan.kdKecamatan;
+      console.log(`🎯 Using selectedKecamatan parameters`);
+    } else {
+      // Try to find matching kecamatan in dropdown data
+      const matchingKec = this.kecamatanList?.find(kec =>
+        kec.kdKecamatan === kdKec ||
+        kec.kdKecamatan === kdKec.padStart(3, '0') ||
+        kec.kdKecamatan.slice(-3) === kdKec
+      );
+
+      if (matchingKec) {
+        kdProp = matchingKec.kdPropinsi;
+        kdDati2 = matchingKec.kdDati2;
+        kdKecParam = matchingKec.kdKecamatan;
+        console.log(`🎯 Found matching kecamatan in dropdown:`, matchingKec);
+      } else {
+        // Default fallback - try common formats
+        kdProp = '35';
+        kdDati2 = '09';
+        kdKecParam = kdKec.padStart(3, '0'); // Ensure 3-digit format
+        console.log(`🎯 Using fallback parameters with padded kdKec`);
+      }
+    }
+
+    // Get kdKelParam - try to find matching kelurahan
+    if (this.selectedKelurahan) {
+      kdKelParam = this.selectedKelurahan.kdKelurahan;
+      console.log(`🎯 Using selectedKelurahan kdKel:`, kdKelParam);
+    } else {
+      // Try to find matching kelurahan in dropdown data
+      const matchingKel = this.kelurahanList?.find(kel =>
+        kel.kdKelurahan === kdKel ||
+        kel.kdKelurahan === kdKel.padStart(3, '0') ||
+        kel.kdKelurahan.slice(-3) === kdKel
+      );
+
+      if (matchingKel) {
+        kdKelParam = matchingKel.kdKelurahan;
+        console.log(`🎯 Found matching kelurahan in dropdown:`, matchingKel);
+      } else {
+        // Default fallback - try common formats
+        kdKelParam = kdKel.padStart(3, '0'); // Ensure 3-digit format
+        console.log(`🎯 Using fallback parameters with padded kdKel`);
+      }
+    }
+
+    console.log(`🎯 ===== DEBUG API PARAMETERS =====`);
+    console.log(`🎯 kdProp: ${kdProp}`);
+    console.log(`🎯 kdDati2: ${kdDati2}`);
+    console.log(`🎯 kdKec from map: ${kdKec}`);
+    console.log(`🎯 kdKecParam for API: ${kdKecParam}`);
+    console.log(`🎯 kdKel from map: ${kdKel}`);
+    console.log(`🎯 kdKelParam for API: ${kdKelParam}`);
+    console.log(`🎯 Using parameters - kdProp: ${kdProp}, kdDati2: ${kdDati2}, kdKecParam: ${kdKecParam}, kdKelParam: ${kdKelParam}`);
+    console.log(`🎯 Boundaries URL: /api/bprd/blok?kd_kec=${kdKec}&kd_kel=${kdKel}`);
+    console.log(`🎯 Count URL: /api/bidang/blok-with-count/${kdProp}/${kdDati2}/${kdKecParam}/${kdKelParam}`);
 
     // Show loading indicator
     const loadingPopup = L.popup()
@@ -1441,12 +1512,21 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
       .setContent('<div style="text-align: center;"><i class="ri-loader-line spin"></i> Loading blok boundaries...</div>')
       .openOn(this.map);
 
-    this.bprdApiService.getBlokBoundariesViaBackend(kdKec, kdKel).subscribe({
-      next: (blokBoundaries) => {
+    // Hit 2 endpoints in parallel: boundaries from BPRD + count from local DB
+    const boundariesRequest$ = this.bprdApiService.getBlokBoundariesViaBackend(kdKec, kdKel);
+    const countRequest$ = this.restApiService.getBlokWithCount(kdProp, kdDati2, kdKecParam, kdKelParam);
+
+    // Use forkJoin to fetch both data simultaneously
+    forkJoin({
+      boundaries: boundariesRequest$,
+      countData: countRequest$
+    }).subscribe({
+      next: ({ boundaries: blokBoundaries, countData: blokCountData }) => {
         // Close loading popup
         this.map?.closePopup(loadingPopup);
 
         console.log(`📡 Received ${blokBoundaries.length} blok boundaries for ${kelurahanName}`);
+        console.log(`📊 Received blok count data:`, blokCountData);
 
         if (blokBoundaries && blokBoundaries.length > 0) {
           // Remove existing blok layer
@@ -1468,8 +1548,11 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
               const props = feature.properties || {};
               const kdBlok = props.kd_blok || 'N/A';
 
-              // Add label for blok
-              layer.bindTooltip(kdBlok, {
+              // Find count for this blok
+              const blokCount = blokCountData?.find((blok: any) => blok.kdBlok === kdBlok)?.jumlahBidang || 0;
+
+              // Add label for blok with count
+              layer.bindTooltip(`${kdBlok} (${blokCount})`, {
                 permanent: true,
                 direction: 'center',
                 className: 'blok-label',
@@ -1546,7 +1629,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
             // Add to map
             this.blokBoundariesLayer.addTo(this.map);
 
-            console.log(`✅ Blok boundaries displayed for ${kelurahanName}`);
+            console.log(`✅ Blok boundaries with count displayed for ${kelurahanName}`);
 
             // Dim the kelurahan layer
             if (kelurahanLayer) {
@@ -1571,7 +1654,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
         // Close loading popup
         this.map?.closePopup(loadingPopup);
 
-        console.error('❌ Error loading blok boundaries:', error);
+        console.error('❌ Error loading blok boundaries or count:', error);
         const errorPopup = L.popup()
           .setLatLng(kelurahanLayer.getBounds().getCenter())
           .setContent(`<div style="text-align: center; color: #dc2626;">❌ Failed to load blok boundaries for ${kelurahanName}</div>`)
@@ -2172,12 +2255,17 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
-        this.tematikLayersArray.push({
-          key: key,
-          ...layer,
-          color: cssColor, // Use converted CSS color
-          label: layer.label || `Layer ${key}` // Add default label
-        });
+        // Only add layer if it has a valid color
+        if (cssColor) {
+          this.tematikLayersArray.push({
+            key: key,
+            ...layer,
+            color: cssColor, // Use converted CSS color
+            label: layer.label || `Layer ${key}` // Add default label
+          });
+        } else {
+          console.error(`❌ Skipping layer ${key} due to missing color`);
+        }
       }
 
       console.log('📊 Tematik layers processed:', this.tematikLayersArray);
@@ -2286,9 +2374,21 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           };
         }
 
-        const layerColor = feature.properties.layerColor || '#3388ff';
+        const layerColor = feature.properties.layerColor;
         const nop = feature.properties.nop || 'UNKNOWN';
         const layerKey = feature.properties.layerKey || 'UNKNOWN';
+
+        // Check if layerColor exists
+        if (!layerColor) {
+          console.error(`❌ No color available for feature ${nop} in layer ${layerKey}`);
+          return {
+            fillColor: '#ff0000', // Red for error
+            weight: 2,
+            opacity: 1,
+            color: '#ff0000',
+            fillOpacity: 0.6
+          };
+        }
 
         // Only log if properties are missing (to reduce console spam)
         if (!feature.properties.layerColor || !feature.properties.nop || !feature.properties.layerKey) {

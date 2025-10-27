@@ -641,6 +641,9 @@
     "COUNTDOWN": {
       "TEXT": "Countdown Display"
     },
+    "DASHBOARD_PAJAK": {
+      "TEXT": "Tax Dashboard"
+    },
     "BIDANG": {
       "TEXT": "Bidang",
       "MAP": {

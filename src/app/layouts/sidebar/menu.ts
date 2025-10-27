@@ -41,6 +41,21 @@ export const MENU: MenuItem[] = [
   //   isLayout: false,
   // },
   {
+    id: 7,
+    label: 'MENUITEMS.DASHBOARD_PAJAK.TEXT',
+    icon: 'ri-dashboard-line',
+    isCollapsed: true,
+    link: '/dashboard-pajak',
+    subItems: [],
+    isTitle: false,
+    badge: {
+      variant: 'success',
+      text: 'New'
+    },
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 6,
     label: 'MENUITEMS.BIDANG.TEXT',
     icon: 'ri-map-2-line',

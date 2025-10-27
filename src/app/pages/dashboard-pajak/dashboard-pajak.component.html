@@ -1,0 +1,177 @@
+<div class="container-fluid py-4">
+  <!-- Header Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="header-card">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h2 class="mb-2 fw-bold text-white">
+              <i class="ri-dashboard-line me-2"></i>Dashboard Pajak Daerah
+            </h2>
+            <p class="text-muted mb-0">Visualisasi dan Analisis Pendapatan Pajak Daerah</p>
+          </div>
+          <div class="header-icon">
+            <i class="ri-bar-chart-box-line"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards with Icons -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h5 class="section-title mb-3">
+        <i class="ri-money-dollar-circle-line me-2"></i>Ringkasan Total Pajak per Kategori
+      </h5>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let kategori of kategoris; let i = index">
+      <div class="summary-card" [attr.data-index]="i">
+        <div class="summary-card-icon" [ngClass]="'bg-gradient-' + (i % 5 + 1)">
+          <i [class]="getCategoryIcon(kategori)"></i>
+        </div>
+        <div class="summary-card-content">
+          <h6 class="category-name mb-1">{{ kategori }}</h6>
+          <h4 class="category-value mb-0">{{ formatCurrency(getTotalByCategory(kategori)) }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <h5 class="section-title mb-3">
+        <i class="ri-line-chart-line me-2"></i>Grafik Tren Pajak per Kategori
+      </h5>
+      <p class="text-muted small mb-0">Klik pada chart untuk melihat detail lebih lanjut</p>
+    </div>
+  </div>
+
+  <!-- Charts Grid (2 columns) -->
+  <div class="row g-4">
+    <div class="col-xl-6 col-lg-6 mb-4" *ngFor="let kategori of kategoris; let i = index">
+      <div class="chart-card-wrapper" (click)="openModal(kategori)">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <div class="chart-icon me-3" [ngClass]="'bg-gradient-' + (i % 5 + 1)">
+                  <i [class]="getCategoryIcon(kategori)"></i>
+                </div>
+                <div>
+                  <h5 class="chart-title mb-1">{{ kategori }}</h5>
+                  <small class="text-muted">Total: {{ formatCurrency(getTotalByCategory(kategori)) }}</small>
+                </div>
+              </div>
+              <div class="expand-icon">
+                <i class="ri-fullscreen-line"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-body">
+            <div *ngIf="getChartOptions(kategori)">
+              <apx-chart
+                [series]="getChartOptions(kategori)!.series!"
+                [chart]="getChartOptions(kategori)!.chart!"
+                [xaxis]="getChartOptions(kategori)!.xaxis!"
+                [yaxis]="getChartOptions(kategori)!.yaxis!"
+                [dataLabels]="getChartOptions(kategori)!.dataLabels!"
+                [grid]="getChartOptions(kategori)!.grid!"
+                [stroke]="getChartOptions(kategori)!.stroke!"
+                [tooltip]="getChartOptions(kategori)!.tooltip!"
+                [legend]="getChartOptions(kategori)!.legend!"
+                [colors]="getChartOptions(kategori)!.colors!"
+              ></apx-chart>
+            </div>
+          </div>
+
+          <div class="chart-footer">
+            <div class="d-flex justify-content-between align-items-center">
+              <small class="text-muted">
+                <i class="ri-time-line me-1"></i>Data 2022 - 2025
+              </small>
+              <span class="view-detail-badge">
+                <i class="ri-eye-line me-1"></i>Klik untuk detail
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Modal for enlarged chart -->
+<div class="custom-modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"
+     (click)="closeModal()">
+  <div class="custom-modal-dialog" role="document" (click)="$event.stopPropagation()">
+    <div class="custom-modal-content">
+      <div class="custom-modal-header">
+        <div class="d-flex align-items-center">
+          <div class="modal-icon me-3">
+            <i [class]="getCategoryIcon(selectedCategory)"></i>
+          </div>
+          <div>
+            <h4 class="modal-title mb-1 text-white">{{ selectedCategory }}</h4>
+            <small class="text-muted">Analisis Detail Tren Pajak</small>
+          </div>
+        </div>
+        <button type="button" class="modal-close-btn" (click)="closeModal()">
+          <i class="ri-close-line"></i>
+        </button>
+      </div>
+
+      <div class="custom-modal-body">
+        <!-- Chart -->
+        <div class="modal-chart-container" *ngIf="selectedChartOptions">
+          <apx-chart
+            [series]="selectedChartOptions.series!"
+            [chart]="selectedChartOptions.chart!"
+            [xaxis]="selectedChartOptions.xaxis!"
+            [yaxis]="selectedChartOptions.yaxis!"
+            [dataLabels]="selectedChartOptions.dataLabels!"
+            [grid]="selectedChartOptions.grid!"
+            [stroke]="selectedChartOptions.stroke!"
+            [tooltip]="selectedChartOptions.tooltip!"
+            [legend]="selectedChartOptions.legend!"
+            [colors]="selectedChartOptions.colors!"
+          ></apx-chart>
+        </div>
+
+        <!-- Enhanced Stats -->
+        <div class="row g-3 mt-4" *ngIf="selectedCategory">
+          <div class="col-md-6">
+            <div class="stat-card stat-card-primary">
+              <div class="stat-icon">
+                <i class="ri-money-dollar-circle-fill"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label">Total Keseluruhan</h6>
+                <h3 class="stat-value">{{ formatCurrency(getTotalByCategory(selectedCategory)) }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="stat-card stat-card-info">
+              <div class="stat-icon">
+                <i class="ri-bar-chart-fill"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label">Rata-rata per Bulan</h6>
+                <h3 class="stat-value">{{ formatCurrency(getAverageByCategory(selectedCategory)) }}</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal backdrop -->
+<div class="custom-backdrop" [class.show]="showModal" *ngIf="showModal" (click)="closeModal()"></div>

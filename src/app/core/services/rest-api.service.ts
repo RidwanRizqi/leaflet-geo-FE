@@ -544,6 +544,11 @@ export class RestApiService {
             .pipe(map((response) => response.data || response));
     }
 
+    getBlokWithCount(kdProp: string, kdDati2: string, kdKec: string, kdKel: string): Observable<any> {
+        return this.http.get<any>(this.apiUrl + `bidang/blok-with-count/${kdProp}/${kdDati2}/${kdKec}/${kdKel}`)
+            .pipe(map((response) => response.data || response));
+    }
+
     getTotalBidangCount(): Observable<any> {
         return this.http.get<any>(this.apiUrl + `bidang/total-count`)
             .pipe(map((response) => response.totalBidang || 0));

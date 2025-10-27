@@ -7,7 +7,15 @@ import { LayoutComponent } from './layouts/layout.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 const routes: Routes = [
-  { path: '', component: LayoutComponent, loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule)},
+  {
+    path: '',
+    component: LayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
+      { path: 'dashboard-pajak', loadChildren: () => import('./pages/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
+      { path: '', loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule) }
+    ]
+  },
   { path: 'auth', loadChildren: () => import('./account/account.module').then(m => m.AccountModule)  },
   { path: 'pages', loadChildren: () => import('./extraspages/extraspages.module').then(m => m.ExtraspagesModule)},
   {
