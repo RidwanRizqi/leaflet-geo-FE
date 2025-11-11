@@ -75,27 +75,7 @@
                       </div>
                     </div>
 
-                    <!-- Tematik Legend -->
-                    <div class="card bg-light">
-                      <div class="card-header">
-                        <h6 class="mb-0">
-                          <i class="ri-palette-line me-2"></i>
-                          Legend Tematik
-                        </h6>
-                      </div>
-                      <div class="card-body">
-                        <div class="d-flex flex-wrap gap-3">
-                          <div *ngFor="let layer of tematikLayersArray" class="d-flex align-items-center">
-                            <div
-                              class="legend-color-box me-2"
-                              [style.background-color]="layer.color"
-                              style="width: 20px; height: 20px; border: 1px solid #ccc; border-radius: 3px;">
-                            </div>
-                            <span class="small">{{ layer.label }} ({{ layer.data.length }})</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    <!-- Tematik Legend - Removed from here, will be floating on map -->
                   </div>
                 </div>
               </div>
@@ -157,8 +137,34 @@
         </div>
 
         <!-- Map Container -->
-        <div class="map-container">
+        <div class="map-container" style="position: relative;">
           <div #mapContainer class="leaflet-container"></div>
+
+          <!-- Floating Legend on Map -->
+          <div *ngIf="hasTematikLayers" class="floating-legend">
+            <div class="legend-header">
+              <h6 class="mb-0 text-white">
+                <i class="ri-palette-line me-2"></i>
+                Legend Tematik
+              </h6>
+              <button
+                class="btn-legend-close"
+                (click)="toggleLegend()"
+                title="Toggle Legend">
+                <i class="ri-{{ isLegendVisible ? 'eye-off' : 'eye' }}-line"></i>
+              </button>
+            </div>
+            <div class="legend-body" *ngIf="isLegendVisible">
+              <div *ngFor="let layer of tematikLayersArray" class="legend-item">
+                <div
+                  class="legend-color-box"
+                  [style.background-color]="layer.color">
+                </div>
+                <span class="legend-label">{{ layer.label }}</span>
+                <span class="legend-count">({{ layer.data.length }})</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Loading State -->

@@ -1,0 +1,247 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0 font-size-18">Dashboard Pendapatan Pajak</h4>
+
+        <div class="page-title-right">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedYear" (change)="onYearChange()" style="width: auto;">
+            <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row" *ngIf="summary && !isLoadingSummary">
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Target</p>
+              <h4 class="mb-0">{{ formatCurrency(summary.totalTarget) }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                <span class="avatar-title">
+                  <i class="bx bx-target-lock font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Realisasi</p>
+              <h4 class="mb-0">{{ formatCurrency(summary.totalRealisasi) }}</h4>
+              <p class="mb-0">
+                <span class="badge"
+                      [ngClass]="'badge-soft-' + getProgressBarColor(summary.persentasePencapaian)">
+                  {{ summary.persentasePencapaian | number:'1.2-2' }}%
+                </span>
+              </p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-success">
+                <span class="avatar-title">
+                  <i class="bx bx-dollar-circle font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Wajib Pajak</p>
+              <h4 class="mb-0">{{ formatNumber(summary.totalWp) }}</h4>
+              <p class="text-muted mb-0"><small>{{ formatNumber(summary.totalObjek) }} Objek Pajak</small></p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-info">
+                <span class="avatar-title">
+                  <i class="bx bx-user font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Transaksi</p>
+              <h4 class="mb-0">{{ formatNumber(summary.totalTransaksi) }}</h4>
+              <p class="text-muted mb-0"><small>{{ formatNumber(summary.jenisPajakAktif) }} Jenis Pajak</small></p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-warning">
+                <span class="avatar-title">
+                  <i class="bx bx-receipt font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Summary -->
+  <div class="row" *ngIf="isLoadingSummary">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target vs Realisasi Chart -->
+  <div class="row">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Target vs Realisasi Per Jenis Pajak</h4>
+
+          <div *ngIf="isLoadingChart" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingChart && chartOptions">
+            <apx-chart
+              [series]="chartOptions.series"
+              [chart]="chartOptions.chart"
+              [plotOptions]="chartOptions.plotOptions"
+              [dataLabels]="chartOptions.dataLabels"
+              [stroke]="chartOptions.stroke"
+              [xaxis]="chartOptions.xaxis"
+              [yaxis]="chartOptions.yaxis"
+              [fill]="chartOptions.fill"
+              [tooltip]="chartOptions.tooltip"
+              [colors]="chartOptions.colors">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Pencapaian Target</h4>
+
+          <div *ngIf="isLoadingChart" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingChart">
+            <div *ngFor="let item of targetRealisasi" class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">{{ item.jenisPajak }}</span>
+                <span class="text-muted">{{ item.persentasePencapaian | number:'1.1-1' }}%</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar"
+                     [ngClass]="'bg-' + getProgressBarColor(item.persentasePencapaian)"
+                     [style.width.%]="item.persentasePencapaian"></div>
+              </div>
+              <small class="text-muted">
+                {{ formatCurrency(item.realisasi) }} / {{ formatCurrency(item.target) }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Bulanan -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Trend Realisasi Bulanan (Kumulatif)</h4>
+
+          <div *ngIf="isLoadingTrend" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingTrend && trendChartOptions">
+            <apx-chart
+              [series]="trendChartOptions.series"
+              [chart]="trendChartOptions.chart"
+              [dataLabels]="trendChartOptions.dataLabels"
+              [stroke]="trendChartOptions.stroke"
+              [xaxis]="trendChartOptions.xaxis"
+              [yaxis]="trendChartOptions.yaxis"
+              [tooltip]="trendChartOptions.tooltip"
+              [colors]="trendChartOptions.colors">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Kontributor -->
+  <!-- <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Top 10 Wajib Pajak Kontributor</h4>
+
+          <div *ngIf="isLoadingTop" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingTop" class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>NPWPD</th>
+                  <th>Nama Wajib Pajak</th>
+                  <th>Jenis Pajak</th>
+                  <th class="text-end">Total Pembayaran</th>
+                  <th class="text-center">Jumlah Transaksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of topKontributor; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.npwpd }}</td>
+                  <td>{{ item.namaWp }}</td>
+                  <td><span class="badge badge-soft-primary">{{ item.jenisPajak }}</span></td>
+                  <td class="text-end">{{ formatCurrency(item.totalPembayaran) }}</td>
+                  <td class="text-center">{{ formatNumber(item.jumlahTransaksi) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</div>

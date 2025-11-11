@@ -107,6 +107,7 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayers: any = {};
   tematikLayersArray: any[] = [];
   tematikLayer: L.GeoJSON | null = null;
+  isLegendVisible: boolean = true; // Control legend visibility
 
   constructor(
     private restApiService: RestApiService,
@@ -2476,5 +2477,12 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tematikLayersArray = [];
 
     console.log('🧹 Tematik data cleared from map');
+  }
+
+  /**
+   * Toggle legend visibility
+   */
+  toggleLegend(): void {
+    this.isLegendVisible = !this.isLegendVisible;
   }
 }

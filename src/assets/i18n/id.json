@@ -644,6 +644,9 @@
     "DASHBOARD_PAJAK": {
       "TEXT": "Dashboard Pajak"
     },
+    "DASHBOARD_PENDAPATAN": {
+      "TEXT": "Dashboard Pendapatan"
+    },
     "ORGANIZATIONLIST": {
       "TEXT": "Daftar Organisasi"
     },

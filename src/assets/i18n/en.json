@@ -644,6 +644,9 @@
     "DASHBOARD_PAJAK": {
       "TEXT": "Tax Dashboard"
     },
+    "DASHBOARD_PENDAPATAN": {
+      "TEXT": "Revenue Dashboard"
+    },
     "BIDANG": {
       "TEXT": "Bidang",
       "MAP": {

@@ -56,6 +56,21 @@ export const MENU: MenuItem[] = [
     isLayout: false,
   },
   {
+    id: 8,
+    label: 'MENUITEMS.DASHBOARD_PENDAPATAN.TEXT',
+    icon: 'ri-money-dollar-circle-line',
+    isCollapsed: true,
+    link: '/dashboard-pendapatan',
+    subItems: [],
+    isTitle: false,
+    badge: {
+      variant: 'warning',
+      text: 'Target'
+    },
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 6,
     label: 'MENUITEMS.BIDANG.TEXT',
     icon: 'ri-map-2-line',

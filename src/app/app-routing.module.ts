@@ -13,6 +13,7 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./pages/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
+      { path: 'dashboard-pendapatan', loadComponent: () => import('./pages/dashboard-pendapatan/dashboard-pendapatan.component').then(m => m.DashboardPendapatanComponent) },
       { path: '', loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule) }
     ]
   },
