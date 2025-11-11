@@ -35,6 +35,10 @@ export class DashboardPajakComponent implements OnInit {
   selectedChartOptions: Partial<ChartOptions> | null = null;
   showModal: boolean = false;
 
+  // Filter tahun
+  selectedYear: number = 2025;
+  availableYears: number[] = [2020, 2021, 2022, 2023, 2024, 2025];
+
   // Color palette for charts - Modern & Colorful
   private colorPalette = [
     '#667eea', // Purple Blue
@@ -73,49 +77,54 @@ export class DashboardPajakComponent implements OnInit {
     this.kategoris = [...new Set(this.pajakData.map(item => item.kategori))];
 
     // Create chart options for each category
+    this.updateCharts();
+  }
+
+  onYearChange(): void {
+    console.log('Year changed to:', this.selectedYear);
+    // Recreate charts with new year filter
+    this.updateCharts();
+  }
+
+  updateCharts(): void {
+    // Clear and recreate all charts
+    this.chartOptionsMap.clear();
     this.kategoris.forEach((kategori, index) => {
       const chartOptions = this.createChartOptions(kategori, this.colorPalette[index % this.colorPalette.length]);
       this.chartOptionsMap.set(kategori, chartOptions);
+      console.log(`Chart updated for ${kategori}, year: ${this.selectedYear}`);
     });
   }
 
   createChartOptions(kategori: string, color: string): Partial<ChartOptions> {
-    // Filter data for this category
-    const categoryData = this.pajakData.filter(item => item.kategori === kategori);
+    // Filter data for this category and selected year (use == for loose comparison)
+    const categoryData = this.pajakData.filter(item =>
+      item.kategori === kategori && item.tahun == this.selectedYear
+    );
 
-    // Group by year
-    const yearlyData = this.groupByYear(categoryData);
+    console.log(`Creating chart for ${kategori}, year ${this.selectedYear}, data count: ${categoryData.length}`);
 
-    // Get all unique years from all data to ensure consistency
-    const allYears = ['2022', '2023', '2024', '2025'];
+    // Debug: check first item
+    const sampleData = this.pajakData.find(item => item.kategori === kategori);
+    if (sampleData) {
+      console.log(`Sample data for ${kategori}:`, sampleData, `Type of tahun:`, typeof sampleData.tahun, `selectedYear type:`, typeof this.selectedYear);
+    }
 
     // Get all unique months
     const allMonths = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-    // Fixed colors for each year - consistent across all charts
-    const yearColors = {
-      '2022': '#667eea', // Purple Blue
-      '2023': '#f093fb', // Pink
-      '2024': '#4facfe', // Sky Blue
-      '2025': '#43e97b'  // Green
-    };
-
-    // Prepare series data with consistent years
-    const series: ApexAxisChartSeries = allYears.map(year => {
-      const yearData = yearlyData[year] || [];
-
-      // Create data array with all months, filling missing values with 0
-      const data = allMonths.map(month => {
-        const monthData = yearData.find(item => item.bulan === month);
-        return monthData ? monthData.value : 0;
-      });
-
-      return {
-        name: year,
-        data: data
-      };
+    // Create data array with all months, filling missing values with 0
+    const data = allMonths.map(month => {
+      const monthData = categoryData.find(item => item.bulan === month);
+      return monthData ? monthData.value : 0;
     });
+
+    // Prepare series data for selected year only
+    const series: ApexAxisChartSeries = [{
+      name: this.selectedYear.toString(),
+      data: data
+    }];
 
     return {
       series: series,
@@ -167,7 +176,7 @@ export class DashboardPajakComponent implements OnInit {
         width: 3,
         lineCap: 'round'
       },
-      colors: [yearColors['2022'], yearColors['2023'], yearColors['2024'], yearColors['2025']],
+      colors: [color],
       xaxis: {
         categories: allMonths,
         labels: {
@@ -317,12 +326,12 @@ export class DashboardPajakComponent implements OnInit {
 
   getTotalByCategory(kategori: string): number {
     return this.pajakData
-      .filter(item => item.kategori === kategori)
+      .filter(item => item.kategori === kategori && item.tahun == this.selectedYear)
       .reduce((sum, item) => sum + item.value, 0);
   }
 
   getDataCountByCategory(kategori: string): number {
-    return this.pajakData.filter(item => item.kategori === kategori).length;
+    return this.pajakData.filter(item => item.kategori === kategori && item.tahun == this.selectedYear).length;
   }
 
   getAverageByCategory(kategori: string): number {
