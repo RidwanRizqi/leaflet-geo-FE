@@ -23,6 +23,14 @@ export class DashboardPendapatanComponent implements OnInit {
   // Filter
   selectedYear: number = 2025;
   availableYears: number[] = [2021, 2022, 2023, 2024, 2025];
+  
+  // Expand/Collapse
+  expandedIndex: number | null = null;
+  
+  // Modal Breakdown
+  showBreakdownModal: boolean = false;
+  selectedJenisPajak: TargetRealisasi | null = null;
+  breakdownChartOptions: any;
 
   // Loading states
   isLoadingSummary = false;
@@ -254,6 +262,94 @@ export class DashboardPendapatanComponent implements OnInit {
     if (percentage >= 70) return 'info';
     if (percentage >= 50) return 'warning';
     return 'danger';
+  }
+  
+  toggleExpand(index: number): void {
+    this.expandedIndex = this.expandedIndex === index ? null : index;
+  }
+  
+  openBreakdownModal(item: TargetRealisasi): void {
+    this.selectedJenisPajak = item;
+    this.showBreakdownModal = true;
+    
+    if (item.details && item.details.length > 0) {
+      this.prepareBreakdownChart(item);
+    }
+  }
+  
+  closeBreakdownModal(): void {
+    this.showBreakdownModal = false;
+    this.selectedJenisPajak = null;
+  }
+  
+  prepareBreakdownChart(item: TargetRealisasi): void {
+    if (!item.details) return;
+    
+    const labels = item.details.map(d => d.namaRekening);
+    const values = item.details.map(d => d.realisasi / 1000000); // Convert to millions
+    
+    this.breakdownChartOptions = {
+      series: [{
+        name: 'Realisasi',
+        data: values
+      }],
+      chart: {
+        type: 'bar',
+        height: 350,
+        toolbar: {
+          show: true
+        }
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 8,
+          horizontal: true,
+          distributed: true,
+          dataLabels: {
+            position: 'top'
+          }
+        }
+      },
+      colors: ['#556ee6', '#34c38f', '#f46a6a', '#50a5f1', '#f1b44c', '#343a40', '#74788d', '#e83e8c', '#6610f2', '#20c997'],
+      dataLabels: {
+        enabled: true,
+        formatter: function (val: number) {
+          return val.toFixed(2) + ' Jt';
+        },
+        offsetX: 0,
+        style: {
+          fontSize: '10px',
+          colors: ['#fff']
+        }
+      },
+      xaxis: {
+        categories: labels,
+        labels: {
+          formatter: function (val: number) {
+            return val.toFixed(0) + ' Jt';
+          }
+        }
+      },
+      yaxis: {
+        labels: {
+          show: true,
+          maxWidth: 200,
+          style: {
+            fontSize: '11px'
+          }
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: function (val: number) {
+            return 'Rp ' + (val).toFixed(2) + ' Juta';
+          }
+        }
+      },
+      legend: {
+        show: false
+      }
+    };
   }
 }
 

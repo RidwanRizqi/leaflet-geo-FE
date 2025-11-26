@@ -9,6 +9,13 @@ export interface DashboardSummary {
   selisih: number;
 }
 
+export interface RekeningDetail {
+  namaRekening: string;
+  idRekening: number;
+  kodeRekening: string;
+  realisasi: number;
+}
+
 export interface TargetRealisasi {
   jenisPajak: string;
   urutan: number;
@@ -16,6 +23,7 @@ export interface TargetRealisasi {
   realisasi: number;
   selisih: number;
   persentasePencapaian: number;
+  details?: RekeningDetail[]; // Breakdown per rekening
 }
 
 export interface TrendBulanan {
