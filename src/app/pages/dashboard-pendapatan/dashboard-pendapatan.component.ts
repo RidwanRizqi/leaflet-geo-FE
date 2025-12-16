@@ -23,10 +23,10 @@ export class DashboardPendapatanComponent implements OnInit {
   // Filter
   selectedYear: number = 2025;
   availableYears: number[] = [2021, 2022, 2023, 2024, 2025];
-  
+
   // Expand/Collapse
   expandedIndex: number | null = null;
-  
+
   // Modal Breakdown
   showBreakdownModal: boolean = false;
   selectedJenisPajak: TargetRealisasi | null = null;
@@ -263,31 +263,31 @@ export class DashboardPendapatanComponent implements OnInit {
     if (percentage >= 50) return 'warning';
     return 'danger';
   }
-  
+
   toggleExpand(index: number): void {
     this.expandedIndex = this.expandedIndex === index ? null : index;
   }
-  
+
   openBreakdownModal(item: TargetRealisasi): void {
     this.selectedJenisPajak = item;
     this.showBreakdownModal = true;
-    
+
     if (item.details && item.details.length > 0) {
       this.prepareBreakdownChart(item);
     }
   }
-  
+
   closeBreakdownModal(): void {
     this.showBreakdownModal = false;
     this.selectedJenisPajak = null;
   }
-  
+
   prepareBreakdownChart(item: TargetRealisasi): void {
     if (!item.details) return;
-    
+
     const labels = item.details.map(d => d.namaRekening);
     const values = item.details.map(d => d.realisasi / 1000000); // Convert to millions
-    
+
     this.breakdownChartOptions = {
       series: [{
         name: 'Realisasi',

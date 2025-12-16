@@ -160,14 +160,14 @@
             <div *ngFor="let item of targetRealisasi; let i = index" class="mb-3">
               <div class="d-flex justify-content-between mb-1 align-items-center">
                 <span class="text-muted d-flex align-items-center">
-                  <i class="ri-arrow-{{ expandedIndex === i ? 'down' : 'right' }}-s-line me-1" 
-                     style="cursor: pointer;" 
+                  <i class="ri-arrow-{{ expandedIndex === i ? 'down' : 'right' }}-s-line me-1"
+                     style="cursor: pointer;"
                      (click)="toggleExpand(i)"></i>
                   {{ item.jenisPajak }}
                 </span>
                 <div class="d-flex align-items-center gap-2">
                   <span class="text-muted">{{ item.persentasePencapaian | number:'1.1-1' }}%</span>
-                  <button class="btn btn-sm btn-soft-primary" 
+                  <button class="btn btn-sm btn-soft-primary"
                           (click)="openBreakdownModal(item)"
                           *ngIf="item.details && item.details.length > 0">
                     <i class="ri-bar-chart-box-line"></i>
@@ -182,10 +182,10 @@
               <small class="text-muted">
                 {{ formatCurrency(item.realisasi) }} / {{ formatCurrency(item.target) }}
               </small>
-              
+
               <!-- Breakdown Detail -->
-              <div *ngIf="expandedIndex === i && item.details && item.details.length > 0" 
-                   class="mt-2 ps-3" 
+              <div *ngIf="expandedIndex === i && item.details && item.details.length > 0"
+                   class="mt-2 ps-3"
                    style="border-left: 2px solid #dee2e6;">
                 <small class="text-muted d-block mb-2"><strong>Detail Rekening:</strong></small>
                 <div *ngFor="let detail of item.details" class="mb-1">
@@ -273,10 +273,10 @@
 </div>
 
 <!-- Breakdown Modal -->
-<div class="modal fade show" 
-     [ngClass]="{'d-block': showBreakdownModal}" 
+<div class="modal fade show"
+     [ngClass]="{'d-block': showBreakdownModal}"
      [style.display]="showBreakdownModal ? 'block' : 'none'"
-     tabindex="-1" 
+     tabindex="-1"
      role="dialog"
      *ngIf="showBreakdownModal">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
@@ -308,11 +308,11 @@
             </div>
           </div>
           <div class="col-md-4">
-            <div class="card mini-stats-wid border-start border-4" 
+            <div class="card mini-stats-wid border-start border-4"
                  [ngClass]="selectedJenisPajak.persentasePencapaian >= 100 ? 'border-success' : 'border-warning'">
               <div class="card-body">
                 <p class="text-muted fw-medium mb-2">Pencapaian</p>
-                <h4 class="mb-0" 
+                <h4 class="mb-0"
                     [ngClass]="selectedJenisPajak.persentasePencapaian >= 100 ? 'text-success' : 'text-warning'">
                   {{ selectedJenisPajak.persentasePencapaian | number:'1.2-2' }}%
                 </h4>
