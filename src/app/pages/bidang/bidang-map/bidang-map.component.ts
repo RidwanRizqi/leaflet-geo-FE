@@ -780,7 +780,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private convertBprdGeomToGeoJSON(boundary: any): any {
     try {
-      console.log('🔄 Converting BPRD boundary for:', boundary.nama || boundary.kd_blok);
+      console.log('🔄 Converting BPRD boundary for:', boundary.nama || boundary.kd_blok || boundary.nop);
 
       // Backend already provides geojson field with proper GeoJSON geometry
       if (boundary.geojson && typeof boundary.geojson === 'object') {
@@ -788,13 +788,19 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Validate that it's a proper GeoJSON geometry
         if (geom.type && geom.coordinates) {
-          console.log(`✅ Valid GeoJSON for ${boundary.nama || boundary.kd_blok}: type=${geom.type}`);
+          console.log(`✅ Valid GeoJSON for ${boundary.nama || boundary.kd_blok || boundary.nop}: type=${geom.type}`);
 
           // Build properties - include all relevant fields
           const properties: any = {
             id: boundary.id,
             is_active: boundary.is_active
           };
+
+          // IMPORTANT: Copy properties from geojson.properties (payment status, etc.)
+          if (geom.properties && typeof geom.properties === 'object') {
+            Object.assign(properties, geom.properties);
+            console.log('💰 Copied geojson.properties:', geom.properties);
+          }
 
           // Add kd_kec (common to all)
           if (boundary.kd_kec) properties.kd_kec = boundary.kd_kec;
@@ -821,7 +827,10 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           return {
             type: 'Feature',
             properties: properties,
-            geometry: geom
+            geometry: {
+              type: geom.type,
+              coordinates: geom.coordinates
+            }
           };
         } else {
           console.warn(`⚠️ Invalid GeoJSON structure for ${boundary.nama || boundary.kd_blok}:`, geom);
@@ -1695,33 +1704,87 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             this.map.removeLayer(this.bidangBoundariesLayer);
           }
 
-          // Create bidang boundaries layer with purple/violet color
+          // Create bidang boundaries layer with color based on payment status
           this.bidangBoundariesLayer = L.geoJSON([], {
-            style: (feature) => ({
-              color: '#9333ea', // Purple color for bidang
-              weight: 2,
-              opacity: 1,
-              fillColor: '#c084fc',
-              fillOpacity: 0.4,
-              dashArray: '2, 2'
-            }),
+            style: (feature) => {
+              const props = feature?.properties || {};
+              const statusBayar = props.status_bayar || 'UNKNOWN';
+              
+              // Color based on payment status
+              let fillColor = '#94a3b8'; // Default gray for UNKNOWN
+              let color = '#64748b';
+              
+              if (statusBayar === 'LUNAS') {
+                fillColor = '#22c55e'; // Green for paid
+                color = '#16a34a';
+              } else if (statusBayar === 'TERHUTANG' || statusBayar === 'BELUM LUNAS') {
+                fillColor = '#ef4444'; // Red for unpaid
+                color = '#dc2626';
+              }
+              
+              return {
+                color: color,
+                weight: 2,
+                opacity: 1,
+                fillColor: fillColor,
+                fillOpacity: 0.5,
+                dashArray: '2, 2'
+              };
+            },
             onEachFeature: (feature, layer) => {
               const props = feature.properties || {};
               const nop = props.nop || 'N/A';
+              const statusBayar = props.status_bayar || 'UNKNOWN';
 
               // Debug: log available properties
               console.log('🔍 Bidang properties available:', Object.keys(props));
               console.log('📋 Bidang props:', props);
+              console.log('💰 Status Bayar:', statusBayar);
 
               // Extract no_urut directly (it should be available now)
               const noUrut = props.no_urut || 'UNKNOWN';
 
-              layer.bindTooltip(noUrut, {
+              // Create tooltip with status bayar indicator
+              let tooltipContent = noUrut;
+              if (statusBayar === 'LUNAS') {
+                tooltipContent += ' ✓'; // Checkmark for paid
+              } else if (statusBayar === 'TERHUTANG' || statusBayar === 'BELUM LUNAS') {
+                tooltipContent += ' ✗'; // X for unpaid
+              }
+
+              layer.bindTooltip(tooltipContent, {
                 permanent: true,
                 direction: 'center',
                 className: 'bidang-label',
                 opacity: 0.9
               });
+
+              // Create popup with payment status info
+              const tagihan = props.tagihan ? `Rp ${Number(props.tagihan).toLocaleString('id-ID')}` : 'N/A';
+              const bayar = props.bayar ? `Rp ${Number(props.bayar).toLocaleString('id-ID')}` : 'N/A';
+              
+              let statusBadge = '';
+              if (statusBayar === 'LUNAS') {
+                statusBadge = '<span style="color: #16a34a; font-weight: bold;">✓ LUNAS</span>';
+              } else if (statusBayar === 'TERHUTANG' || statusBayar === 'BELUM LUNAS') {
+                statusBadge = '<span style="color: #dc2626; font-weight: bold;">✗ BELUM LUNAS</span>';
+              } else {
+                statusBadge = '<span style="color: #64748b; font-weight: bold;">? TIDAK DIKETAHUI</span>';
+              }
+
+              layer.bindPopup(`
+                <div class="bidang-popup">
+                  <h6><strong>Bidang ${noUrut}</strong></h6>
+                  <p><strong>NOP:</strong> ${nop}</p>
+                  <p><strong>Status Bayar:</strong> ${statusBadge}</p>
+                  <p><strong>Tagihan:</strong> ${tagihan}</p>
+                  <p><strong>Dibayar:</strong> ${bayar}</p>
+                  <hr style="margin: 8px 0;">
+                  <p style="font-size: 11px; color: #6b7280; margin: 0;">
+                    <em>Klik untuk detail lengkap</em>
+                  </p>
+                </div>
+              `);
 
               // Hover effects and click handler
               layer.on({

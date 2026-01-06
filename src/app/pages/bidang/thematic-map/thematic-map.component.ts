@@ -109,6 +109,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayer: L.GeoJSON | null = null;
   isLegendVisible: boolean = true; // Control legend visibility
 
+  // View Mode
+  viewMode: 'default' | 'status_bayar' = 'default';
+  statusBayarLegend: L.Control | null = null;
+
   constructor(
     private restApiService: RestApiService,
     private bprdApiService: BprdApiService
@@ -184,42 +188,42 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           zoom: 11
         });
 
-      // Define base layers
-      const baseLayers = {
-        'Google Satellite': L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-          maxZoom: 20,
-          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-          attribution: '© Google Maps'
-        }),
-        'Google Hybrid': L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-          maxZoom: 20,
-          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-          attribution: '© Google Maps'
-        }),
-        'Google Streets': L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-          maxZoom: 20,
-          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-          attribution: '© Google Maps'
-        }),
-        'Google Terrain': L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
-          maxZoom: 20,
-          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-          attribution: '© Google Maps'
-        }),
-        'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19,
-          attribution: '© OpenStreetMap contributors'
-        })
-      };
+        // Define base layers
+        const baseLayers = {
+          'Google Satellite': L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+          }),
+          'Google Hybrid': L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+          }),
+          'Google Streets': L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+          }),
+          'Google Terrain': L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+            maxZoom: 20,
+            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+            attribution: '© Google Maps'
+          }),
+          'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+          })
+        };
 
-      // Add default layer (Google Satellite)
-      baseLayers['Google Satellite'].addTo(this.map);
+        // Add default layer (Google Satellite)
+        baseLayers['Google Satellite'].addTo(this.map);
 
-      // Add layer control
-      L.control.layers(baseLayers).addTo(this.map);
+        // Add layer control
+        L.control.layers(baseLayers).addTo(this.map);
 
-      // Load kecamatan boundaries from BPRD API
-      this.loadBprdKecamatanBoundaries();
+        // Load kecamatan boundaries from BPRD API
+        this.loadBprdKecamatanBoundaries();
 
         console.log('Map initialized successfully');
       } catch (error) {
@@ -1136,229 +1140,229 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
         if (Array.isArray(results.counts) && results.counts.length > 0) {
           console.log(`📊 First count record:`, results.counts[0]);
           console.log(`📊 Available keys in first count:`, Object.keys(results.counts[0]));
-        }          const boundaries = results.boundaries;
-          const countsData = results.counts;
+        } const boundaries = results.boundaries;
+        const countsData = results.counts;
 
-          if (boundaries && boundaries.length > 0) {
-            // Remove existing kelurahan layer if any
-            if (this.kelurahanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kelurahanBoundariesLayer);
-              this.kelurahanBoundariesLayer = null;
+        if (boundaries && boundaries.length > 0) {
+          // Remove existing kelurahan layer if any
+          if (this.kelurahanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kelurahanBoundariesLayer);
+            this.kelurahanBoundariesLayer = null;
+          }
+
+          // Store selected kecamatan and update navigation
+          this.selectedKecamatanForDrilldown = {
+            kdKec,
+            nama: kecamatanName
+          };
+          this.currentLevel = 'kelurahan';
+          this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
+
+          // Hide kecamatan labels temporarily
+          const wasShowingLabels = this.showKecamatanLabels;
+          if (wasShowingLabels) {
+            this.showKecamatanLabels = false;
+            if (this.kecamatanBoundariesLayer && this.map) {
+              this.map.removeLayer(this.kecamatanBoundariesLayer);
+              this.kecamatanBoundariesLayer = null;
+              this.recreateKecamatanLayerFromCache();
             }
+          }
 
-            // Store selected kecamatan and update navigation
-            this.selectedKecamatanForDrilldown = {
-              kdKec,
-              nama: kecamatanName
-            };
-            this.currentLevel = 'kelurahan';
-            this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
-
-            // Hide kecamatan labels temporarily
-            const wasShowingLabels = this.showKecamatanLabels;
-            if (wasShowingLabels) {
-              this.showKecamatanLabels = false;
-              if (this.kecamatanBoundariesLayer && this.map) {
-                this.map.removeLayer(this.kecamatanBoundariesLayer);
-                this.kecamatanBoundariesLayer = null;
-                this.recreateKecamatanLayerFromCache();
+          // Create count map for easy lookup based on kd_kel
+          const countMap = new Map<string, number>();
+          if (countsData && Array.isArray(countsData)) {
+            console.log(`📊 ===== PROCESSING COUNT DATA =====`);
+            console.log(`📊 Processing ${countsData.length} count records`);
+            countsData.forEach((item: any, index: number) => {
+              // Debug each record structure
+              if (index < 3) {
+                console.log(`📊 Count record[${index}] structure:`, item);
+                console.log(`📊 Available fields:`, Object.keys(item));
               }
-            }
 
-            // Create count map for easy lookup based on kd_kel
-            const countMap = new Map<string, number>();
-            if (countsData && Array.isArray(countsData)) {
-              console.log(`📊 ===== PROCESSING COUNT DATA =====`);
-              console.log(`📊 Processing ${countsData.length} count records`);
-              countsData.forEach((item: any, index: number) => {
-                // Debug each record structure
-                if (index < 3) {
-                  console.log(`📊 Count record[${index}] structure:`, item);
-                  console.log(`📊 Available fields:`, Object.keys(item));
-                }
+              // Handle backend field names (camelCase from BidangController)
+              const kdKel = item.kdKelurahan;  // Backend uses kdKelurahan
+              const count = item.jumlahBidang || 0;  // Backend uses jumlahBidang
 
-                // Handle backend field names (camelCase from BidangController)
-                const kdKel = item.kdKelurahan;  // Backend uses kdKelurahan
-                const count = item.jumlahBidang || 0;  // Backend uses jumlahBidang
+              if (kdKel) {
+                countMap.set(kdKel, count);
+                console.log(`📊 Count map[${index}]: "${kdKel}" = ${count} bidang (from field: ${item.kdKelurahan ? 'kdKelurahan' : item.kd_kelurahan ? 'kd_kelurahan' : 'kd_kel'})`);
+              } else {
+                console.warn(`⚠️ Count record[${index}] missing kd_kel:`, item);
+              }
+            });
+            console.log(`📊 ===== COUNT MAP SUMMARY =====`);
+            console.log(`📊 Count map created with ${countMap.size} entries`);
+            console.log(`📊 Count map contents:`, Array.from(countMap.entries()));
+          } else {
+            console.error(`❌ Count data issue:`, {
+              countsData,
+              type: typeof countsData,
+              isArray: Array.isArray(countsData)
+            });
+          }
 
-                if (kdKel) {
-                  countMap.set(kdKel, count);
-                  console.log(`📊 Count map[${index}]: "${kdKel}" = ${count} bidang (from field: ${item.kdKelurahan ? 'kdKelurahan' : item.kd_kelurahan ? 'kd_kelurahan' : 'kd_kel'})`);
-                } else {
-                  console.warn(`⚠️ Count record[${index}] missing kd_kel:`, item);
-                }
+          // Create kelurahan boundaries layer with count info (merged based on kd_kel)
+          this.kelurahanBoundariesLayer = L.geoJSON([], {
+            style: (feature) => {
+              // Use count from merged properties (already processed based on kd_kel)
+              const bidangCount = feature?.properties?.jumlah_bidang || 0;
+              const kdKel = feature?.properties?.kd_kel || 'N/A';
+
+              // Color based on bidang count (merged by kd_kel)
+              let fillColor = '#fca5a5'; // Light red for 0
+              if (bidangCount > 100) fillColor = '#16a34a'; // Green for high count
+              else if (bidangCount > 50) fillColor = '#eab308'; // Yellow for medium count
+              else if (bidangCount > 0) fillColor = '#f97316'; // Orange for low count
+
+              // Debug first few features
+              if (feature?.properties?.debug_index < 3) {
+                console.log(`🎨 Style applied: kd_kel=${kdKel}, count=${bidangCount}, color=${fillColor}`);
+              }
+
+              return {
+                color: '#16a34a', // Green border for kelurahan
+                weight: 2,
+                opacity: 1,
+                fillColor: fillColor,
+                fillOpacity: 0.5
+              };
+            },
+            onEachFeature: (feature, layer) => {
+              const props = feature.properties || {};
+              const kelurahanName = props.nama || 'N/A';
+              const kdKel = props.kd_kel || props.kd_kelurahan || 'N/A';
+              // Get count from properties (already merged based on kd_kel)
+              const bidangCount = props.jumlah_bidang || 0;
+
+              // Enhanced label with bidang count (merged based on kd_kel)
+              const labelText = `${kelurahanName}\n(${bidangCount} bidang)`;
+              layer.bindTooltip(labelText, {
+                permanent: true,
+                direction: 'center',
+                className: 'kelurahan-label-with-count',
+                opacity: 0.9
               });
-              console.log(`📊 ===== COUNT MAP SUMMARY =====`);
-              console.log(`📊 Count map created with ${countMap.size} entries`);
-              console.log(`📊 Count map contents:`, Array.from(countMap.entries()));
-            } else {
-              console.error(`❌ Count data issue:`, {
-                countsData,
-                type: typeof countsData,
-                isArray: Array.isArray(countsData)
-              });
-            }
 
-            // Create kelurahan boundaries layer with count info (merged based on kd_kel)
-            this.kelurahanBoundariesLayer = L.geoJSON([], {
-              style: (feature) => {
-                // Use count from merged properties (already processed based on kd_kel)
-                const bidangCount = feature?.properties?.jumlah_bidang || 0;
-                const kdKel = feature?.properties?.kd_kel || 'N/A';
-
-                // Color based on bidang count (merged by kd_kel)
-                let fillColor = '#fca5a5'; // Light red for 0
-                if (bidangCount > 100) fillColor = '#16a34a'; // Green for high count
-                else if (bidangCount > 50) fillColor = '#eab308'; // Yellow for medium count
-                else if (bidangCount > 0) fillColor = '#f97316'; // Orange for low count
-
-                // Debug first few features
-                if (feature?.properties?.debug_index < 3) {
-                  console.log(`🎨 Style applied: kd_kel=${kdKel}, count=${bidangCount}, color=${fillColor}`);
-                }
-
-                return {
-                  color: '#16a34a', // Green border for kelurahan
-                  weight: 2,
-                  opacity: 1,
-                  fillColor: fillColor,
-                  fillOpacity: 0.5
-                };
-              },
-              onEachFeature: (feature, layer) => {
-                const props = feature.properties || {};
-                const kelurahanName = props.nama || 'N/A';
-                const kdKel = props.kd_kel || props.kd_kelurahan || 'N/A';
-                // Get count from properties (already merged based on kd_kel)
-                const bidangCount = props.jumlah_bidang || 0;
-
-                // Enhanced label with bidang count (merged based on kd_kel)
-                const labelText = `${kelurahanName}\n(${bidangCount} bidang)`;
-                layer.bindTooltip(labelText, {
-                  permanent: true,
-                  direction: 'center',
-                  className: 'kelurahan-label-with-count',
-                  opacity: 0.9
-                });
-
-                // Hover effects and click handler (NO POPUP)
-                layer.on({
-                  mouseover: (e) => {
-                    const targetLayer = e.target;
-                    targetLayer.setStyle({
-                      weight: 3,
-                      opacity: 1,
-                      fillOpacity: 0.7
-                    });
-                  },
-                  mouseout: (e) => {
-                    if (this.kelurahanBoundariesLayer) {
-                      this.kelurahanBoundariesLayer.resetStyle(e.target);
-                    }
-                  },
-                  click: (e) => {
-                    L.DomEvent.stopPropagation(e);
-                    console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
-                    // Load blok boundaries for this kelurahan
-                    // Need kdKec from current kecamatan context
-                    const currentKdKec = this.selectedKecamatan?.kdKecamatan || '001'; // fallback
-                    this.loadBlokBoundaries(currentKdKec, kdKel, kelurahanName, e.target);
+              // Hover effects and click handler (NO POPUP)
+              layer.on({
+                mouseover: (e) => {
+                  const targetLayer = e.target;
+                  targetLayer.setStyle({
+                    weight: 3,
+                    opacity: 1,
+                    fillOpacity: 0.7
+                  });
+                },
+                mouseout: (e) => {
+                  if (this.kelurahanBoundariesLayer) {
+                    this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
-                });
+                },
+                click: (e) => {
+                  L.DomEvent.stopPropagation(e);
+                  console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
+                  // Load blok boundaries for this kelurahan
+                  // Need kdKec from current kecamatan context
+                  const currentKdKec = this.selectedKecamatan?.kdKecamatan || '001'; // fallback
+                  this.loadBlokBoundaries(currentKdKec, kdKel, kelurahanName, e.target);
+                }
+              });
+            }
+          });
+
+          // Process and add kelurahan boundaries with count merge
+          let processedCount = 0;
+          console.log(`📊 ===== PROCESSING BOUNDARIES =====`);
+          console.log(`📊 Processing ${boundaries.length} boundary records`);
+
+          boundaries
+            .filter((boundary: any) => boundary.is_active)
+            .forEach((boundary: any, index: number) => {
+              try {
+                // Debug boundary structure
+                if (index < 3) {
+                  console.log(`📊 Boundary[${index}] structure:`, boundary);
+                  console.log(`📊 Available fields:`, Object.keys(boundary));
+                }
+
+                // Convert geom (WKB hex) to GeoJSON
+                const geoJsonFeature = this.convertBprdGeomToGeoJSON(boundary as any);
+
+                if (geoJsonFeature && geoJsonFeature.geometry) {
+                  // Get kd_kel for merge (handle different field names)
+                  const kdKel = boundary.kd_kel || boundary.kd_kelurahan;
+                  const bidangCount = countMap.get(kdKel) || 0;
+
+                  console.log(`🔍 Boundary[${index}] merge: "${boundary.nama}" kd_kel="${kdKel}" → count=${bidangCount}`);
+                  console.log(`🔍 CountMap has key "${kdKel}":`, countMap.has(kdKel));
+
+                  // Add count info to properties - based on kd_kel merge
+                  geoJsonFeature.properties = {
+                    ...geoJsonFeature.properties,
+                    kd_kel: kdKel, // Ensure consistent field name for merge
+                    jumlah_bidang: bidangCount, // Count merged based on kd_kel
+                    debug_index: index // For debugging first few records
+                  };
+
+                  this.kelurahanBoundariesLayer?.addData(geoJsonFeature);
+                  processedCount++;
+
+                  console.log(`✅ Added kelurahan[${index}]: ${boundary.nama} (kd_kel: ${kdKel}) with ${bidangCount} bidang`);
+                } else {
+                  console.warn(`⚠️ Empty geometry for kelurahan ${boundary.nama} (kd_kel: ${boundary.kd_kel})`);
+                }
+              } catch (error) {
+                console.error(`❌ Failed to process kelurahan ${boundary.nama}:`, error);
               }
             });
 
-            // Process and add kelurahan boundaries with count merge
-            let processedCount = 0;
-            console.log(`📊 ===== PROCESSING BOUNDARIES =====`);
-            console.log(`📊 Processing ${boundaries.length} boundary records`);
+          console.log(`📊 Processed ${processedCount}/${boundaries.length} kelurahan boundaries with count`);
 
-            boundaries
-              .filter((boundary: any) => boundary.is_active)
-              .forEach((boundary: any, index: number) => {
-                try {
-                  // Debug boundary structure
-                  if (index < 3) {
-                    console.log(`📊 Boundary[${index}] structure:`, boundary);
-                    console.log(`📊 Available fields:`, Object.keys(boundary));
-                  }
+          if (this.map && this.kelurahanBoundariesLayer && processedCount > 0) {
+            // Add to map
+            this.kelurahanBoundariesLayer.addTo(this.map);
 
-                  // Convert geom (WKB hex) to GeoJSON
-                  const geoJsonFeature = this.convertBprdGeomToGeoJSON(boundary as any);
+            console.log(`✅ Kelurahan boundaries with count displayed for ${kecamatanName}`);
 
-                  if (geoJsonFeature && geoJsonFeature.geometry) {
-                    // Get kd_kel for merge (handle different field names)
-                    const kdKel = boundary.kd_kel || boundary.kd_kelurahan;
-                    const bidangCount = countMap.get(kdKel) || 0;
-
-                    console.log(`🔍 Boundary[${index}] merge: "${boundary.nama}" kd_kel="${kdKel}" → count=${bidangCount}`);
-                    console.log(`🔍 CountMap has key "${kdKel}":`, countMap.has(kdKel));
-
-                    // Add count info to properties - based on kd_kel merge
-                    geoJsonFeature.properties = {
-                      ...geoJsonFeature.properties,
-                      kd_kel: kdKel, // Ensure consistent field name for merge
-                      jumlah_bidang: bidangCount, // Count merged based on kd_kel
-                      debug_index: index // For debugging first few records
-                    };
-
-                    this.kelurahanBoundariesLayer?.addData(geoJsonFeature);
-                    processedCount++;
-
-                    console.log(`✅ Added kelurahan[${index}]: ${boundary.nama} (kd_kel: ${kdKel}) with ${bidangCount} bidang`);
-                  } else {
-                    console.warn(`⚠️ Empty geometry for kelurahan ${boundary.nama} (kd_kel: ${boundary.kd_kel})`);
-                  }
-                } catch (error) {
-                  console.error(`❌ Failed to process kelurahan ${boundary.nama}:`, error);
-                }
+            // Dim the kecamatan layer
+            if (kecamatanLayer) {
+              kecamatanLayer.setStyle({
+                opacity: 0.3,
+                fillOpacity: 0.1
               });
-
-            console.log(`📊 Processed ${processedCount}/${boundaries.length} kelurahan boundaries with count`);
-
-            if (this.map && this.kelurahanBoundariesLayer && processedCount > 0) {
-              // Add to map
-              this.kelurahanBoundariesLayer.addTo(this.map);
-
-              console.log(`✅ Kelurahan boundaries with count displayed for ${kecamatanName}`);
-
-              // Dim the kecamatan layer
-              if (kecamatanLayer) {
-                kecamatanLayer.setStyle({
-                  opacity: 0.3,
-                  fillOpacity: 0.1
-                });
-              }
-
-              // Add legend for bidang count colors
-              this.addBidangCountLegend();
             }
-          } else {
-            console.warn(`⚠️ No kelurahan boundaries found for ${kecamatanName}`);
-            alert(`Tidak ada data kelurahan untuk ${kecamatanName}`);
-          }
-        },
-        error: (error) => {
-          console.error('❌ ===== ERROR LOADING DATA =====');
-          console.error('❌ Error loading kelurahan data:', error);
-          console.error('❌ Error status:', error.status);
-          console.error('❌ Error message:', error.message);
-          console.error('❌ Error body:', error.error);
 
-          let errorMsg = 'Gagal memuat data kelurahan';
-          if (error.status === 0) {
-            errorMsg += ': Backend tidak dapat diakses. Pastikan backend sudah running.';
-          } else if (error.status === 404) {
-            errorMsg += ': Endpoint tidak ditemukan.';
-          } else if (error.status === 500) {
-            errorMsg += ': Error di backend server.';
-          } else {
-            errorMsg += `: ${error.message}`;
+            // Add legend for bidang count colors
+            this.addBidangCountLegend();
           }
-
-          alert(errorMsg);
+        } else {
+          console.warn(`⚠️ No kelurahan boundaries found for ${kecamatanName}`);
+          alert(`Tidak ada data kelurahan untuk ${kecamatanName}`);
         }
-      });
+      },
+      error: (error) => {
+        console.error('❌ ===== ERROR LOADING DATA =====');
+        console.error('❌ Error loading kelurahan data:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error body:', error.error);
+
+        let errorMsg = 'Gagal memuat data kelurahan';
+        if (error.status === 0) {
+          errorMsg += ': Backend tidak dapat diakses. Pastikan backend sudah running.';
+        } else if (error.status === 404) {
+          errorMsg += ': Endpoint tidak ditemukan.';
+        } else if (error.status === 500) {
+          errorMsg += ': Error di backend server.';
+        } else {
+          errorMsg += `: ${error.message}`;
+        }
+
+        alert(errorMsg);
+      }
+    });
   }
 
   /**
@@ -1698,14 +1702,38 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
           // Create bidang boundaries layer with purple/violet color
           this.bidangBoundariesLayer = L.geoJSON([], {
-            style: (feature) => ({
-              color: '#9333ea', // Purple color for bidang
-              weight: 2,
-              opacity: 1,
-              fillColor: '#c084fc',
-              fillOpacity: 0.4,
-              dashArray: '2, 2'
-            }),
+            style: (feature) => {
+              // Determine color based on view mode
+              let color = '#9333ea'; // Default purple
+              let fillColor = '#c084fc';
+              let fillOpacity = 0.4;
+
+              if (this.viewMode === 'status_bayar') {
+                const status = feature?.properties?.status_bayar;
+                if (status === 'LUNAS') {
+                  color = '#16a34a'; // Green
+                  fillColor = '#4ade80';
+                  fillOpacity = 0.6;
+                } else if (status === 'TERHUTANG') {
+                  color = '#dc2626'; // Red
+                  fillColor = '#f87171';
+                  fillOpacity = 0.6;
+                } else {
+                  color = '#9ca3af'; // Grey
+                  fillColor = '#d1d5db';
+                  fillOpacity = 0.4;
+                }
+              }
+
+              return {
+                color: color,
+                weight: 2,
+                opacity: 1,
+                fillColor: fillColor,
+                fillOpacity: fillOpacity,
+                dashArray: '2, 2'
+              };
+            },
             onEachFeature: (feature, layer) => {
               const props = feature.properties || {};
               const nop = props.nop || 'N/A';
@@ -1716,11 +1744,17 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
               // Extract no_urut directly (it should be available now)
               const noUrut = props.no_urut || 'UNKNOWN';
+              const statusBayar = props.status_bayar || '';
 
-              layer.bindTooltip(noUrut, {
+              let labelContent = noUrut;
+              if (this.viewMode === 'status_bayar' && statusBayar) {
+                labelContent += `\n${statusBayar}`;
+              }
+
+              layer.bindTooltip(labelContent, {
                 permanent: true,
                 direction: 'center',
-                className: 'bidang-label',
+                className: this.viewMode === 'status_bayar' ? 'bidang-label-status' : 'bidang-label',
                 opacity: 0.9
               });
 
@@ -2127,8 +2161,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   canLoadTematik(): boolean {
     return !!(this.selectedTematikType &&
-              this.selectedTematikKecamatan &&
-              this.selectedTematikKelurahan);
+      this.selectedTematikKecamatan &&
+      this.selectedTematikKelurahan);
   }
 
   /**
@@ -2484,5 +2518,116 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   toggleLegend(): void {
     this.isLegendVisible = !this.isLegendVisible;
+  }
+
+  /**
+   * Toggle View Mode
+   */
+  toggleViewMode(mode: 'default' | 'status_bayar'): void {
+    this.viewMode = mode;
+    console.log(`🔄 Switched view mode to: ${mode}`);
+
+    // Refresh bidang layer if it exists
+    if (this.bidangBoundariesLayer) {
+      this.bidangBoundariesLayer.setStyle((feature) => {
+        // Re-apply style logic (duplicated from creation for now)
+        let color = '#9333ea';
+        let fillColor = '#c084fc';
+        let fillOpacity = 0.4;
+
+        if (this.viewMode === 'status_bayar') {
+          const status = feature?.properties?.status_bayar;
+          if (status === 'LUNAS') {
+            color = '#16a34a';
+            fillColor = '#4ade80';
+            fillOpacity = 0.6;
+          } else if (status === 'TERHUTANG') {
+            color = '#dc2626';
+            fillColor = '#f87171';
+            fillOpacity = 0.6;
+          } else {
+            color = '#9ca3af';
+            fillColor = '#d1d5db';
+            fillOpacity = 0.4;
+          }
+        }
+
+        return {
+          color: color,
+          weight: 2,
+          opacity: 1,
+          fillColor: fillColor,
+          fillOpacity: fillOpacity,
+          dashArray: '2, 2'
+        };
+      });
+
+      // Update tooltips
+      this.bidangBoundariesLayer.eachLayer((layer: any) => {
+        const props = layer.feature.properties;
+        const noUrut = props.no_urut || 'UNKNOWN';
+        const statusBayar = props.status_bayar || '';
+
+        let labelContent = noUrut;
+        if (this.viewMode === 'status_bayar' && statusBayar) {
+          labelContent += `\n${statusBayar}`;
+        }
+
+        layer.unbindTooltip();
+        layer.bindTooltip(labelContent, {
+          permanent: true,
+          direction: 'center',
+          className: this.viewMode === 'status_bayar' ? 'bidang-label-status' : 'bidang-label',
+          opacity: 0.9
+        });
+      });
+    }
+
+    // Update Legend
+    this.updateStatusBayarLegend();
+  }
+
+  /**
+   * Update Status Bayar Legend
+   */
+  private updateStatusBayarLegend(): void {
+    if (!this.map) return;
+
+    // Remove existing legend
+    if (this.statusBayarLegend) {
+      this.map.removeControl(this.statusBayarLegend);
+      this.statusBayarLegend = null;
+    }
+
+    if (this.viewMode === 'status_bayar') {
+      this.statusBayarLegend = new L.Control({ position: 'bottomright' });
+
+      this.statusBayarLegend.onAdd = () => {
+        const div = L.DomUtil.create('div', 'info legend status-bayar-legend');
+        div.style.backgroundColor = 'white';
+        div.style.padding = '10px';
+        div.style.borderRadius = '5px';
+        div.style.boxShadow = '0 1px 5px rgba(0,0,0,0.4)';
+
+        div.innerHTML = `
+          <h4 style="margin: 0 0 5px; font-size: 14px;">Status Bayar PBB</h4>
+          <div style="display: flex; align-items: center; margin-bottom: 3px;">
+            <span style="background: #4ade80; width: 15px; height: 15px; display: inline-block; margin-right: 5px; border: 1px solid #16a34a;"></span>
+            <span>Lunas</span>
+          </div>
+          <div style="display: flex; align-items: center; margin-bottom: 3px;">
+            <span style="background: #f87171; width: 15px; height: 15px; display: inline-block; margin-right: 5px; border: 1px solid #dc2626;"></span>
+            <span>Terhutang</span>
+          </div>
+          <div style="display: flex; align-items: center;">
+            <span style="background: #d1d5db; width: 15px; height: 15px; display: inline-block; margin-right: 5px; border: 1px solid #9ca3af;"></span>
+            <span>Data Tidak Ada</span>
+          </div>
+        `;
+        return div;
+      };
+
+      this.statusBayarLegend.addTo(this.map);
+    }
   }
 }

@@ -140,6 +140,31 @@
         <div class="map-container" style="position: relative;">
           <div #mapContainer class="leaflet-container"></div>
 
+          <!-- Map Controls Overlay -->
+          <div class="absolute top-4 right-4 z-[1000] flex flex-col gap-2" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+            <!-- View Mode Toggle -->
+            <div class="bg-white rounded shadow-sm p-1 d-flex flex-column gap-1" style="background: white; padding: 5px; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4);">
+              <button 
+                (click)="toggleViewMode('default')"
+                [class.bg-light]="viewMode === 'default'"
+                [class.text-primary]="viewMode === 'default'"
+                class="btn btn-sm btn-link text-decoration-none text-start d-flex align-items-center gap-2"
+                style="color: #333;"
+                title="Default View">
+                <i class="ri-map-2-line"></i> Default
+              </button>
+              <button 
+                (click)="toggleViewMode('status_bayar')"
+                [class.bg-light]="viewMode === 'status_bayar'"
+                [class.text-primary]="viewMode === 'status_bayar'"
+                class="btn btn-sm btn-link text-decoration-none text-start d-flex align-items-center gap-2"
+                style="color: #333;"
+                title="Status Bayar PBB">
+                <i class="ri-money-dollar-circle-line"></i> Status Bayar
+              </button>
+            </div>
+          </div>
+
           <!-- Floating Legend on Map -->
           <div *ngIf="hasTematikLayers" class="floating-legend">
             <div class="legend-header">

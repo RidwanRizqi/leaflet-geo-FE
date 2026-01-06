@@ -141,6 +141,26 @@
         <!-- Map Container -->
         <div class="map-container">
           <div #mapContainer class="leaflet-container"></div>
+          
+          <!-- Legend for Bidang Payment Status -->
+          <div *ngIf="currentLevel === 'bidang'" class="map-legend">
+            <h6 class="mb-2">
+              <i class="ri-palette-line me-1"></i>
+              Status Pembayaran PBB
+            </h6>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #22c55e; border: 2px solid #16a34a;"></span>
+              <span>LUNAS</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #ef4444; border: 2px solid #dc2626;"></span>
+              <span>BELUM LUNAS</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: #94a3b8; border: 2px solid #64748b;"></span>
+              <span>TIDAK DIKETAHUI</span>
+            </div>
+          </div>
         </div>
 
         <!-- Loading State -->
