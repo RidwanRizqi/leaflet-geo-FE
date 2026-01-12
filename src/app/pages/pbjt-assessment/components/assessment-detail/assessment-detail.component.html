@@ -1,0 +1,259 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Detail Assessment PBJT</h4>
+        <div class="page-title-right">
+          <button class="btn btn-secondary me-2" (click)="goBack()">
+            <i class="ri-arrow-left-line"></i> Kembali
+          </button>
+          <button class="btn btn-primary" (click)="editAssessment()">
+            <i class="ri-edit-line"></i> Edit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="assessment && !loading" class="row">
+    <!-- Business Profile -->
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Profil Usaha</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label text-muted">Business ID</label>
+            <p class="fw-bold">{{ assessment?.businessId }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Nama Usaha</label>
+            <p class="fw-bold">{{ assessment?.businessName }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Tipe Usaha</label>
+            <p><span class="badge bg-info">{{ getBusinessTypeDisplay(assessment?.businessType) }}</span></p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Kapasitas Tempat Duduk</label>
+            <p>{{ assessment?.seatingCapacity }} seats</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Luas Bangunan</label>
+            <p>{{ assessment?.buildingArea }} m²</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Jam Operasional</label>
+            <p>{{ assessment?.operatingHoursStart }} - {{ assessment?.operatingHoursEnd }}</p>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted">Tanggal Assessment</label>
+            <p>{{ assessment?.assessmentDate | date:'dd MMMM yyyy' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Lokasi</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-2">
+            <strong>Alamat:</strong>
+            <p class="text-muted">{{ assessment.location?.address }}</p>
+          </div>
+          <div class="mb-2">
+            <strong>Kelurahan:</strong> {{ assessment.location?.kelurahan }}
+          </div>
+          <div class="mb-2">
+            <strong>Kecamatan:</strong> {{ assessment.location?.kecamatan }}
+          </div>
+          <div class="mb-2">
+            <strong>Kabupaten:</strong> {{ assessment.location?.kabupaten }}
+          </div>
+          <div class="mb-2">
+            <strong>Koordinat:</strong>
+            {{ assessment.location?.latitude }}, {{ assessment.location?.longitude }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculation Results -->
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0 text-white">Hasil Kalkulasi PBJT</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                  <h6 class="text-muted mb-2">PBJT Bulanan</h6>
+                  <h3 class="text-primary mb-0">{{ formatCurrency(assessment?.monthlyPbjt) }}</h3>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-0 bg-light mb-3">
+                <div class="card-body">
+                  <h6 class="text-muted mb-2">PBJT Tahunan</h6>
+                  <h3 class="text-success mb-0">{{ formatCurrency(assessment?.annualPbjt) }}</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="text-muted">Pendapatan Harian (Weekday)</label>
+                <p class="fw-bold">{{ formatCurrency(assessment?.dailyRevenueWeekday) }}</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="text-muted">Pendapatan Harian (Weekend)</label>
+                <p class="fw-bold">{{ formatCurrency(assessment?.dailyRevenueWeekend) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="text-muted">Pendapatan Bulanan (Raw)</label>
+                <p class="fw-bold">{{ formatCurrency(assessment?.monthlyRevenueRaw) }}</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="text-muted">Pendapatan Bulanan (Adjusted)</label>
+                <p class="fw-bold">{{ formatCurrency(assessment?.monthlyRevenueAdjusted) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adjustment Factors -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Faktor Penyesuaian</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <tr>
+                <td>Business Type Coefficient</td>
+                <td class="text-end fw-bold">{{ assessment?.adjustments?.businessTypeCoefficient }}</td>
+              </tr>
+              <tr>
+                <td>Location Score</td>
+                <td class="text-end fw-bold">{{ assessment?.adjustments?.locationScore }}</td>
+              </tr>
+              <tr>
+                <td>Operational Rate</td>
+                <td class="text-end fw-bold">{{ (assessment?.adjustments?.operationalRate ?? 0) * 100 }}%</td>
+              </tr>
+              <tr>
+                <td>Tax Rate</td>
+                <td class="text-end fw-bold">{{ (assessment?.adjustments?.taxRate ?? 0) * 100 }}%</td>
+              </tr>
+              <tr>
+                <td>Inflation Rate</td>
+                <td class="text-end fw-bold">{{ (assessment?.adjustments?.inflationRate ?? 0) * 100 }}%</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confidence Score -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Confidence Score</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <span [ngClass]="getConfidenceBadgeClass(assessment?.confidence?.level)"
+                  style="font-size: 1.2rem; padding: 0.5rem 1rem;">
+              {{ assessment?.confidence?.level }} - Score: {{ assessment?.confidence?.score }}/100
+            </span>
+          </div>
+          <div *ngIf="assessment?.confidence?.breakdown" class="row">
+            <div class="col-md-4">
+              <div class="text-center">
+                <h4 class="text-primary">{{ assessment?.confidence?.breakdown?.data_completeness }}</h4>
+                <p class="text-muted mb-0">Data Completeness</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-center">
+                <h4 class="text-primary">{{ assessment?.confidence?.breakdown?.validation_sources }}</h4>
+                <p class="text-muted mb-0">Validation Sources</p>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-center">
+                <h4 class="text-primary">{{ assessment?.confidence?.breakdown?.survey_quality }}</h4>
+                <p class="text-muted mb-0">Survey Quality</p>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info mt-3" *ngIf="assessment?.confidence?.recommendation">
+            <strong>Rekomendasi:</strong> {{ assessment?.confidence?.recommendation }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Observations -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Data Observasi</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Tipe Hari</th>
+                  <th>Pengunjung</th>
+                  <th>Durasi</th>
+                  <th>Avg Transaction</th>
+                  <th>Visitors/Hour</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let obs of assessment.observations">
+                  <td>{{ obs.observationDate | date:'dd MMM yyyy HH:mm' }}</td>
+                  <td><span class="badge bg-secondary">{{ getDayTypeDisplay(obs.dayType) }}</span></td>
+                  <td>{{ obs.visitors }}</td>
+                  <td>{{ obs.durationHours }} jam</td>
+                  <td>{{ formatCurrency(obs.avgTransaction) }}</td>
+                  <td>{{ obs.visitorsPerHour }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

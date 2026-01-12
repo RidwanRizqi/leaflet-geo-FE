@@ -71,6 +71,49 @@ export const MENU: MenuItem[] = [
     isLayout: false,
   },
   {
+    id: 9,
+    label: 'PBJT Assessment',
+    icon: 'ri-file-list-3-line',
+    isCollapsed: true,
+    link: '/pbjt-assessment',
+    subItems: [
+      {
+        id: 91,
+        label: 'Assessment List',
+        icon: 'ri-list-check-2',
+        isCollapsed: true,
+        link: '/pbjt-assessment',
+        subItems: [],
+        isTitle: false,
+        badge: null,
+        parentId: 9,
+        isLayout: false,
+      },
+      {
+        id: 92,
+        label: 'Map View',
+        icon: 'ri-map-pin-line',
+        isCollapsed: true,
+        link: '/pbjt-assessment/map',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'info',
+          text: 'Geo'
+        },
+        parentId: 9,
+        isLayout: false,
+      }
+    ],
+    isTitle: false,
+    badge: {
+      variant: 'success',
+      text: 'New'
+    },
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 6,
     label: 'MENUITEMS.BIDANG.TEXT',
     icon: 'ri-map-2-line',

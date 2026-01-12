@@ -1,0 +1,17 @@
+.table-responsive {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.badge {
+  font-size: 0.75rem;
+  padding: 0.35em 0.65em;
+}
+
+.btn-group-sm {
+  white-space: nowrap;
+}
+
+.page-item.disabled .page-link {
+  cursor: not-allowed;
+}

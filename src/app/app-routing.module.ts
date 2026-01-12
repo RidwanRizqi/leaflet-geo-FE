@@ -14,6 +14,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./pages/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
       { path: 'dashboard-pendapatan', loadComponent: () => import('./pages/dashboard-pendapatan/dashboard-pendapatan.component').then(m => m.DashboardPendapatanComponent) },
+      { path: 'pbjt-assessment', loadChildren: () => import('./pages/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: '', loadChildren: () => import('./pages/pages.module').then(m => m.PagesModule) }
     ]
   },

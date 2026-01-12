@@ -1,0 +1,221 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">PBJT Assessment Map View</h4>
+        <div class="page-title-right">
+          <ol class="breadcrumb m-0">
+            <li class="breadcrumb-item"><a href="javascript: void(0);">PBJT</a></li>
+            <li class="breadcrumb-item active">Map View</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Summary -->
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total Usaha</p>
+            </div>
+            <div class="flex-shrink-0">
+              <h5 class="text-success fs-14 mb-0">
+                <i class="ri-store-2-line align-middle"></i>
+              </h5>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-2">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-2">
+                <span class="counter-value" [attr.data-target]="totalUsaha">{{ totalUsaha }}</span>
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total PBJT</p>
+            </div>
+            <div class="flex-shrink-0">
+              <h5 class="text-info fs-14 mb-0">
+                <i class="ri-money-dollar-circle-line align-middle"></i>
+              </h5>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-2">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-2">
+                Rp {{ formatCurrency(totalPbjt) }}
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Avg Confidence</p>
+            </div>
+            <div class="flex-shrink-0">
+              <h5 class="text-warning fs-14 mb-0">
+                <i class="ri-bar-chart-line align-middle"></i>
+              </h5>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-2">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-2">
+                {{ avgConfidence.toFixed(1) }}
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Current Level</p>
+            </div>
+            <div class="flex-shrink-0">
+              <h5 class="text-primary fs-14 mb-0">
+                <i class="ri-map-pin-line align-middle"></i>
+              </h5>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-2">
+            <div>
+              <h4 class="fs-22 fw-semibold ff-secondary mb-2 text-capitalize">
+                {{ currentLevel }}
+              </h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="row mb-3" *ngIf="currentLevel !== 'kecamatan'">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <button class="btn btn-sm btn-secondary" (click)="goBack()">
+                <i class="ri-arrow-left-line"></i> Back
+              </button>
+              <span class="ms-3">
+                <strong>{{ selectedKecamatan }}</strong>
+                <span *ngIf="selectedKelurahan"> / <strong>{{ selectedKelurahan }}</strong></span>
+              </span>
+            </div>
+            <div>
+              <span class="badge bg-info">{{ currentLevel }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <!-- Loading Overlay -->
+          <div *ngIf="isLoadingStats || isLoadingBoundaries"
+               class="position-absolute top-50 start-50 translate-middle"
+               style="z-index: 1000;">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2 text-center">Loading map data...</div>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="alert alert-danger m-3" role="alert">
+            <i class="ri-error-warning-line me-2"></i>
+            {{ errorMessage }}
+          </div>
+
+          <!-- Map -->
+          <div #mapContainer style="height: 600px; width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="mb-3">Map Legend - Jumlah Usaha per Area</h6>
+          <div class="d-flex flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+              <div style="width: 30px; height: 20px; background-color: #006d2c; border: 1px solid #333; margin-right: 8px;"></div>
+              <span>> 10 usaha</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div style="width: 30px; height: 20px; background-color: #31a354; border: 1px solid #333; margin-right: 8px;"></div>
+              <span>6-10 usaha</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div style="width: 30px; height: 20px; background-color: #74c476; border: 1px solid #333; margin-right: 8px;"></div>
+              <span>3-5 usaha</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div style="width: 30px; height: 20px; background-color: #bae4b3; border: 1px solid #333; margin-right: 8px;"></div>
+              <span>1-2 usaha</span>
+            </div>
+            <div class="d-flex align-items-center">
+              <div style="width: 30px; height: 20px; background-color: #cccccc; border: 1px solid #333; margin-right: 8px;"></div>
+              <span>Tidak ada usaha</span>
+            </div>
+            <div class="d-flex align-items-center ms-5">
+              <i class="ri-store-2-fill" style="color: #ff6b6b; font-size: 24px; margin-right: 8px;"></i>
+              <span>Lokasi Usaha</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <div class="card bg-light">
+        <div class="card-body">
+          <h6 class="mb-2"><i class="ri-information-line me-2"></i>Cara Menggunakan Map</h6>
+          <ul class="mb-0">
+            <li><strong>Level Kecamatan:</strong> Klik pada polygon kecamatan untuk melihat detail per kelurahan</li>
+            <li><strong>Level Kelurahan:</strong> Klik pada polygon kelurahan untuk melihat lokasi usaha individual</li>
+            <li><strong>Detail Usaha:</strong> Klik marker untuk melihat informasi lengkap bisnis</li>
+            <li><strong>Navigasi:</strong> Gunakan tombol "Back" untuk kembali ke level sebelumnya</li>
+            <li><strong>Warna:</strong> Semakin gelap warna hijau, semakin banyak usaha di area tersebut</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

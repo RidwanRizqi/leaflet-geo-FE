@@ -173,6 +173,20 @@ export class BprdApiService {
   }
 
   /**
+   * Get kelurahan boundaries (alias for getKelurahanBoundariesViaBackend)
+   */
+  getKelurahanBoundaries(kecamatan: string): Observable<any[]> {
+    // For PBJT map, we need to transform kecamatan name to code
+    // For now, directly call with the parameter as-is
+    // In production, you might need a mapping table kecamatan name -> kd_kec
+    return this.getKelurahanBoundariesViaBackend(kecamatan).pipe(
+      tap(boundaries => {
+        console.log(`Kelurahan boundaries for ${kecamatan}:`, boundaries);
+      })
+    );
+  }
+
+  /**
    * Test BPRD connection via backend proxy
    */
   testBprdConnection(): Observable<any> {
