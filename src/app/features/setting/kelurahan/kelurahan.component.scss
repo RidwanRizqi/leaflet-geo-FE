@@ -1,0 +1,66 @@
+/* Kelurahan Component Styles - Matching Project Theme */
+
+/* Soft button variants */
+.btn-soft-success {
+    background-color: rgba(10, 179, 156, 0.1);
+    color: #0ab39c;
+    border: none;
+
+    &:hover {
+        background-color: #0ab39c;
+        color: #fff;
+    }
+}
+
+.btn-soft-danger {
+    background-color: rgba(240, 101, 72, 0.1);
+    color: #f06548;
+    border: none;
+
+    &:hover {
+        background-color: #f06548;
+        color: #fff;
+    }
+}
+
+.btn-soft-warning {
+    background-color: rgba(247, 184, 75, 0.1);
+    color: #f7b84b;
+    border: none;
+
+    &:hover {
+        background-color: #f7b84b;
+        color: #fff;
+    }
+}
+
+/* Table styling */
+.table {
+    th {
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        font-size: 14px;
+        vertical-align: middle;
+    }
+}
+
+/* Filter section */
+.form-control,
+.form-select {
+    font-size: 14px;
+}
+
+/* Map preview */
+#mapPreviewKelurahan {
+    min-height: 280px;
+}
+
+/* Card header icon */
+.card-title i {
+    color: #405189;
+}

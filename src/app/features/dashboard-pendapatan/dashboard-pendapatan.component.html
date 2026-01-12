@@ -1,0 +1,412 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0 font-size-18">Dashboard Pendapatan Pajak</h4>
+
+        <div class="page-title-right">
+          <select class="form-select form-select-sm" [(ngModel)]="selectedYear" (change)="onYearChange()" style="width: auto;">
+            <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row" *ngIf="summary && !isLoadingSummary">
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Target</p>
+              <h4 class="mb-0">{{ formatCurrency(summary.totalTarget) }}</h4>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
+                <span class="avatar-title">
+                  <i class="bx bx-target-lock font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Realisasi</p>
+              <h4 class="mb-0">{{ formatCurrency(summary.totalRealisasi) }}</h4>
+              <p class="mb-0">
+                <span class="badge"
+                      [ngClass]="'badge-soft-' + getProgressBarColor(summary.persentasePencapaian)">
+                  {{ summary.persentasePencapaian | number:'1.2-2' }}%
+                </span>
+              </p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-success">
+                <span class="avatar-title">
+                  <i class="bx bx-dollar-circle font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Wajib Pajak</p>
+              <h4 class="mb-0">{{ formatNumber(summary.totalWp) }}</h4>
+              <p class="text-muted mb-0"><small>{{ formatNumber(summary.totalObjek) }} Objek Pajak</small></p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-info">
+                <span class="avatar-title">
+                  <i class="bx bx-user font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6">
+      <div class="card mini-stats-wid">
+        <div class="card-body">
+          <div class="d-flex">
+            <div class="flex-grow-1">
+              <p class="text-muted fw-medium">Total Transaksi</p>
+              <h4 class="mb-0">{{ formatNumber(summary.totalTransaksi) }}</h4>
+              <p class="text-muted mb-0"><small>{{ formatNumber(summary.jenisPajakAktif) }} Jenis Pajak</small></p>
+            </div>
+            <div class="flex-shrink-0 align-self-center">
+              <div class="mini-stat-icon avatar-sm rounded-circle bg-warning">
+                <span class="avatar-title">
+                  <i class="bx bx-receipt font-size-24"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Summary -->
+  <div class="row" *ngIf="isLoadingSummary">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center">
+          <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target vs Realisasi Chart -->
+  <div class="row">
+    <div class="col-xl-8">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Target vs Realisasi Per Jenis Pajak</h4>
+
+          <div *ngIf="isLoadingChart" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingChart && chartOptions">
+            <apx-chart
+              [series]="chartOptions.series"
+              [chart]="chartOptions.chart"
+              [plotOptions]="chartOptions.plotOptions"
+              [dataLabels]="chartOptions.dataLabels"
+              [stroke]="chartOptions.stroke"
+              [xaxis]="chartOptions.xaxis"
+              [yaxis]="chartOptions.yaxis"
+              [fill]="chartOptions.fill"
+              [tooltip]="chartOptions.tooltip"
+              [colors]="chartOptions.colors">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Pencapaian Target</h4>
+
+          <div *ngIf="isLoadingChart" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingChart">
+            <div *ngFor="let item of targetRealisasi; let i = index" class="mb-3">
+              <div class="d-flex justify-content-between mb-1 align-items-center">
+                <span class="text-muted d-flex align-items-center">
+                  <i class="ri-arrow-{{ expandedIndex === i ? 'down' : 'right' }}-s-line me-1"
+                     style="cursor: pointer;"
+                     (click)="toggleExpand(i)"></i>
+                  {{ item.jenisPajak }}
+                </span>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="text-muted">{{ item.persentasePencapaian | number:'1.1-1' }}%</span>
+                  <button class="btn btn-sm btn-soft-primary"
+                          (click)="openBreakdownModal(item)"
+                          *ngIf="item.details && item.details.length > 0">
+                    <i class="ri-bar-chart-box-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar"
+                     [ngClass]="'bg-' + getProgressBarColor(item.persentasePencapaian)"
+                     [style.width.%]="item.persentasePencapaian"></div>
+              </div>
+              <small class="text-muted">
+                {{ formatCurrency(item.realisasi) }} / {{ formatCurrency(item.target) }}
+              </small>
+
+              <!-- Breakdown Detail -->
+              <div *ngIf="expandedIndex === i && item.details && item.details.length > 0"
+                   class="mt-2 ps-3"
+                   style="border-left: 2px solid #dee2e6;">
+                <small class="text-muted d-block mb-2"><strong>Detail Rekening:</strong></small>
+                <div *ngFor="let detail of item.details" class="mb-1">
+                  <small class="text-muted d-block">
+                    <i class="ri-file-list-line me-1"></i>
+                    {{ detail.namaRekening }}
+                  </small>
+                  <small class="text-primary">{{ formatCurrency(detail.realisasi) }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trend Bulanan -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Trend Realisasi Bulanan (Kumulatif)</h4>
+
+          <div *ngIf="isLoadingTrend" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingTrend && trendChartOptions">
+            <apx-chart
+              [series]="trendChartOptions.series"
+              [chart]="trendChartOptions.chart"
+              [dataLabels]="trendChartOptions.dataLabels"
+              [stroke]="trendChartOptions.stroke"
+              [xaxis]="trendChartOptions.xaxis"
+              [yaxis]="trendChartOptions.yaxis"
+              [tooltip]="trendChartOptions.tooltip"
+              [colors]="trendChartOptions.colors">
+            </apx-chart>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Kontributor -->
+  <!-- <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Top 10 Wajib Pajak Kontributor</h4>
+
+          <div *ngIf="isLoadingTop" class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+          </div>
+
+          <div *ngIf="!isLoadingTop" class="table-responsive">
+            <table class="table table-hover table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>NPWPD</th>
+                  <th>Nama Wajib Pajak</th>
+                  <th>Jenis Pajak</th>
+                  <th class="text-end">Total Pembayaran</th>
+                  <th class="text-center">Jumlah Transaksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of topKontributor; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.npwpd }}</td>
+                  <td>{{ item.namaWp }}</td>
+                  <td><span class="badge badge-soft-primary">{{ item.jenisPajak }}</span></td>
+                  <td class="text-end">{{ formatCurrency(item.totalPembayaran) }}</td>
+                  <td class="text-center">{{ formatNumber(item.jumlahTransaksi) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div> -->
+</div>
+
+<!-- Breakdown Modal -->
+<div class="modal fade show"
+     [ngClass]="{'d-block': showBreakdownModal}"
+     [style.display]="showBreakdownModal ? 'block' : 'none'"
+     tabindex="-1"
+     role="dialog"
+     *ngIf="showBreakdownModal">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="ri-pie-chart-line me-2"></i>
+          Breakdown Detail - {{ selectedJenisPajak?.jenisPajak }}
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeBreakdownModal()"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedJenisPajak">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="card mini-stats-wid border-start border-4 border-primary">
+              <div class="card-body">
+                <p class="text-muted fw-medium mb-2">Target</p>
+                <h4 class="mb-0 text-primary">{{ formatCurrency(selectedJenisPajak.target) }}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mini-stats-wid border-start border-4 border-success">
+              <div class="card-body">
+                <p class="text-muted fw-medium mb-2">Realisasi</p>
+                <h4 class="mb-0 text-success">{{ formatCurrency(selectedJenisPajak.realisasi) }}</h4>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card mini-stats-wid border-start border-4"
+                 [ngClass]="selectedJenisPajak.persentasePencapaian >= 100 ? 'border-success' : 'border-warning'">
+              <div class="card-body">
+                <p class="text-muted fw-medium mb-2">Pencapaian</p>
+                <h4 class="mb-0"
+                    [ngClass]="selectedJenisPajak.persentasePencapaian >= 100 ? 'text-success' : 'text-warning'">
+                  {{ selectedJenisPajak.persentasePencapaian | number:'1.2-2' }}%
+                </h4>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart -->
+        <div class="row mb-4" *ngIf="breakdownChartOptions">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="ri-bar-chart-box-line me-2"></i>
+                  Realisasi Per Rekening
+                </h5>
+                <apx-chart
+                  [series]="breakdownChartOptions.series"
+                  [chart]="breakdownChartOptions.chart"
+                  [plotOptions]="breakdownChartOptions.plotOptions"
+                  [dataLabels]="breakdownChartOptions.dataLabels"
+                  [xaxis]="breakdownChartOptions.xaxis"
+                  [yaxis]="breakdownChartOptions.yaxis"
+                  [colors]="breakdownChartOptions.colors"
+                  [tooltip]="breakdownChartOptions.tooltip"
+                  [legend]="breakdownChartOptions.legend">
+                </apx-chart>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail Table -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title mb-3">
+                  <i class="ri-file-list-3-line me-2"></i>
+                  Detail Lengkap
+                </h5>
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th width="5%">#</th>
+                        <th width="15%">Kode Rekening</th>
+                        <th>Nama Rekening</th>
+                        <th width="20%" class="text-end">Realisasi</th>
+                        <th width="12%" class="text-center">Kontribusi</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let detail of selectedJenisPajak.details; let idx = index">
+                        <td>{{ idx + 1 }}</td>
+                        <td><code>{{ detail.kodeRekening }}</code></td>
+                        <td>{{ detail.namaRekening }}</td>
+                        <td class="text-end">
+                          <strong>{{ formatCurrency(detail.realisasi) }}</strong>
+                        </td>
+                        <td class="text-center">
+                          <strong class="text-dark">
+                            {{ (detail.realisasi / selectedJenisPajak.realisasi * 100) | number:'1.1-1' }}%
+                          </strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                    <tfoot class="table-light">
+                      <tr>
+                        <th colspan="3" class="text-end">Total:</th>
+                        <th class="text-end">
+                          <strong>{{ formatCurrency(selectedJenisPajak.realisasi) }}</strong>
+                        </th>
+                        <th class="text-center">
+                          <span class="badge bg-success">100%</span>
+                        </th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeBreakdownModal()">
+          <i class="ri-close-line me-1"></i> Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop -->
+<div class="modal-backdrop fade show" *ngIf="showBreakdownModal" (click)="closeBreakdownModal()"></div>

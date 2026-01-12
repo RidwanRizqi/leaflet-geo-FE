@@ -1,0 +1,110 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs
+  [title]="breadCrumbTitle"
+  [breadcrumbItems]="breadCrumbItems"
+></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+  <div class="card">
+    <div class="card-header">
+      <h6 class="card-title">Structure Organization</h6>
+    </div>
+    <div class="card-body">
+      <!-- Controls Section -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <div class="search-container">
+            <input
+              type="search"
+              placeholder="Search by Employee Code or Name..."
+              (input)="filterChart($event)"
+              class="form-control"
+            />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <button class="btn btn-outline-primary" (click)="refreshData()">
+            <i class="mdi mdi-refresh"></i> Refresh Data
+          </button>
+        </div>
+      </div>
+
+
+
+      <div class="chart-container" #chartContainer>
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="loading-overlay">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading organization data...</p>
+        </div>
+
+                <!-- Breadcrumb Navigation -->
+        <div class="bc" *ngIf="breadcrumbPath.length > 0" [@slideInOut]>
+          <div class="bc-header">
+            <i class="mdi mdi-account-supervisor-outline"></i>
+            <span>Hierarchy Path</span>
+            <button class="btn-close" (click)="clearHighlighting()" title="Clear selection">
+              <i class="mdi mdi-close"></i>
+            </button>
+          </div>
+          <div class="bc-path">
+            <div
+              class="bc-item"
+              *ngFor="let item of breadcrumbPath; let isLast = last; let i = index"
+              [class.is-last]="isLast"
+              [class.is-vacant]="item.isVacant"
+              [class.is-grouping]="item.isGrouping"
+            >
+              <div class="bc-item-content">
+                <div class="bc-item-content-name">{{ item.isVacant ? 'VACANT' : item.name }}</div>
+                <div class="bc-item-content-section" *ngIf="item.section">{{ item.section }}</div>
+              </div>
+              <i class="mdi mdi-chevron-right bc-item-arrow" *ngIf="!isLast"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Essential Control Buttons -->
+        <div class="control-buttons" *ngIf="showControlButtons" [@slideInOut]>
+          <!-- Hide Controls Button -->
+          <button (click)="toggleControlButtons()" title="Hide Controls" class="btn-hide-controls">
+            <i class="mdi mdi-close"></i> Hide
+          </button>
+
+          <!-- Chart Control Buttons -->
+          <button (click)="swapLayout()" title="Change chart orientation">
+            <i class="mdi mdi-rotate-right"></i> Swap Layout
+          </button>
+          <button (click)="fitChart()" title="Fit chart to screen">
+            <i class="mdi mdi-fit-to-screen"></i> Fit Chart
+          </button>
+          <button (click)="toggleCompact()" title="Toggle compact/expanded view">
+            <i class="mdi mdi-resize"></i> Toggle Compact
+          </button>
+          <button (click)="expandAll()" title="Expand all nodes">
+            <i class="mdi mdi-arrow-expand-all"></i> Expand All
+          </button>
+          <button (click)="collapseAll()" title="Collapse all nodes">
+            <i class="mdi mdi-arrow-collapse-all"></i> Collapse All
+          </button>
+          <button (click)="exportFullImage()" title="Export chart as image">
+            <i class="mdi mdi-download"></i> Export Image
+          </button>
+          <button (click)="zoomIn()" title="Zoom in">
+            <i class="mdi mdi-magnify-plus"></i> Zoom In
+          </button>
+          <button (click)="zoomOut()" title="Zoom out">
+            <i class="mdi mdi-magnify-minus"></i> Zoom Out
+          </button>
+        </div>
+
+        <!-- Collapsed State Indicator -->
+        <div class="control-buttons-collapsed" *ngIf="!showControlButtons">
+          <button (click)="toggleControlButtons()" title="Show Controls" class="btn-show-controls">
+            <i class="mdi mdi-chevron-left"></i>
+          </button>
+        </div>
+    </div>
+</div>

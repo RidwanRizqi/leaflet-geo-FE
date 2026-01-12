@@ -1,0 +1,293 @@
+// SIG PBB Login Page - Premium UI/UX Design
+// Refined Typography & Layout
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+// Color palette
+$primary-green: #004F36;
+$primary-green-light: #0ab39c;
+$bg-light: #F8FAFC;
+$text-dark: #0F172A;
+$text-muted: #64748B;
+$white: #ffffff;
+$shadow-input: 0 0 0 1px #E2E8F0;
+$shadow-input-focus: 0 0 0 4px rgba(0, 79, 54, 0.1);
+$shadow-button: 0 10px 15px -3px rgba(0, 79, 54, 0.3), 0 4px 6px -2px rgba(0, 79, 54, 0.1);
+
+/* ================================
+   WRAPPER & BASE STYLES
+   ================================ */
+.auth-wrapper {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: $bg-light;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ================================
+   LEFT SIDE - HERO IMAGE
+   ================================ */
+.auth-left {
+  background: url('https://images.unsplash.com/photo-1544177817-454e1238e05f?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat;
+  position: relative;
+  overflow: hidden;
+
+  // Zoom animation
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    transform-origin: center;
+    animation: subtleZoom 25s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes subtleZoom {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  // Deep elegant gradient
+  background: linear-gradient(180deg,
+      rgba(0, 79, 54, 0.5) 0%,
+      rgba(0, 79, 54, 0.2) 40%,
+      rgba(0, 79, 54, 0.85) 100%);
+  backdrop-filter: blur(0px); // keep clear for HD image
+  z-index: 1;
+}
+
+// Logo section
+.logo-section {
+  z-index: 2;
+  animation: fadeInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.auth-logo {
+  height: 52px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.logo-title {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
+}
+
+// Hero text
+.hero-text {
+  z-index: 2;
+  animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-title {
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-weight: 800 !important;
+  letter-spacing: -2px;
+}
+
+.hero-description {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+/* ================================
+   RIGHT SIDE - LOGIN FORM
+   ================================ */
+.auth-right {
+  background: $white;
+}
+
+.auth-form {
+  max-width: 460px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  padding: 0 2rem;
+}
+
+// Form header
+.auth-form-header {
+  text-align: left; // Left aligned for modern look
+  animation: fadeIn 0.8s ease-out;
+}
+
+.welcome-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: $text-dark;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+/* ================================
+   FORM CONTROLS
+   ================================ */
+.login-form {
+  animation: fadeInUp 0.6s ease-out 0.2s both;
+}
+
+.form-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: $primary-green;
+  margin-bottom: 0.5rem;
+}
+
+
+
+.custom-input {
+  height: 56px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: $text-dark;
+  background-color: #F8FAFC;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
+  padding: 0 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::placeholder {
+    color: #64748B;
+    font-weight: 400;
+  }
+
+  &:hover {
+    background-color: #F1F5F9;
+    border-color: #94A3B8;
+  }
+
+  &:focus {
+    background-color: $white;
+    border-color: $primary-green;
+    box-shadow: 0 0 0 4px rgba(0, 79, 54, 0.15);
+    outline: none;
+  }
+}
+
+.password-wrapper {
+  .custom-input {
+    padding-right: 50px;
+  }
+}
+
+.toggle-password {
+  color: $text-muted;
+  z-index: 5;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $primary-green;
+  }
+}
+
+/* ================================
+   LOGIN BUTTON
+   ================================ */
+.btn-login {
+  height: 56px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: $primary-green;
+  color: $white;
+  border: none;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    background: darken($primary-green, 5%);
+    transform: translateY(-2px);
+    box-shadow: $shadow-button;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+.auth-footer {
+  text-align: center;
+  border-top: 1px solid #F1F5F9;
+  animation: fadeIn 0.8s ease-out 0.4s both;
+}
+
+/* ================================
+   ANIMATIONS
+   ================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Helpers
+.text-primary-custom {
+  color: $primary-green !important;
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (max-width: 991.98px) {
+  .auth-left {
+    display: none !important;
+  }
+
+  .auth-form {
+    padding: 2rem;
+    max-width: 100%;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .auth-footer {
+    width: 100%;
+    padding-bottom: 20px;
+    border-top: none;
+  }
+}

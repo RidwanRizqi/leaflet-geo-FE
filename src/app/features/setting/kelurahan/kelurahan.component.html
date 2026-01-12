@@ -1,0 +1,217 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs [title]="breadCrumbTitle" [breadcrumbItems]="breadCrumbItems"></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="ri-community-line me-2"></i>
+                        Kelurahan
+                    </h4>
+                    <button class="btn btn-primary btn-label waves-effect waves-light" (click)="openAddModal()">
+                        <i class="ri-add-line label-icon align-middle fs-16 me-2"></i>
+                        Tambah Kelurahan
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <!-- Filter Section -->
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <select class="form-select" [(ngModel)]="filterKdKec" (change)="onFilterChange()">
+                            <option value="">Semua Kecamatan</option>
+                            <option *ngFor="let kec of kecamatanList" [value]="kec.kd_kec">
+                                {{ kec.kd_kec }} - {{ kec.nama }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" placeholder="Filter Kode..." [(ngModel)]="filterKdKel"
+                            (input)="onFilterChange()" />
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" placeholder="Filter Nama..." [(ngModel)]="filterNama"
+                            (input)="onFilterChange()" />
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary" (click)="clearFilters()"
+                            *ngIf="filterKdKec || filterKdKel || filterNama">
+                            <i class="ri-filter-off-line me-1"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div *ngIf="totalRecords > 0; else noData" class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th style="width: 180px;">Kecamatan</th>
+                                <th style="width: 120px;">Kode</th>
+                                <th>Nama Kelurahan</th>
+                                <th style="width: 100px;" class="text-center">Peta</th>
+                                <th style="width: 80px;" class="text-center">Status</th>
+                                <th style="width: 160px;" class="text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of displayedData; let i = index; trackBy: trackByFn">
+                                <td>{{ startIndex + i + 1 }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ item.kd_kec }}</span>
+                                    <span class="ms-1 text-muted">{{ item.kecamatan?.nama }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary fs-6 px-3 py-2">{{ item.kd_kel }}</span>
+                                </td>
+                                <td class="fw-medium">{{ item.nama }}</td>
+                                <td class="text-center">
+                                    <span *ngIf="item.geom" class="badge bg-info">Tersedia</span>
+                                    <span *ngIf="!item.geom" class="badge bg-secondary">Belum</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge" [class.bg-success]="item.is_active"
+                                        [class.bg-secondary]="!item.is_active">
+                                        {{ item.is_active ? 'Aktif' : 'Non Aktif' }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        <button *ngIf="item.is_active" class="btn btn-sm btn-soft-success"
+                                            (click)="openEditModal(item)" ngbTooltip="Edit">
+                                            <i class="ri-pencil-line"></i>
+                                        </button>
+                                        <button *ngIf="item.is_active" class="btn btn-sm btn-soft-danger"
+                                            (click)="deleteItem(item)" ngbTooltip="Hapus">
+                                            <i class="ri-delete-bin-line"></i>
+                                        </button>
+                                        <button *ngIf="!item.is_active" class="btn btn-sm btn-soft-warning"
+                                            (click)="recoverItem(item)" ngbTooltip="Pulihkan">
+                                            <i class="ri-refresh-line"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- No Data State -->
+                <ng-template #noData>
+                    <div class="text-center py-5">
+                        <i class="ri-community-line display-1 text-muted"></i>
+                        <h5 class="mt-3">Tidak Ada Data</h5>
+                        <p class="text-muted">Belum ada data kelurahan. Silakan tambah data baru.</p>
+                    </div>
+                </ng-template>
+
+                <!-- Pagination -->
+                <div *ngIf="totalRecords > 0" class="mt-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <p class="mb-0 text-muted">
+                                Menampilkan {{ startIndex + 1 }} - {{ endIndex }} dari {{ totalRecords }} data
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <ngb-pagination class="justify-content-end mb-0" [collectionSize]="totalRecords"
+                                [(page)]="page" [pageSize]="pageSize" [maxSize]="5" [rotate]="true" [ellipses]="false"
+                                [boundaryLinks]="true" (pageChange)="onPageChange($event)" size="sm"></ngb-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<ng-template #addEditModal let-modal>
+    <div class="modal-header">
+        <h5 class="modal-title">
+            <i class="ri-community-line me-2"></i>
+            {{ isEdit ? 'Edit' : 'Tambah' }} Kelurahan
+        </h5>
+        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+    </div>
+
+    <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="mb-3">
+                        <label for="kd_kec" class="form-label">Kecamatan</label>
+                        <ng-select [items]="kecamatanList" bindValue="kd_kec" formControlName="kd_kec"
+                            placeholder="Pilih Kecamatan" [searchable]="true"
+                            [class.is-invalid]="submitted && formControls['kd_kec'].errors">
+                            <ng-template ng-label-tmp let-item="item">
+                                {{ item.kd_kec }} - {{ item.nama }}
+                            </ng-template>
+                            <ng-template ng-option-tmp let-item="item">
+                                {{ item.kd_kec }} - {{ item.nama }}
+                            </ng-template>
+                        </ng-select>
+                        <div *ngIf="submitted && formControls['kd_kec'].errors" class="invalid-feedback d-block">
+                            Kecamatan wajib dipilih.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="kd_kel" class="form-label">Kode Kelurahan</label>
+                        <input type="text" class="form-control" id="kd_kel" formControlName="kd_kel"
+                            placeholder="Contoh: 001" [class.is-invalid]="submitted && formControls['kd_kel'].errors" />
+                        <div *ngIf="submitted && formControls['kd_kel'].errors" class="invalid-feedback">
+                            Kode kelurahan wajib diisi.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama Kelurahan</label>
+                        <input type="text" class="form-control" id="nama" formControlName="nama"
+                            placeholder="Contoh: TEGAL REJO"
+                            [class.is-invalid]="submitted && formControls['nama'].errors" />
+                        <div *ngIf="submitted && formControls['nama'].errors" class="invalid-feedback">
+                            Nama kelurahan wajib diisi.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="ri-upload-cloud-line me-1"></i>
+                            Upload File GeoJSON
+                        </label>
+                        <input type="file" class="form-control" accept=".geojson,.json"
+                            (change)="onFileChange($event)" />
+                    </div>
+                </div>
+
+                <div class="col-md-7">
+                    <label class="form-label">Preview Peta</label>
+                    <div id="mapPreviewKelurahan" class="border rounded position-relative"
+                        style="height: 280px; background-color: #f3f3f9;">
+                        <div *ngIf="currentLabel" class="position-absolute text-center w-100"
+                            style="top: 50%; transform: translateY(-50%); z-index: 1000; pointer-events: none;">
+                            <span class="bg-dark bg-opacity-75 text-white px-3 py-2 rounded-pill fs-6 fw-semibold">
+                                {{ currentLabel }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" (click)="closeModal()">Batal</button>
+            <button type="submit" class="btn btn-primary">
+                <i class="ri-check-line me-1"></i>
+                Simpan
+            </button>
+        </div>
+    </form>
+</ng-template>

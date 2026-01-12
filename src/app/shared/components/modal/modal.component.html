@@ -1,0 +1,84 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="activeModal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <div class="modal-body text-center">
+    <!-- Dynamic Lord Icon -->
+    <lord-icon
+      *ngIf="getIconSource(type)"
+      [attr.src]="getIconSource(type)"
+      trigger="loop"
+      [attr.colors]="getIconColors(type)"
+      [ngStyle]="getIconStyle(type)"
+    ></lord-icon>
+
+    <!-- Modal Title -->
+    <div class="mt-4 pt-2 fs-15">
+      <h3 *ngIf="type === 'nodata'" class="fw-semibold">
+        {{ "COMMON.LABEL.NODATA.TEXT" | translate }}
+      </h3>
+      <h4 *ngIf="type !== 'nodata'">
+        {{ getTitle(type) | translate }}
+      </h4>
+
+      <p class="text-muted mx-4 mb-0">{{ message }}</p>
+    </div>
+
+    <!-- Modal Buttons -->
+    <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+      <button
+        *ngIf="type !== 'confirm' && type !== 'delete'"
+        type="button"
+        class="btn btn-primary"
+        (click)="activeModal.close()"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </button>
+
+      <a
+        *ngIf="type === 'confirm'"
+        href="javascript:void(0);"
+        class="btn btn-link link-danger fw-medium"
+        (click)="activeModal.close()"
+      >
+        <i class="ri-close-line me-1 align-middle"></i>
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </a>
+
+      <button
+        *ngIf="type === 'confirm'"
+        type="button"
+        class="btn btn-success"
+        (click)="approve(true)"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNAPPROVE" | translate }}
+      </button>
+
+      <!-- Button for delete type -->
+      <a
+        *ngIf="type === 'delete'"
+        href="javascript:void(0);"
+        class="btn btn-link link-success fw-medium"
+        (click)="activeModal.close()"
+      >
+        <i class="ri-close-line me-1 align-middle"></i>
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </a>
+
+      <button
+        *ngIf="type === 'delete'"
+        type="button"
+        class="btn btn-danger"
+        (click)="approve(true)"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNDELETE" | translate }}
+      </button>
+    </div>
+  </div>
+</div>

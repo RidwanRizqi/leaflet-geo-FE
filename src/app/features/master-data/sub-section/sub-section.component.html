@@ -1,0 +1,366 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs
+  [title]="breadCrumbTitle"
+  [breadcrumbItems]="breadCrumbItems"
+></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between mb-3">
+      <button
+        class="btn btn-primary btn-label waves-effect waves-light"
+        (click)="openAddModal()"
+      >
+        <i class="ri-add-line label-icon align-middle fs-16 me-2"></i>
+        {{ "COMMON.LABEL.ADD" | translate }}
+      </button>
+      <div class="search-box ms-2">
+        <input
+          type="text"
+          class="form-control search"
+          [placeholder]="'COMMON.LABEL.SEARCH' | translate"
+          [(ngModel)]="searchTerm"
+          (keyup)="onSearch()"
+        />
+        <i class="ri-search-line search-icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div
+      *ngIf="totalRecords > 0; else noData"
+      class="table-responsive table-card mb-1"
+    >
+      <table class="table">
+        <thead>
+          <tr class="table-light text-muted">
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.DATATABLES.NAME" | translate }}
+            </th>
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.DATATABLES.MANPOWER_COUNT" | translate }}
+            </th>
+            <th scope="col" style="width: 150px;">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.DATATABLES.CREATED_AT" | translate }}
+            </th>
+            <th scope="col" style="width: 120px;">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.DATATABLES.ACTION" | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of subSectionItems | async; trackBy: trackByFn">
+            <td>
+              <div class="d-flex align-items-center">
+                <span class="me-2">
+                  <i class="ri-building-2-line text-primary"></i>
+                </span>
+                <div>
+                  <div class="fw-medium">{{ item.name }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge bg-soft-success text-success">
+                {{ getTotalManpowerCount(item) }} {{ "APPPAGE.MASTERDATA.SUBSECTION.LABELS.PEOPLE" | translate }}
+              </span>
+            </td>
+            <td>{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="hstack gap-2 fs-15">
+                <button
+                  [ngbTooltip]="'COMMON.LABEL.EDIT' | translate"
+                  class="btn btn-sm btn-success"
+                  (click)="openEditModal(item)"
+                >
+                  <i class="ri-edit-line"></i>
+                </button>
+                <button
+                  [ngbTooltip]="'COMMON.LABEL.DELETE' | translate"
+                  class="btn btn-sm btn-danger"
+                  (click)="deleteSubSection(item)"
+                >
+                  <i class="ri-delete-bin-5-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Data Template -->
+    <ng-template #noData>
+      <div class="noresult">
+        <div class="text-center">
+          <lord-icon
+            src="https://cdn.lordicon.com/msoeawqm.json"
+            trigger="loop"
+            colors="primary:#405189,secondary:#0ab39c"
+            style="width: 75px; height: 75px"
+          >
+          </lord-icon>
+          <h5 class="mt-2">{{ "COMMON.LABEL.NODATA.TEXT" | translate }}</h5>
+          <p class="text-muted mb-0">
+            {{ "COMMON.LABEL.NODATA.PLACEHOLDER" | translate }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Pagination -->
+    <div class="row g-0 text-center text-sm-start align-items-center mb-4" *ngIf="totalRecords > 0">
+      <div class="col-sm-6">
+        <div>
+          <p class="mb-sm-0 text-muted">
+            {{ "COMMON.LABEL.SHOWING" | translate }} {{ startIndex + 1 }} {{ "COMMON.LABEL.TO" | translate }} {{ endIndex }} {{ "COMMON.LABEL.OF" | translate }} {{ totalRecords }} {{ "COMMON.LABEL.ENTRIES" | translate }}
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <ul class="pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="page === 1">
+            <a class="page-link" (click)="page > 1 && onPageChange(page - 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.BACK" | translate }}
+            </a>
+          </li>
+
+          <!-- Page Numbers -->
+          <ng-container *ngFor="let pageNum of [].constructor(totalPages); let i = index">
+            <li class="page-item" [class.active]="page === i + 1" *ngIf="i + 1 >= page - 2 && i + 1 <= page + 2">
+              <a class="page-link" (click)="onPageChange(i + 1)" style="cursor: pointer;">
+                {{ i + 1 }}
+              </a>
+            </li>
+          </ng-container>
+
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="page === totalPages">
+            <a class="page-link" (click)="page < totalPages && onPageChange(page + 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.NEXT" | translate }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<ng-template #addEditModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="myModalLabel">
+      {{ isEdit ? ('COMMON.LABEL.EDIT' | translate) : ('COMMON.LABEL.ADD' | translate) }} {{ "APPPAGE.MASTERDATA.SUBSECTION.TITLE" | translate }}
+    </h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="closeModal()"
+    ></button>
+  </div>
+
+  <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <!-- Basic Information -->
+      <div class="row">
+        <!-- SubSection Name -->
+        <div class="col-12 mb-3">
+          <label for="name" class="form-label">
+            {{ "APPPAGE.MASTERDATA.SUBSECTION.FORM.NAME.TEXT" | translate }}
+            <span class="text-danger">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            formControlName="name"
+            [placeholder]="'APPPAGE.MASTERDATA.SUBSECTION.FORM.NAME.PLACEHOLDER' | translate"
+            [class.is-invalid]="submitted && formControls['name'].errors"
+          />
+          <div
+            *ngIf="submitted && formControls['name'].errors"
+            class="invalid-feedback"
+          >
+            <div *ngIf="formControls['name'].errors?.['required']">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.FORM.NAME.INVALID" | translate }}
+            </div>
+            <div *ngIf="formControls['name'].errors?.['maxlength']">
+              {{ "APPPAGE.MASTERDATA.SUBSECTION.FORM.NAME.MAXLENGTH" | translate }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manpower Management -->
+      <div class="mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">
+            <i class="ri-group-line me-2"></i>
+            {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.TITLE" | translate }}
+          </h5>
+          <button
+            type="button"
+            class="btn btn-outline-primary btn-sm"
+            (click)="addManpower()"
+          >
+            <i class="ri-add-line me-1"></i>
+            {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.ADD" | translate }}
+          </button>
+        </div>
+
+        <!-- Manpower Table -->
+        <div *ngIf="manpowers.length > 0" class="table-responsive">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 50px;" class="text-center">#</th>
+                <th style="width: 30%;">
+                  {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.LINE.TEXT" | translate }}
+                  <span class="text-danger">*</span>
+                </th>
+                <th style="width: 30%;">
+                  {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.GROUP.TEXT" | translate }}
+                  <span class="text-danger">*</span>
+                </th>
+                <th style="width: 25%;">
+                  {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.COUNT.TEXT" | translate }}
+                  <span class="text-danger">*</span>
+                </th>
+                <th style="width: 80px;" class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody formArrayName="manpowers">
+              <tr
+                *ngFor="let manpower of manpowers.controls; let i = index; trackBy: trackByManpowerFn"
+                [formGroupName]="i"
+                [class.table-danger]="submitted && manpower.invalid"
+              >
+                <!-- Row Number -->
+                <td class="text-center">
+                  <span class="badge bg-soft-primary text-primary">{{ i + 1 }}</span>
+                </td>
+
+                <!-- Line Selection -->
+                <td>
+                  <ng-select
+                    [items]="lines"
+                    bindLabel="name"
+                    bindValue="id"
+                    [placeholder]="'APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.LINE.PLACEHOLDER' | translate"
+                    formControlName="line_id"
+                    [clearable]="false"
+                    [searchable]="true"
+                    [class.is-invalid]="submitted && manpower.get('line_id')?.errors"
+                  >
+                  </ng-select>
+                  <div
+                    *ngIf="submitted && manpower.get('line_id')?.errors"
+                    class="text-danger small mt-1"
+                  >
+                    {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.LINE.INVALID" | translate }}
+                  </div>
+                </td>
+
+                <!-- Group Selection -->
+                <td>
+                  <ng-select
+                    [items]="groups"
+                    bindLabel="name"
+                    bindValue="id"
+                    [placeholder]="'APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.GROUP.PLACEHOLDER' | translate"
+                    formControlName="group_id"
+                    [clearable]="false"
+                    [searchable]="true"
+                    [class.is-invalid]="submitted && manpower.get('group_id')?.errors"
+                  >
+                  </ng-select>
+                  <div
+                    *ngIf="submitted && manpower.get('group_id')?.errors"
+                    class="text-danger small mt-1"
+                  >
+                    {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.GROUP.INVALID" | translate }}
+                  </div>
+                </td>
+
+                <!-- Manpower Count -->
+                <td>
+                  <input
+                    type="number"
+                    class="form-control"
+                    formControlName="manpower_count"
+                    [placeholder]="'APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.COUNT.PLACEHOLDER' | translate"
+                    min="1"
+                    [class.is-invalid]="submitted && manpower.get('manpower_count')?.errors"
+                  />
+                  <div
+                    *ngIf="submitted && manpower.get('manpower_count')?.errors"
+                    class="text-danger small mt-1"
+                  >
+                    <div *ngIf="manpower.get('manpower_count')?.errors?.['required']">
+                      {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.COUNT.INVALID" | translate }}
+                    </div>
+                    <div *ngIf="manpower.get('manpower_count')?.errors?.['min']">
+                      {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.COUNT.MIN" | translate }}
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Remove Button -->
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="removeManpower(i)"
+                    [ngbTooltip]="'COMMON.LABEL.DELETE' | translate"
+                  >
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty state for manpower -->
+        <div *ngIf="manpowers.length === 0" class="text-center py-4 border rounded">
+          <i class="ri-group-line text-muted" style="font-size: 2rem;"></i>
+          <p class="text-muted mt-2 mb-3">
+            {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.EMPTY" | translate }}
+          </p>
+          <button
+            type="button"
+            class="btn btn-outline-primary"
+            (click)="addManpower()"
+          >
+            <i class="ri-add-line me-1"></i>
+            {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.ADD_FIRST" | translate }}
+          </button>
+        </div>
+
+        <small class="form-text text-muted">
+          {{ "APPPAGE.MASTERDATA.SUBSECTION.MANPOWER.HELP" | translate }}
+        </small>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light"
+        (click)="closeModal()"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="fg.invalid && submitted"
+      >
+        {{ "COMMON.LABEL.SAVE" | translate }}
+      </button>
+    </div>
+  </form>
+</ng-template>

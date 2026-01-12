@@ -1,0 +1,207 @@
+//
+// _card.scss
+//
+
+.card {
+  margin-bottom: $grid-gutter-width;
+
+  // Transparent glass effect - keeping the transparency
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+
+  // Clean shadow for transparency
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+// Dark mode transparent effect
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    .card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+  }
+}
+
+.card-header {
+  border-bottom: 1px solid var(--#{$prefix}border-color);
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+// Dark mode header
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    .card-header {
+      background: rgba(255, 255, 255, 0.05) !important;
+    }
+  }
+}
+
+//Card Header Dropdown
+.card-header-dropdown {
+  .dropdown-btn {
+    padding: $card-cap-padding-y 0;
+  }
+}
+
+.card-footer {
+  border-top: 1px solid var(--#{$prefix}border-color);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 16px 16px !important;
+}
+
+// Dark mode footer
+@if $enable-dark-mode {
+  @include color-mode(dark, true) {
+    .card-footer {
+      background: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+.card-title {
+  font-size: 16px;
+  margin: 0 0 7px 0;
+}
+
+.card-height-100 {
+  height: calc(100% - #{$grid-gutter-width});
+}
+
+.card-animate{
+  transition: all 0.4s;
+
+  &:hover{
+    transform: translateY(calc(#{-$grid-gutter-width} / 5));
+    box-shadow: $box-shadow-lg;
+  }
+}
+
+// card color variant
+@each $color,
+$value in $theme-colors {
+  .card-#{$color} {
+    background-color: rgba($value, 0.2);
+    color: color-contrast($value);
+    border: 1px dashed rgba($value, 0.3);
+
+    .card-header, .card-footer {
+      background-color: rgba($white, 0.1);
+      color: color-contrast($value);
+      border-color: rgba($value, 0.2);
+    }
+
+    .card-title {
+      color: $value;
+      font-weight: 600;
+    }
+  }
+}
+
+@each $color,
+$value in $theme-colors {
+  .card-border-#{$color} {
+    border-color: $value !important;
+    .card-header, .card-footer {
+      border-color: $value;
+    }
+
+  }
+}
+
+.card-light{
+  background: rgba(var(--#{$prefix}light-rgb), 0.8);
+  .card-header, .card-footer{
+    color: var(--#{$prefix}body-color) !important;
+    background: rgba(var(--#{$prefix}dark-rgb), 0.05);
+  }
+  .card-title, .card-text {
+    color: var(--#{$prefix}body-color) !important;
+  }
+}
+
+// Loader
+.card-preloader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(var(--#{$prefix}light-rgb), 0.6);
+  z-index: 9999;
+}
+
+.card-status {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%)!important;
+}
+
+.custom-loader {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg) }
+}
+
+.card-overlay{
+  position: relative;
+  overflow: hidden;
+  &:before {
+    content: "";
+    background-color: rgba($primary, 0.20);
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+  }
+  :is(.card-header, .card-footer) {
+    border-color: rgba($white, 0.15) !important;
+  }
+}
+
+.card-toolbar-menu {
+  line-height: 0.8;
+  a {
+    font-size: 17px;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+
+    &:hover {
+      background: rgba(var(--#{$prefix}primary-rgb), 0.1);
+      transform: scale(1.1);
+    }
+  }
+  .minimize-card {
+    .plus{
+      display: none;
+    }
+    .minus {
+      display: block;
+    }
+    &.collapsed{
+      .plus{
+        display: block;
+      }
+      .minus {
+        display: none;
+      }
+    }
+  }
+}

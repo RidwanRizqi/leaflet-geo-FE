@@ -1,0 +1,79 @@
+// 
+// breadcrumb.scss
+//
+
+// Enhanced liquid glass breadcrumb styling - aligned with card design
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+    
+    // Breadcrumb item with enhanced glass effect - aligned with card border-radius
+    .breadcrumb-item {
+        > a {
+            color: rgba(var(--#{$prefix}body-color-rgb), 0.8);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 4px 12px; // Increased padding for better touch targets
+            border-radius: 12px; // Aligned with card design (half of 16px)
+            position: relative;
+            
+            &:hover {
+                color: rgba(var(--#{$prefix}body-color-rgb), 1);
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06),
+                            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                transform: translateY(-1px);
+            }
+        }
+        
+        // Active breadcrumb item
+        &.active {
+            color: rgba(var(--#{$prefix}body-color-rgb), 0.9);
+            font-weight: 500;
+        }
+        
+        // Breadcrumb divider styling
+        + .breadcrumb-item {
+            &::before {
+                font-family: "Material Design Icons";
+                font-size: 14px; // Slightly larger for better visibility
+                line-height: 20px; // Adjusted for better alignment
+                color: rgba(var(--#{$prefix}body-color-rgb), 0.5);
+                margin: 0 8px; // Increased spacing for better readability
+            }
+        }
+    }
+}
+
+// Dark mode breadcrumb - aligned with card design
+@if $enable-dark-mode {
+    @include color-mode(dark, true) {
+        .breadcrumb .breadcrumb-item {
+            > a {
+                color: rgba(255, 255, 255, 0.8);
+                
+                &:hover {
+                    color: rgba(255, 255, 255, 1);
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(255, 255, 255, 0.15);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2),
+                                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                    transform: translateY(-1px);
+                }
+            }
+            
+            &.active {
+                color: rgba(255, 255, 255, 0.9);
+            }
+            
+            + .breadcrumb-item::before {
+                color: rgba(255, 255, 255, 0.5);
+            }
+        }
+    }
+}
+  

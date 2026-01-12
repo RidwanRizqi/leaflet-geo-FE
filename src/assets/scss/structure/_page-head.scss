@@ -1,0 +1,142 @@
+//
+// _page-head.scss
+//
+
+.page-title-box {
+    padding: 10px $grid-gutter-width; // Reduced from 15px to 10px
+    margin: -23px (-$grid-gutter-width * 1) $grid-gutter-width (-$grid-gutter-width * 1);
+
+    // Enhanced liquid glass design for page title box / breadcrumb
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(var(--#{$prefix}border-color-rgb), 0.15);
+    border-radius: 0; /* No rounded corners for breadcrumb */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06),
+                0 2px 8px rgba(0, 0, 0, 0.04),
+                0 1px 4px rgba(0, 0, 0, 0.02),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
+
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 0;
+
+        // Enhanced breadcrumb items
+        .breadcrumb-item {
+            a {
+                color: rgba(var(--#{$prefix}body-color-rgb), 0.8);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                padding: 2px 6px; // Reduced from 4px 8px to 2px 6px
+                border-radius: 6px; // Slightly smaller radius
+
+                &:hover {
+                    color: rgba(var(--#{$prefix}body-color-rgb), 1);
+                    background: rgba(255, 255, 255, 0.15);
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                }
+            }
+
+            &.active {
+                color: rgba(var(--#{$prefix}body-color-rgb), 0.9);
+                font-weight: 500;
+            }
+        }
+    }
+
+    h4 {
+        font-weight: 700;
+        font-size: 15px!important;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 0;
+        color: rgba(var(--#{$prefix}body-color-rgb), 0.95);
+    }
+}
+
+[data-layout="horizontal"] {
+    .page-title-box {
+        padding: 0.8rem 0; // Reduced from 1.2rem to 0.8rem for lower height
+        background-color: transparent !important;
+        border-bottom: none;
+        border-top: none;
+        box-shadow: none;
+        margin: 0;
+
+        @media (min-width: 1024.1px) {
+            margin: -19px 0 0 0;
+        }
+    }
+}
+
+[data-layout="vertical"] {
+    &[data-layout-style="detached"]{
+        .page-title-box {
+            padding: 0.8rem 0; // Reduced from 1.2rem to 0.8rem for lower height
+            background-color: transparent !important;
+            border-bottom: none;
+            border-top: none;
+            box-shadow: none;
+            margin: 0;
+
+            @media (min-width: 1024.1px) {
+                margin: -19px 0 0 0;
+            }
+        }
+    }
+}
+
+// Dark mode liquid glass for page title box / breadcrumb
+@if $enable-dark-mode {
+    @include color-mode(dark, true) {
+        .page-title-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                        0 2px 8px rgba(0, 0, 0, 0.2),
+                        0 1px 4px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                        inset 0 0 15px rgba(255, 255, 255, 0.03);
+
+            // Dark mode reflection - no rounded corners
+            &::before {
+                background: linear-gradient(180deg,
+                    rgba(255, 255, 255, 0.1) 0%,
+                    rgba(255, 255, 255, 0.05) 40%,
+                    rgba(255, 255, 255, 0.02) 70%,
+                    transparent 100%);
+                border-radius: 0; // No rounded corners for dark mode reflection
+            }
+
+            .breadcrumb .breadcrumb-item {
+                a {
+                    color: rgba(255, 255, 255, 0.8);
+
+                    &:hover {
+                        color: rgba(255, 255, 255, 1);
+                        background: rgba(255, 255, 255, 0.08);
+                    }
+                }
+
+                &.active {
+                    color: rgba(255, 255, 255, 0.9);
+                }
+            }
+
+            h4 {
+                color: rgba(255, 255, 255, 0.95);
+            }
+        }
+    }
+}
+

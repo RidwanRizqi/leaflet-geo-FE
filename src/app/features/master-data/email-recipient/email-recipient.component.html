@@ -1,0 +1,276 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs
+  [title]="breadCrumbTitle"
+  [breadcrumbItems]="breadCrumbItems"
+></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between mb-3">
+      <button
+        class="btn btn-primary btn-label waves-effect waves-light"
+        (click)="openAddModal()"
+      >
+        <i class="ri-add-line label-icon align-middle fs-16 me-2"></i>
+        {{ "COMMON.LABEL.ADD" | translate }}
+      </button>
+      <div class="search-box ms-2">
+        <input
+          type="text"
+          class="form-control search"
+          [placeholder]="getSearchHint()"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput($event)"
+          (keyup.enter)="onSearch()"
+        />
+        <i class="ri-search-line search-icon" *ngIf="!isSearching"></i>
+        <div class="search-icon" *ngIf="isSearching">
+          <div class="spinner-border spinner-border-sm text-primary" role="status">
+            <span class="visually-hidden">Searching...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div
+      *ngIf="totalRecords > 0; else noData"
+      class="table-responsive table-card mb-1"
+    >
+      <table class="table">
+        <thead>
+          <tr class="table-light text-muted">
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.EMPLOYEE_CODE" | translate }}
+            </th>
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.EMPLOYEE_NAME" | translate }}
+            </th>
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.EMAIL" | translate }}
+            </th>
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.DEPARTMENT" | translate }}
+            </th>
+            <th scope="col">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.RECIPIENT_TYPE" | translate }}
+            </th>
+            <th scope="col" style="width: 150px;">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.CREATED_AT" | translate }}
+            </th>
+            <th scope="col" style="width: 120px;">
+              {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.DATATABLES.ACTION" | translate }}
+            </th>
+          </tr>
+        </thead>
+                <tbody>
+          <tr *ngFor="let item of emailRecipientItems | async; trackBy: trackByFn">
+            <td>
+              <strong>{{ item.employee_code }}</strong>
+            </td>
+            <td>
+              <div>
+                <div class="fw-semibold">{{ item.employee_name || 'N/A' }}</div>
+                <small class="text-muted">{{ item.position || 'N/A' }}</small>
+              </div>
+            </td>
+            <td>
+              <a href="mailto:{{ item.email }}" class="text-primary">
+                {{ item.email || 'N/A' }}
+              </a>
+            </td>
+            <td>
+              <span class="text-muted">{{ item.department || 'N/A' }}</span>
+            </td>
+            <td>
+              <span class="badge"
+                    [class]="item.recipient_type === 'to' ? 'bg-primary' : item.recipient_type === 'cc' ? 'bg-info' : 'bg-warning'">
+                {{ getRecipientTypeLabel(item.recipient_type) }}
+              </span>
+            </td>
+            <td>{{ item.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <div class="hstack gap-2 fs-15">
+                <button
+                  [ngbTooltip]="'COMMON.LABEL.EDIT' | translate"
+                  class="btn btn-sm btn-success"
+                  (click)="openEditModal(item)"
+                >
+                  <i class="ri-edit-line"></i>
+                </button>
+                <button
+                  [ngbTooltip]="'COMMON.LABEL.DELETE' | translate"
+                  class="btn btn-sm btn-danger"
+                  (click)="deleteEmailRecipient(item)"
+                >
+                  <i class="ri-delete-bin-5-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Data Template -->
+    <ng-template #noData>
+      <div class="noresult">
+        <div class="text-center">
+          <lord-icon
+            src="https://cdn.lordicon.com/msoeawqm.json"
+            trigger="loop"
+            colors="primary:#405189,secondary:#0ab39c"
+            style="width: 75px; height: 75px"
+          >
+          </lord-icon>
+          <h5 class="mt-2">{{ "COMMON.LABEL.NODATA.TEXT" | translate }}</h5>
+          <p class="text-muted mb-0">
+            {{ "COMMON.LABEL.NODATA.PLACEHOLDER" | translate }}
+          </p>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Pagination -->
+    <div class="row g-0 text-center text-sm-start align-items-center mb-4" *ngIf="totalRecords > 0">
+      <div class="col-sm-6">
+        <div>
+          <p class="mb-sm-0 text-muted">
+            {{ "COMMON.LABEL.SHOWING" | translate }} {{ startIndex + 1 }} {{ "COMMON.LABEL.TO" | translate }} {{ endIndex }} {{ "COMMON.LABEL.OF" | translate }} {{ totalRecords }} {{ "COMMON.LABEL.ENTRIES" | translate }}
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <ul class="pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="page === 1">
+            <a class="page-link" (click)="page > 1 && onPageChange(page - 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.BACK" | translate }}
+            </a>
+          </li>
+
+          <!-- Page Numbers -->
+          <ng-container *ngFor="let pageNum of [].constructor(totalPages); let i = index">
+            <li class="page-item" [class.active]="page === i + 1" *ngIf="i + 1 >= page - 2 && i + 1 <= page + 2">
+              <a class="page-link" (click)="onPageChange(i + 1)" style="cursor: pointer;">
+                {{ i + 1 }}
+              </a>
+            </li>
+          </ng-container>
+
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="page === totalPages">
+            <a class="page-link" (click)="page < totalPages && onPageChange(page + 1)" style="cursor: pointer;">
+              {{ "TOUR.BUTTON.NEXT" | translate }}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<ng-template #addEditModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="myModalLabel">
+      {{ isEdit ? ('COMMON.LABEL.EDIT' | translate) : ('COMMON.LABEL.ADD' | translate) }} {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.TITLE" | translate }}
+    </h4>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="closeModal()"
+    ></button>
+  </div>
+
+  <form [formGroup]="fg" (ngSubmit)="onSubmit()">
+    <div class="modal-body">
+      <!-- Employee Code -->
+      <div class="mb-3">
+        <label for="employee_code" class="form-label">
+          {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.EMPLOYEE_CODE.TEXT" | translate }}
+          <span class="text-danger">*</span>
+        </label>
+        <ng-select
+          [items]="employees"
+          bindLabel="display_name"
+          bindValue="employee_code"
+          [placeholder]="'APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.EMPLOYEE_CODE.PLACEHOLDER' | translate"
+          formControlName="employee_code"
+          [clearable]="true"
+          [searchable]="true"
+          [typeahead]="employeeSearchSubject"
+          [loading]="false"
+          [class.is-invalid]="submitted && formControls['employee_code'].errors"
+          (change)="onEmployeeSelected($event)"
+        >
+          <ng-option *ngFor="let employee of employees" [value]="employee.employee_code">
+            <div class="d-flex flex-column">
+              <div class="fw-medium">{{ employee.employee_code }} - {{ employee.employee_name }}</div>
+              <small class="text-muted">{{ employee.position_desc }}</small>
+              <small class="text-muted">{{ employee.department_desc }}</small>
+            </div>
+          </ng-option>
+        </ng-select>
+        <div
+          *ngIf="submitted && formControls['employee_code'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="formControls['employee_code'].errors?.['required']">
+            {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.EMPLOYEE_CODE.INVALID" | translate }}
+          </div>
+        </div>
+      </div>
+
+            <!-- Recipient Type -->
+      <div class="mb-3">
+        <label for="recipient_type" class="form-label">
+          {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.RECIPIENT_TYPE.TEXT" | translate }}
+          <span class="text-danger">*</span>
+        </label>
+        <select
+          class="form-select"
+          id="recipient_type"
+          formControlName="recipient_type"
+          [class.is-invalid]="submitted && formControls['recipient_type'].errors"
+        >
+          <option *ngFor="let option of recipientTypeOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+        <div
+          *ngIf="submitted && formControls['recipient_type'].errors"
+          class="invalid-feedback"
+        >
+          <div *ngIf="formControls['recipient_type'].errors?.['required']">
+            {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.RECIPIENT_TYPE.INVALID" | translate }}
+          </div>
+        </div>
+        <div class="form-text">
+          <small class="text-muted">
+            {{ "APPPAGE.MASTERDATA.EMAILRECIPIENT.FORM.RECIPIENT_TYPE.HELP" | translate }}
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-light"
+        (click)="closeModal()"
+      >
+        {{ "COMMON.CUSTOMMODAL.BTNCLOSE" | translate }}
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="fg.invalid && submitted"
+      >
+        {{ "COMMON.LABEL.SAVE" | translate }}
+      </button>
+    </div>
+  </form>
+</ng-template>

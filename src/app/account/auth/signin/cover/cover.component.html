@@ -1,0 +1,121 @@
+<div class="auth-wrapper">
+    <!-- Floating Alert -->
+    <div *ngIf="alertMessage"
+        class="alert position-fixed top-0 start-50 translate-middle-x mt-3 shadow-lg text-white d-flex align-items-center justify-content-between gap-3"
+        [ngClass]="{
+      'bg-success border-success': alertType === 'success',
+      'bg-danger border-danger': alertType === 'danger'
+    }" role="alert" style="z-index: 1055; min-width: 320px; max-width: 90vw;">
+        <div class="d-flex align-items-center">
+            <strong *ngIf="alertType === 'success'">Berhasil!</strong>
+            <strong *ngIf="alertType === 'danger'">Gagal!</strong>
+            <span> - {{ alertMessage }}</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white ms-2" aria-label="Close"
+            (click)="alertMessage = null"></button>
+    </div>
+
+    <div class="row g-0 min-vh-100">
+
+        <!-- LEFT - Background Image Section -->
+        <div class="col-lg-6 d-none d-lg-flex position-relative auth-left">
+            <div class="overlay"></div>
+
+            <!-- Logo Top Left -->
+            <div class="position-absolute top-0 start-0 p-5 text-white d-flex align-items-center gap-3 logo-section">
+                <img src="assets/images/logo-dark.png" alt="Logo SIG PBB" class="auth-logo">
+                <div class="lh-1">
+                    <div class="fw-bold fs-3 logo-title">BPRD</div>
+                    <small class="fw-medium logo-subtitle">Pemerintah Kabupaten Lumajang</small>
+                </div>
+            </div>
+
+            <!-- Text Bottom -->
+            <div class="position-absolute bottom-0 start-0 p-5 text-white hero-text">
+                <h1 class="fw-bold display-2 text-white mb-2 hero-title">SIG PBB</h1>
+                <p class="fw-semibold mb-0 fs-6 hero-description">
+                    Sistem Informasi Geografis Pajak Bumi dan Bangunan<br>
+                    <span class="fw-normal opacity-75">Badan Pajak dan Retribusi Daerah kabupaten Lumajang</span>
+                </p>
+            </div>
+
+            <!-- Image Credit -->
+            <div class="position-absolute bottom-0 end-0 p-4 text-white z-2" style="opacity: 0.6;">
+                <small class="small d-flex align-items-center gap-1">
+                    <a href="https://unsplash.com/photos/cascading-waterfalls-in-green-plant-covered-ravine-_i1juAwzYX0"
+                        target="_blank" class="text-white text-decoration-none">Foto oleh Agto Nugroho</a>
+                </small>
+            </div>
+        </div>
+
+        <!-- RIGHT - Login Form Section -->
+        <div class="col-lg-6 d-flex align-items-center justify-content-center auth-right">
+            <div class="auth-form p-4 p-md-5 w-100">
+                <!-- HEADER -->
+                <div class="auth-form-header mb-5">
+                    <h2 class="fw-bold text-primary-custom welcome-title mb-2">Selamat Datang</h2>
+                    <p class="text-muted fs-5 mb-0">Silahkan masuk untuk melanjutkan</p>
+                </div>
+
+                <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+                    <!-- Username Field -->
+                    <div class="mb-4 form-group">
+                        <label class="form-label text-primary-custom fw-bold">
+                            Username
+                        </label>
+                        <input type="text" class="form-control custom-input" formControlName="username"
+                            [ngClass]="{ 'is-invalid': submitted && f['username'].errors }"
+                            placeholder="Masukkan username Anda">
+                        @if (submitted && f['username'].errors) {
+                        <div class="invalid-feedback">
+                            @if(f['username'].errors['required']){
+                            <div>Username wajib diisi</div>}
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-4 form-group">
+                        <label class="form-label text-primary-custom fw-bold">
+                            Kata Sandi
+                        </label>
+                        <div class="position-relative password-wrapper">
+                            <input [type]="fieldTextType ? 'text' : 'password'" class="form-control custom-input"
+                                formControlName="password"
+                                [ngClass]="{ 'is-invalid': submitted && f['password'].errors }"
+                                placeholder="Masukkan kata sandi Anda">
+                            <button
+                                class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none pe-3 toggle-password"
+                                type="button" (click)="toggleFieldTextType()">
+                                <i class="mdi fs-5"
+                                    [ngClass]="{'mdi-eye-off-outline': !fieldTextType, 'mdi-eye-outline': fieldTextType}">
+                                </i>
+                            </button>
+                            @if (submitted && f['password'].errors) {
+                            <div class="invalid-feedback">
+                                @if(f['password'].errors['required']){
+                                <span>Kata sandi wajib diisi</span>}
+                            </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Login Button -->
+                    <button class="btn btn-login w-100" type="submit">
+                        <div class=" d-flex align-items-center justify-content-center">
+                            Masuk<i class="ri-arrow-right-line ms-2"></i>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Footer -->
+                <div class="auth-footer mt-5 pt-3">
+                    <p class="mb-1 text-muted small">© {{ year }} Badan Pajak dan Retribusi Daerah kabupaten Lumajang
+                    </p>
+                    <p class="mb-0 version text-primary-custom fw-bold small opacity-75">SIG PBB v2.0</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
