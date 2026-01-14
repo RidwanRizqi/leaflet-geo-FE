@@ -42,7 +42,7 @@ export class DashboardPendapatanComponent implements OnInit {
   chartOptions: any;
   trendChartOptions: any;
 
-  constructor(private pendapatanService: PendapatanService) {}
+  constructor(private pendapatanService: PendapatanService) { }
 
   ngOnInit(): void {
     this.loadAllData();
@@ -73,12 +73,16 @@ export class DashboardPendapatanComponent implements OnInit {
     this.isLoadingChart = true;
     this.pendapatanService.getTargetRealisasi(this.selectedYear).subscribe({
       next: (data) => {
-        this.targetRealisasi = data;
-        this.prepareBarChart(data);
+        // Handle null or non-array response
+        this.targetRealisasi = Array.isArray(data) ? data : [];
+        if (this.targetRealisasi.length > 0) {
+          this.prepareBarChart(this.targetRealisasi);
+        }
         this.isLoadingChart = false;
       },
       error: (error) => {
         console.error('Error loading target realisasi:', error);
+        this.targetRealisasi = [];
         this.isLoadingChart = false;
       }
     });
@@ -88,12 +92,16 @@ export class DashboardPendapatanComponent implements OnInit {
     this.isLoadingTrend = true;
     this.pendapatanService.getTrendBulanan(this.selectedYear).subscribe({
       next: (data) => {
-        this.trendBulanan = data;
-        this.prepareLineChart(data);
+        // Handle null or non-array response
+        this.trendBulanan = Array.isArray(data) ? data : [];
+        if (this.trendBulanan.length > 0) {
+          this.prepareLineChart(this.trendBulanan);
+        }
         this.isLoadingTrend = false;
       },
       error: (error) => {
         console.error('Error loading trend:', error);
+        this.trendBulanan = [];
         this.isLoadingTrend = false;
       }
     });
@@ -103,11 +111,13 @@ export class DashboardPendapatanComponent implements OnInit {
     this.isLoadingTop = true;
     this.pendapatanService.getTopKontributor(this.selectedYear, 10).subscribe({
       next: (data) => {
-        this.topKontributor = data;
+        // Handle null or non-array response
+        this.topKontributor = Array.isArray(data) ? data : [];
         this.isLoadingTop = false;
       },
       error: (error) => {
         console.error('Error loading top kontributor:', error);
+        this.topKontributor = [];
         this.isLoadingTop = false;
       }
     });
@@ -118,6 +128,10 @@ export class DashboardPendapatanComponent implements OnInit {
   }
 
   prepareBarChart(data: TargetRealisasi[]): void {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      this.chartOptions = null;
+      return;
+    }
     const categories = data.map(d => d.jenisPajak);
     const targetData = data.map(d => d.target / 1000000); // Convert to millions
     const realisasiData = data.map(d => d.realisasi / 1000000);
@@ -198,6 +212,10 @@ export class DashboardPendapatanComponent implements OnInit {
   }
 
   prepareLineChart(data: TrendBulanan[]): void {
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      this.trendChartOptions = null;
+      return;
+    }
     const categories = data.map(d => d.namaBulan);
     const realisasiData = data.map(d => d.realisasiKumulatif / 1000000);
 

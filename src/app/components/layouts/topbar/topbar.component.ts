@@ -181,11 +181,12 @@ export class TopbarComponent implements OnInit {
   }
 
   windowScroll() {
+    const backToTop = document.getElementById("back-to-top");
     if (document.body.scrollTop > 100 || document.documentElement.scrollTop > 100) {
-      (document.getElementById("back-to-top") as HTMLElement).style.display = "block";
+      if (backToTop) backToTop.style.display = "block";
       document.getElementById('page-topbar')?.classList.add('topbar-shadow');
     } else {
-      (document.getElementById("back-to-top") as HTMLElement).style.display = "none";
+      if (backToTop) backToTop.style.display = "none";
       document.getElementById('page-topbar')?.classList.remove('topbar-shadow');
     }
   }
