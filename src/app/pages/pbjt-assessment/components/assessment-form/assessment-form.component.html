@@ -113,13 +113,13 @@
             <!-- Image Upload Section -->
             <div class="mb-3">
               <label class="form-label">
-                <i class="ri-image-line"></i> Foto Usaha 
+                <i class="ri-image-line"></i> Foto Usaha
                 <span class="text-muted">(Opsional, Maks {{ maxImages }} gambar)</span>
               </label>
               <small class="d-block text-muted mb-2">
                 <i class="ri-information-line"></i> Upload foto menu, suasana, atau foto usaha lainnya
               </small>
-              
+
               <!-- Drop Zone -->
               <div class="image-drop-zone"
                    [class.drag-over]="isDragOver"
@@ -128,12 +128,12 @@
                    (dragleave)="onDragLeave($event)"
                    (drop)="onDrop($event)"
                    (click)="fileInput.click()">
-                <input #fileInput type="file" 
+                <input #fileInput type="file"
                        accept="image/jpeg,image/png,image/gif,image/webp"
                        multiple
                        (change)="onFileSelect($event)"
                        style="display: none;">
-                
+
                 <div class="drop-zone-content" *ngIf="uploadedImages.length === 0">
                   <i class="ri-upload-cloud-2-line drop-icon"></i>
                   <p class="drop-text">Drag & drop gambar di sini</p>

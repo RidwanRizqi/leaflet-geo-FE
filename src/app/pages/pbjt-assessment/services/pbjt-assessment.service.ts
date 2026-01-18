@@ -80,7 +80,7 @@ export class PbjtAssessmentService {
     files.forEach(file => {
       formData.append('files', file);
     });
-    
+
     return this.http.post(`${this.apiUrl}/upload-images`, formData);
   }
 

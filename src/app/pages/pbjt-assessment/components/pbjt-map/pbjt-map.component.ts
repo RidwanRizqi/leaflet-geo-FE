@@ -67,7 +67,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadKecamatanStats();
-    
+
     // Check if there are query parameters for direct location viewing
     this.route.queryParams.subscribe(params => {
       if (params['lat'] && params['lng']) {
@@ -86,7 +86,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.initializeMap();
     setTimeout(() => {
       this.loadKecamatanBoundaries();
-      
+
       // If there's a pending location from query params, zoom to it
       if ((this as any).pendingLocation) {
         // Wait longer and retry until kecamatanStats is loaded
@@ -100,7 +100,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private waitForStatsAndZoom(location: any, retries: number = 0): void {
     const maxRetries = 20; // 10 seconds max
-    
+
     if (this.kecamatanStats && this.kecamatanStats.length > 0) {
       console.log('✅ Stats loaded, proceeding with zoom');
       setTimeout(() => this.zoomToLocation(location), 500);
@@ -667,24 +667,24 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
           const assessment = response.data;
           const kecamatan = assessment.location?.kecamatan || '';
           const kelurahan = assessment.location?.kelurahan || '';
-          
+
           console.log(`📍 Drilling down to: ${kecamatan} > ${kelurahan}`);
-          
+
           // Find kd_kec from kecamatan stats
-          const kecamatanData = this.kecamatanStats.find(k => 
+          const kecamatanData = this.kecamatanStats.find(k =>
             k.kecamatan.toLowerCase() === kecamatan.toLowerCase()
           );
-          
+
           if (kecamatanData && kecamatanData.kdKec) {
             // Set state to detail level
             this.currentLevel = 'detail';
             this.selectedKecamatan = kecamatan;
             this.selectedKdKec = kecamatanData.kdKec;
             this.selectedKelurahan = kelurahan;
-            
+
             // Load kelurahan stats for the breadcrumb/UI
             this.loadKelurahanStats(kecamatan);
-            
+
             // Load kelurahan boundaries first
             this.loadKelurahanBoundariesForDrilldown(kecamatanData.kdKec, () => {
               // After boundaries loaded, load all business markers for this kelurahan
@@ -714,13 +714,13 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadKelurahanBoundariesForDrilldown(kdKec: string, callback: () => void): void {
     console.log('🌐 Loading kelurahan boundaries for seamless drill-down, kd_kec:', kdKec);
     this.isLoadingBoundaries = true;
-    
+
     this.bprdApiService.getKelurahanBoundariesViaBackend(kdKec).subscribe({
       next: (boundaries: any[]) => {
         console.log('✅ Kelurahan boundaries loaded:', boundaries.length);
         this.renderKelurahanLayer(boundaries);
         this.isLoadingBoundaries = false;
-        
+
         // Execute callback after boundaries are rendered
         if (callback) {
           setTimeout(callback, 300); // Small delay to ensure rendering complete
@@ -729,7 +729,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
       error: (error: any) => {
         console.error('❌ Error loading kelurahan boundaries:', error);
         this.isLoadingBoundaries = false;
-        
+
         // Still execute callback even if boundaries fail
         if (callback) callback();
       }
@@ -741,12 +741,12 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   private loadBusinessMarkersForDrilldown(kecamatan: string, kelurahan: string, highlightLocation: any): void {
     console.log('📍 Loading business markers for:', kecamatan, '>', kelurahan);
-    
+
     this.pbjtService.getAssessmentsByLocationWithRealization(kecamatan, kelurahan).subscribe({
       next: (assessments) => {
         this.assessments = assessments;
         console.log('✅ Business assessments loaded:', assessments.length);
-        
+
         // Render all markers
         this.renderBusinessMarkersWithHighlight(assessments, highlightLocation);
       },
@@ -771,9 +771,9 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     assessments.forEach(assessment => {
       if (assessment.latitude && assessment.longitude) {
-        const isHighlighted = highlightLocation.businessId && 
+        const isHighlighted = highlightLocation.businessId &&
                             assessment.id?.toString() === highlightLocation.businessId.toString();
-        
+
         // Create custom marker icon
         const icon = L.divIcon({
           className: isHighlighted ? 'pbjt-marker-highlight' : 'pbjt-marker',
@@ -873,7 +873,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.map) return;
 
     console.log('⚠️ Fallback: showing single marker');
-    
+
     this.map.setView([location.lat, location.lng], 18);
 
     const icon = L.divIcon({

@@ -316,11 +316,11 @@ export class AssessmentFormComponent implements OnInit {
 
     // Step 1: Upload only NEW images (not existing ones)
     const newImages = this.uploadedImages.filter(img => img.file.size > 0); // Filter out dummy files
-    
+
     if (newImages.length > 0) {
       console.log('📤 Uploading new images...');
       const files = newImages.map(img => img.file);
-      
+
       this.assessmentService.uploadImages(files).subscribe({
         next: (uploadResponse) => {
           console.log('✅ Images uploaded:', uploadResponse);
