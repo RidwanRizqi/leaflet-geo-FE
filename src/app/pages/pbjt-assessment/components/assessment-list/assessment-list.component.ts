@@ -32,6 +32,7 @@ export interface AssessmentWithRealization {
 })
 export class AssessmentListComponent implements OnInit {
   assessments: AssessmentWithRealization[] = [];
+  filteredAssessments: AssessmentWithRealization[] = [];
   loading: boolean = false;
   error: string = '';
   Math = Math; // Expose Math to template
@@ -66,10 +67,7 @@ export class AssessmentListComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.assessments = data;
-          this.totalElements = data.length;
-          this.totalPages = Math.ceil(data.length / this.pageSize);
-          this.hasNext = (this.currentPage + 1) < this.totalPages;
-          this.hasPrev = this.currentPage > 0;
+          this.applySearchAndPagination();
           this.loading = false;
         },
         error: (error) => {
@@ -80,22 +78,69 @@ export class AssessmentListComponent implements OnInit {
       });
   }
 
+  /**
+   * Apply search filter and pagination
+   */
+  applySearchAndPagination(): void {
+    // Filter by search term
+    let filtered = this.assessments;
+    
+    if (this.searchTerm.trim() !== '') {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = this.assessments.filter(a => 
+        a.businessName?.toLowerCase().includes(searchLower) ||
+        a.ownerName?.toLowerCase().includes(searchLower) ||
+        a.address?.toLowerCase().includes(searchLower) ||
+        a.kecamatan?.toLowerCase().includes(searchLower) ||
+        a.kelurahan?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Update pagination info
+    this.totalElements = filtered.length;
+    this.totalPages = Math.ceil(filtered.length / this.pageSize);
+    
+    // Ensure current page is valid
+    if (this.currentPage >= this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages - 1;
+    }
+    if (this.currentPage < 0) {
+      this.currentPage = 0;
+    }
+    
+    this.hasNext = (this.currentPage + 1) < this.totalPages;
+    this.hasPrev = this.currentPage > 0;
+
+    // Slice data for current page
+    const startIndex = this.currentPage * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.filteredAssessments = filtered.slice(startIndex, endIndex);
+  }
+
+  /**
+   * Handle search input change
+   */
+  onSearch(): void {
+    this.currentPage = 0; // Reset to first page when searching
+    this.applySearchAndPagination();
+  }
+
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.loadAssessments();
+    this.applySearchAndPagination();
   }
 
   onNextPage(): void {
     if (this.hasNext) {
       this.currentPage++;
-      this.loadAssessments();
+      this.applySearchAndPagination();
     }
   }
 
   onPrevPage(): void {
     if (this.hasPrev) {
       this.currentPage--;
-      this.loadAssessments();
+      this.applySearchAndPagination();
     }
   }
 
@@ -109,6 +154,18 @@ export class AssessmentListComponent implements OnInit {
 
   editAssessment(assessment: AssessmentWithRealization): void {
     this.router.navigate(['/pbjt-assessment/edit', assessment.id]);
+  }
+
+  viewOnMap(assessment: AssessmentWithRealization): void {
+    // Navigate to map with query parameters for location
+    this.router.navigate(['/pbjt-assessment/map'], {
+      queryParams: {
+        lat: assessment.latitude,
+        lng: assessment.longitude,
+        businessId: assessment.id,
+        businessName: assessment.businessName
+      }
+    });
   }
 
   deleteAssessment(assessment: AssessmentWithRealization): void {

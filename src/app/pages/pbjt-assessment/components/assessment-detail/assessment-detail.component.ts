@@ -13,6 +13,8 @@ export class AssessmentDetailComponent implements OnInit {
   loading: boolean = false;
   error: string = '';
   assessmentId: number = 0;
+  selectedImage: string | null = null;
+  baseUrl = 'http://localhost:8080'; // Same as environment.apiUrl
 
   constructor(
     private route: ActivatedRoute,
@@ -72,5 +74,29 @@ export class AssessmentDetailComponent implements OnInit {
 
   getDayTypeDisplay(type: string): string {
     return this.assessmentService.getDayTypeDisplayName(type);
+  }
+
+  /**
+   * Get full image URL
+   */
+  getImageUrl(url: string): string {
+    if (url.startsWith('http')) {
+      return url;
+    }
+    return this.baseUrl + url;
+  }
+
+  /**
+   * Open image in lightbox
+   */
+  openImage(url: string): void {
+    this.selectedImage = this.getImageUrl(url);
+  }
+
+  /**
+   * Close lightbox
+   */
+  closeImage(): void {
+    this.selectedImage = null;
   }
 }

@@ -12,6 +12,12 @@ interface DropdownOption {
   kdKec?: string;
 }
 
+interface ImagePreview {
+  file: File;
+  url: string;
+  name: string;
+}
+
 @Component({
   selector: 'app-assessment-form',
   templateUrl: './assessment-form.component.html',
@@ -35,6 +41,12 @@ export class AssessmentFormComponent implements OnInit {
   isLoadingKecamatan = false;
   isLoadingKelurahan = false;
   selectedKdKec: string | null = null;
+
+  // Image upload
+  uploadedImages: ImagePreview[] = [];
+  maxImages = 4;
+  isDragOver = false;
+  allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
   businessTypes = [
     { value: 'RESTAURANT', label: 'Restaurant' },
@@ -205,6 +217,19 @@ export class AssessmentFormComponent implements OnInit {
             assessmentDate: assessment.assessmentDate?.split('T')[0]
           });
 
+          // Load existing images if any
+          if (assessment.photoUrls && assessment.photoUrls.length > 0) {
+            assessment.photoUrls.forEach(url => {
+              // Create preview for existing images
+              const fullUrl = url.startsWith('http') ? url : `http://localhost:8080${url}`;
+              this.uploadedImages.push({
+                file: new File([], 'existing-image'), // Dummy file for existing images
+                url: fullUrl,
+                name: url.split('/').pop() || 'image'
+              });
+            });
+          }
+
           // Patch Step 2
           if (assessment.location) {
             this.step2Form.patchValue(assessment.location);
@@ -289,6 +314,54 @@ export class AssessmentFormComponent implements OnInit {
 
     this.loading = true;
 
+    // Step 1: Upload only NEW images (not existing ones)
+    const newImages = this.uploadedImages.filter(img => img.file.size > 0); // Filter out dummy files
+    
+    if (newImages.length > 0) {
+      console.log('📤 Uploading new images...');
+      const files = newImages.map(img => img.file);
+      
+      this.assessmentService.uploadImages(files).subscribe({
+        next: (uploadResponse) => {
+          console.log('✅ Images uploaded:', uploadResponse);
+          if (uploadResponse.success && uploadResponse.urls) {
+            // Combine existing image URLs with new ones
+            const existingUrls = this.uploadedImages
+              .filter(img => img.file.size === 0) // These are existing images
+              .map(img => {
+                // Extract relative URL from full URL
+                const url = img.url;
+                return url.includes('/uploads/') ? url.substring(url.indexOf('/uploads/')) : url;
+              });
+            const allImageUrls = [...existingUrls, ...uploadResponse.urls];
+            // Step 2: Submit assessment with all image URLs
+            this.submitAssessmentData(allImageUrls);
+          } else {
+            this.loading = false;
+            alert('Gagal upload gambar!');
+          }
+        },
+        error: (error) => {
+          console.error('❌ Error uploading images:', error);
+          this.loading = false;
+          alert('Gagal upload gambar: ' + (error.error?.message || error.message));
+        }
+      });
+    } else {
+      // No new images, use existing URLs only
+      const existingUrls = this.uploadedImages
+        .map(img => {
+          const url = img.url;
+          return url.includes('/uploads/') ? url.substring(url.indexOf('/uploads/')) : url;
+        });
+      this.submitAssessmentData(existingUrls);
+    }
+  }
+
+  /**
+   * Submit assessment data with image URLs
+   */
+  private submitAssessmentData(imageUrls: string[]): void {
     // Merge all step forms
     const step1Value = this.step1Form.value;
     const step2Value = this.step2Form.value;
@@ -316,6 +389,9 @@ export class AssessmentFormComponent implements OnInit {
 
       // Surveyor
       surveyorId: step2Value.surveyorId,
+
+      // Image URLs
+      photoUrls: imageUrls,
 
       // Observations with sampleTransactions
       observations: step3Value.observations.map((obs: any) => ({
@@ -545,5 +621,102 @@ export class AssessmentFormComponent implements OnInit {
         this.kelurahanList = [];
       }
     });
+  }
+
+  // ============ IMAGE UPLOAD METHODS ============
+
+  /**
+   * Handle drag over event
+   */
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = true;
+  }
+
+  /**
+   * Handle drag leave event
+   */
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+  }
+
+  /**
+   * Handle drop event
+   */
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragOver = false;
+
+    const files = event.dataTransfer?.files;
+    if (files) {
+      this.handleFiles(files);
+    }
+  }
+
+  /**
+   * Handle file input change
+   */
+  onFileSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.handleFiles(input.files);
+      input.value = ''; // Reset input so same file can be selected again
+    }
+  }
+
+  /**
+   * Process selected files
+   */
+  handleFiles(files: FileList): void {
+    const remainingSlots = this.maxImages - this.uploadedImages.length;
+    if (remainingSlots <= 0) {
+      alert(`Maksimal ${this.maxImages} gambar!`);
+      return;
+    }
+
+    const filesToProcess = Math.min(files.length, remainingSlots);
+
+    for (let i = 0; i < filesToProcess; i++) {
+      const file = files[i];
+
+      // Validate file type
+      if (!this.allowedTypes.includes(file.type)) {
+        alert(`File "${file.name}" bukan gambar yang valid. Gunakan JPG, PNG, GIF, atau WebP.`);
+        continue;
+      }
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        this.uploadedImages.push({
+          file: file,
+          url: e.target?.result as string,
+          name: file.name
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    if (files.length > remainingSlots) {
+      alert(`Hanya ${filesToProcess} gambar yang ditambahkan. Maksimal ${this.maxImages} gambar.`);
+    }
+  }
+
+  /**
+   * Remove uploaded image
+   */
+  removeImage(index: number): void {
+    this.uploadedImages.splice(index, 1);
+  }
+
+  /**
+   * Get remaining upload slots
+   */
+  getRemainingSlots(): number {
+    return this.maxImages - this.uploadedImages.length;
   }
 }

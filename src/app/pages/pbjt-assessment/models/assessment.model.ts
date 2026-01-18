@@ -135,6 +135,9 @@ export interface AssessmentRequest {
   surveyorId: string;
   verifiedBy?: string;
   taxpayerSigned?: boolean;
+  // Photo URLs from uploaded images
+  photoUrls?: string[];
+  supportingDocUrl?: string;
   // Optional validation data
   validationData?: any;
   // Tax configuration (optional)

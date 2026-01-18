@@ -1,12 +1,14 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import * as L from 'leaflet';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { BprdApiService } from '../../../../core/services/bprd-api.service';
 
 interface KecamatanStats {
   kecamatan: string;
+  kdKec?: string;
   jumlahUsaha: number;
   totalAnnualPbjt: number;
   avgConfidenceScore: number;
@@ -59,18 +61,56 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private pbjtService: PbjtAssessmentService,
-    private bprdApiService: BprdApiService
+    private bprdApiService: BprdApiService,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
     this.loadKecamatanStats();
+    
+    // Check if there are query parameters for direct location viewing
+    this.route.queryParams.subscribe(params => {
+      if (params['lat'] && params['lng']) {
+        // Store parameters to use after map initialization
+        (this as any).pendingLocation = {
+          lat: parseFloat(params['lat']),
+          lng: parseFloat(params['lng']),
+          businessId: params['businessId'],
+          businessName: params['businessName']
+        };
+      }
+    });
   }
 
   ngAfterViewInit(): void {
     this.initializeMap();
     setTimeout(() => {
       this.loadKecamatanBoundaries();
+      
+      // If there's a pending location from query params, zoom to it
+      if ((this as any).pendingLocation) {
+        // Wait longer and retry until kecamatanStats is loaded
+        this.waitForStatsAndZoom((this as any).pendingLocation);
+      }
     }, 500);
+  }
+
+  /**
+   * Wait for kecamatanStats to load before zooming
+   */
+  private waitForStatsAndZoom(location: any, retries: number = 0): void {
+    const maxRetries = 20; // 10 seconds max
+    
+    if (this.kecamatanStats && this.kecamatanStats.length > 0) {
+      console.log('✅ Stats loaded, proceeding with zoom');
+      setTimeout(() => this.zoomToLocation(location), 500);
+    } else if (retries < maxRetries) {
+      console.log(`⏳ Waiting for stats... retry ${retries + 1}/${maxRetries}`);
+      setTimeout(() => this.waitForStatsAndZoom(location, retries + 1), 500);
+    } else {
+      console.warn('⚠️ Stats load timeout, using fallback');
+      setTimeout(() => this.zoomToLocation(location), 500);
+    }
   }
 
   ngOnDestroy(): void {
@@ -610,6 +650,318 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
         marker.addTo(this.markersLayer!);
       }
     });
+  }
+
+  /**
+   * Zoom to specific location from query parameters - SEAMLESS with drill-down
+   */
+  zoomToLocation(location: { lat: number, lng: number, businessId?: string, businessName?: string }): void {
+    if (!this.map) return;
+
+    console.log('🎯 Seamless zoom to location:', location);
+
+    // First, get the assessment details to know the kecamatan and kelurahan
+    if (location.businessId) {
+      this.pbjtService.getAssessmentById(parseInt(location.businessId)).subscribe({
+        next: (response) => {
+          const assessment = response.data;
+          const kecamatan = assessment.location?.kecamatan || '';
+          const kelurahan = assessment.location?.kelurahan || '';
+          
+          console.log(`📍 Drilling down to: ${kecamatan} > ${kelurahan}`);
+          
+          // Find kd_kec from kecamatan stats
+          const kecamatanData = this.kecamatanStats.find(k => 
+            k.kecamatan.toLowerCase() === kecamatan.toLowerCase()
+          );
+          
+          if (kecamatanData && kecamatanData.kdKec) {
+            // Set state to detail level
+            this.currentLevel = 'detail';
+            this.selectedKecamatan = kecamatan;
+            this.selectedKdKec = kecamatanData.kdKec;
+            this.selectedKelurahan = kelurahan;
+            
+            // Load kelurahan stats for the breadcrumb/UI
+            this.loadKelurahanStats(kecamatan);
+            
+            // Load kelurahan boundaries first
+            this.loadKelurahanBoundariesForDrilldown(kecamatanData.kdKec, () => {
+              // After boundaries loaded, load all business markers for this kelurahan
+              this.loadBusinessMarkersForDrilldown(kecamatan, kelurahan, location);
+            });
+          } else {
+            console.warn('⚠️ Could not find kd_kec for kecamatan:', kecamatan);
+            // Fallback: just show marker without boundaries
+            this.showSingleMarker(location, assessment);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading assessment for drill-down:', error);
+          // Fallback: just show marker
+          this.showSingleMarker(location, null);
+        }
+      });
+    } else {
+      // No business ID, just show basic marker
+      this.showSingleMarker(location, null);
+    }
+  }
+
+  /**
+   * Load kelurahan boundaries for seamless drill-down
+   */
+  private loadKelurahanBoundariesForDrilldown(kdKec: string, callback: () => void): void {
+    console.log('🌐 Loading kelurahan boundaries for seamless drill-down, kd_kec:', kdKec);
+    this.isLoadingBoundaries = true;
+    
+    this.bprdApiService.getKelurahanBoundariesViaBackend(kdKec).subscribe({
+      next: (boundaries: any[]) => {
+        console.log('✅ Kelurahan boundaries loaded:', boundaries.length);
+        this.renderKelurahanLayer(boundaries);
+        this.isLoadingBoundaries = false;
+        
+        // Execute callback after boundaries are rendered
+        if (callback) {
+          setTimeout(callback, 300); // Small delay to ensure rendering complete
+        }
+      },
+      error: (error: any) => {
+        console.error('❌ Error loading kelurahan boundaries:', error);
+        this.isLoadingBoundaries = false;
+        
+        // Still execute callback even if boundaries fail
+        if (callback) callback();
+      }
+    });
+  }
+
+  /**
+   * Load business markers for drill-down and highlight specific business
+   */
+  private loadBusinessMarkersForDrilldown(kecamatan: string, kelurahan: string, highlightLocation: any): void {
+    console.log('📍 Loading business markers for:', kecamatan, '>', kelurahan);
+    
+    this.pbjtService.getAssessmentsByLocationWithRealization(kecamatan, kelurahan).subscribe({
+      next: (assessments) => {
+        this.assessments = assessments;
+        console.log('✅ Business assessments loaded:', assessments.length);
+        
+        // Render all markers
+        this.renderBusinessMarkersWithHighlight(assessments, highlightLocation);
+      },
+      error: (error) => {
+        console.error('❌ Error loading business markers:', error);
+        // Fallback: just show the highlighted marker
+        this.showSingleMarker(highlightLocation, null);
+      }
+    });
+  }
+
+  /**
+   * Render business markers with one highlighted
+   */
+  private renderBusinessMarkersWithHighlight(assessments: any[], highlightLocation: any): void {
+    if (!this.map || !this.markersLayer) {
+      this.markersLayer = L.layerGroup().addTo(this.map!);
+    }
+    this.markersLayer.clearLayers();
+
+    let highlightedMarker: L.Marker | null = null;
+
+    assessments.forEach(assessment => {
+      if (assessment.latitude && assessment.longitude) {
+        const isHighlighted = highlightLocation.businessId && 
+                            assessment.id?.toString() === highlightLocation.businessId.toString();
+        
+        // Create custom marker icon
+        const icon = L.divIcon({
+          className: isHighlighted ? 'pbjt-marker-highlight' : 'pbjt-marker',
+          html: `
+            <div style="
+              width: ${isHighlighted ? '32px' : '24px'};
+              height: ${isHighlighted ? '32px' : '24px'};
+              background-color: ${isHighlighted ? '#ff4757' : '#ff6b6b'};
+              border: ${isHighlighted ? '4px' : '3px'} solid white;
+              border-radius: 50%;
+              box-shadow: 0 ${isHighlighted ? '0 20px rgba(255, 71, 87, 0.8)' : '2px 8px rgba(0,0,0,0.3)'}, 0 ${isHighlighted ? '4px' : '2px'} 12px rgba(0,0,0,0.4);
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              ${isHighlighted ? 'animation: pulse 2s infinite;' : ''}
+            ">
+              <div style="
+                width: ${isHighlighted ? '12px' : '8px'};
+                height: ${isHighlighted ? '12px' : '8px'};
+                background-color: white;
+                border-radius: 50%;
+              "></div>
+            </div>
+            ${isHighlighted ? `
+            <style>
+              @keyframes pulse {
+                0% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 12px rgba(0,0,0,0.4); }
+                50% { box-shadow: 0 0 35px rgba(255, 71, 87, 1), 0 4px 12px rgba(0,0,0,0.4); }
+                100% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 12px rgba(0,0,0,0.4); }
+              }
+            </style>
+            ` : ''}
+          `,
+          iconSize: [isHighlighted ? 32 : 24, isHighlighted ? 32 : 24],
+          iconAnchor: [isHighlighted ? 16 : 12, isHighlighted ? 16 : 12],
+          popupAnchor: [0, isHighlighted ? -16 : -12]
+        });
+
+        const marker = L.marker([assessment.latitude, assessment.longitude], { icon });
+
+        const popupContent = `
+          <div class="pbjt-popup" style="min-width: ${isHighlighted ? '320px' : '280px'};">
+            <h6 style="margin-bottom: 4px; ${isHighlighted ? 'color: #ff4757; font-size: 16px;' : ''}">
+              ${isHighlighted ? '<i class="ri-map-pin-fill"></i> ' : ''}<strong>${assessment.businessName}</strong>
+            </h6>
+            <small style="color: #666;">${this.getBusinessTypeLabel(assessment.businessType)}</small>
+            <hr style="margin: 8px 0;">
+            <div><strong>NOP:</strong> ${assessment.taxObjectNumber || '-'}</div>
+            <div><strong>Business ID:</strong> ${assessment.businessId}</div>
+            <div><strong>Address:</strong> ${assessment.address || '-'}</div>
+            <div><strong>Location:</strong> ${assessment.kelurahan}, ${assessment.kecamatan}</div>
+            <hr style="margin: 8px 0;">
+            <div style="font-weight: bold; margin-bottom: 4px;">📊 Realisasi PBJT:</div>
+            <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+              <tr style="background: #f5f5f5;">
+                <td style="padding: 3px; border: 1px solid #ddd;">2021</td>
+                <td style="padding: 3px; border: 1px solid #ddd;">2022</td>
+                <td style="padding: 3px; border: 1px solid #ddd;">2023</td>
+                <td style="padding: 3px; border: 1px solid #ddd;">2024</td>
+                <td style="padding: 3px; border: 1px solid #ddd;">2025</td>
+              </tr>
+              <tr>
+                <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2021)}</td>
+                <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2022)}</td>
+                <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2023)}</td>
+                <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2024)}</td>
+                <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2025)}</td>
+              </tr>
+            </table>
+            <div style="margin-top: 6px; font-weight: bold; color: ${isHighlighted ? '#ff4757' : '#28a745'};">Total: Rp ${this.formatCurrency(assessment.totalRealisasi)}</div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        marker.addTo(this.markersLayer!);
+
+        if (isHighlighted) {
+          highlightedMarker = marker;
+        }
+      }
+    });
+
+    // Zoom to highlighted marker and open popup
+    if (highlightedMarker && this.map) {
+      setTimeout(() => {
+        this.map!.setView(highlightedMarker!.getLatLng(), 18);
+        highlightedMarker!.openPopup();
+      }, 500);
+    }
+  }
+
+  /**
+   * Fallback: Show single marker without drill-down
+   */
+  private showSingleMarker(location: any, assessment: any): void {
+    if (!this.map) return;
+
+    console.log('⚠️ Fallback: showing single marker');
+    
+    this.map.setView([location.lat, location.lng], 18);
+
+    const icon = L.divIcon({
+      className: 'pbjt-marker-highlight',
+      html: `
+        <div style="
+          width: 32px;
+          height: 32px;
+          background-color: #ff4757;
+          border: 4px solid #fff;
+          border-radius: 50%;
+          box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 12px rgba(0,0,0,0.4);
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: pulse 2s infinite;
+        ">
+          <div style="
+            width: 12px;
+            height: 12px;
+            background-color: white;
+            border-radius: 50%;
+          "></div>
+        </div>
+        <style>
+          @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 12px rgba(0,0,0,0.4); }
+            50% { box-shadow: 0 0 35px rgba(255, 71, 87, 1), 0 4px 12px rgba(0,0,0,0.4); }
+            100% { box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 4px 12px rgba(0,0,0,0.4); }
+          }
+        </style>
+      `,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+      popupAnchor: [0, -16]
+    });
+
+    if (!this.markersLayer) {
+      this.markersLayer = L.layerGroup().addTo(this.map);
+    }
+    this.markersLayer.clearLayers();
+
+    const marker = L.marker([location.lat, location.lng], { icon });
+
+    let popupContent = '';
+    if (assessment) {
+      popupContent = `
+        <div class="pbjt-popup" style="min-width: 300px;">
+          <h5 style="margin-bottom: 8px; color: #ff4757;">
+            <i class="ri-map-pin-fill"></i> ${assessment.businessName}
+          </h5>
+          <small style="color: #666;">${this.getBusinessTypeLabel(assessment.businessType || '')}</small>
+          <hr style="margin: 8px 0;">
+          <div style="margin-bottom: 6px;"><strong>📍 Alamat:</strong> ${assessment.location?.address || '-'}</div>
+          <div style="margin-bottom: 6px;"><strong>📌 Kelurahan:</strong> ${assessment.location?.kelurahan || '-'}</div>
+          <div style="margin-bottom: 6px;"><strong>🗺️ Kecamatan:</strong> ${assessment.location?.kecamatan || '-'}</div>
+          <div style="margin-bottom: 6px;"><strong>🧭 Koordinat:</strong> ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}</div>
+          <hr style="margin: 8px 0;">
+          <div style="margin-bottom: 4px;"><strong>💰 PBJT Tahunan:</strong></div>
+          <div style="font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 6px;">
+            Rp ${this.formatCurrency(assessment.annualPbjt || 0)}
+          </div>
+        </div>
+      `;
+    } else {
+      popupContent = `
+        <div class="pbjt-popup">
+          <h6><strong>${location.businessName || 'Business Location'}</strong></h6>
+          <div><strong>Koordinat:</strong> ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}</div>
+        </div>
+      `;
+    }
+
+    marker.bindPopup(popupContent).openPopup();
+    marker.addTo(this.markersLayer);
+  }
+
+  /**
+   * Get confidence badge class for styling
+   */
+  getConfidenceBadgeClass(level: string | undefined): string {
+    switch(level?.toUpperCase()) {
+      case 'HIGH': return 'bg-success';
+      case 'MEDIUM': return 'bg-warning';
+      case 'LOW': return 'bg-danger';
+      default: return 'bg-secondary';
+    }
   }
 
   /**

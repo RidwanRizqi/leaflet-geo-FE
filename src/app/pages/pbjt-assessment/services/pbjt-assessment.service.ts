@@ -73,6 +73,18 @@ export class PbjtAssessmentService {
   }
 
   /**
+   * Upload business images (max 4 images)
+   */
+  uploadImages(files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('files', file);
+    });
+    
+    return this.http.post(`${this.apiUrl}/upload-images`, formData);
+  }
+
+  /**
    * Get total count
    */
   getCount(): Observable<any> {

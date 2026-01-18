@@ -67,6 +67,29 @@
         </div>
       </div>
 
+      <!-- Business Photos -->
+      <div class="card" *ngIf="assessment && assessment.photoUrls && assessment.photoUrls.length > 0">
+        <div class="card-header">
+          <h5 class="card-title mb-0">
+            <i class="ri-image-line"></i> Foto Usaha
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-6" *ngFor="let photoUrl of assessment.photoUrls">
+              <div class="photo-thumbnail" (click)="openImage(photoUrl)">
+                <img [src]="getImageUrl(photoUrl)"
+                     [alt]="assessment.businessName"
+                     class="img-fluid rounded">
+                <div class="photo-overlay">
+                  <i class="ri-zoom-in-line"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h5 class="card-title mb-0">Lokasi</h5>
@@ -254,6 +277,16 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div class="image-lightbox" *ngIf="selectedImage" (click)="closeImage()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="btn-close-lightbox" (click)="closeImage()">
+        <i class="ri-close-line"></i>
+      </button>
+      <img [src]="selectedImage" alt="Business Photo" class="lightbox-image">
     </div>
   </div>
 </div>
