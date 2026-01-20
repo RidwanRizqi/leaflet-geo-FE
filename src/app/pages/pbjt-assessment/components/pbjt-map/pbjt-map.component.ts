@@ -616,7 +616,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
         const marker = L.marker([assessment.latitude, assessment.longitude], { icon });
 
         const popupContent = `
-          <div class="pbjt-popup" style="min-width: 280px;">
+          <div class="pbjt-popup" style="min-width: 300px;">
             <h6 style="margin-bottom: 4px;"><strong>${assessment.businessName}</strong></h6>
             <small style="color: #666;">${this.getBusinessTypeLabel(assessment.businessType)}</small>
             <hr style="margin: 8px 0;">
@@ -625,6 +625,12 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
             <div><strong>Address:</strong> ${assessment.address || '-'}</div>
             <div><strong>Location:</strong> ${assessment.kelurahan}, ${assessment.kecamatan}</div>
             <hr style="margin: 8px 0;">
+            <div style="background: #e8f5e9; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+              <div style="font-weight: bold; margin-bottom: 4px; color: #2e7d32;">💰 Total Proyeksi (Annual):</div>
+              <div style="font-size: 18px; font-weight: bold; color: #2e7d32;">
+                Rp ${this.formatCurrency(assessment.annualPbjt || 0)}
+              </div>
+            </div>
             <div style="font-weight: bold; margin-bottom: 4px;">📊 Realisasi PBJT:</div>
             <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
               <tr style="background: #f5f5f5;">
@@ -815,7 +821,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
         const marker = L.marker([assessment.latitude, assessment.longitude], { icon });
 
         const popupContent = `
-          <div class="pbjt-popup" style="min-width: ${isHighlighted ? '320px' : '280px'};">
+          <div class="pbjt-popup" style="min-width: ${isHighlighted ? '320px' : '300px'};">
             <h6 style="margin-bottom: 4px; ${isHighlighted ? 'color: #ff4757; font-size: 16px;' : ''}">
               ${isHighlighted ? '<i class="ri-map-pin-fill"></i> ' : ''}<strong>${assessment.businessName}</strong>
             </h6>
@@ -826,6 +832,12 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
             <div><strong>Address:</strong> ${assessment.address || '-'}</div>
             <div><strong>Location:</strong> ${assessment.kelurahan}, ${assessment.kecamatan}</div>
             <hr style="margin: 8px 0;">
+            <div style="background: #e8f5e9; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+              <div style="font-weight: bold; margin-bottom: 4px; color: #2e7d32;">💰 Total Proyeksi (Annual):</div>
+              <div style="font-size: 18px; font-weight: bold; color: #2e7d32;">
+                Rp ${this.formatCurrency(assessment.annualPbjt || 0)}
+              </div>
+            </div>
             <div style="font-weight: bold; margin-bottom: 4px;">📊 Realisasi PBJT:</div>
             <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
               <tr style="background: #f5f5f5;">
@@ -920,7 +932,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
     let popupContent = '';
     if (assessment) {
       popupContent = `
-        <div class="pbjt-popup" style="min-width: 300px;">
+        <div class="pbjt-popup" style="min-width: 320px;">
           <h5 style="margin-bottom: 8px; color: #ff4757;">
             <i class="ri-map-pin-fill"></i> ${assessment.businessName}
           </h5>
@@ -931,9 +943,25 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
           <div style="margin-bottom: 6px;"><strong>🗺️ Kecamatan:</strong> ${assessment.location?.kecamatan || '-'}</div>
           <div style="margin-bottom: 6px;"><strong>🧭 Koordinat:</strong> ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}</div>
           <hr style="margin: 8px 0;">
-          <div style="margin-bottom: 4px;"><strong>💰 PBJT Tahunan:</strong></div>
-          <div style="font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 6px;">
+          <div style="margin-bottom: 4px;"><strong>💰 PBJT Tahunan (Proyeksi):</strong></div>
+          <div style="font-size: 18px; font-weight: bold; color: #28a745; margin-bottom: 8px;">
             Rp ${this.formatCurrency(assessment.annualPbjt || 0)}
+          </div>
+          <hr style="margin: 6px 0;">
+          <div style="font-size: 11px; margin-bottom: 4px; color: #666;"><strong>📊 Faktor Proyeksi:</strong></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px;">
+            <div style="background: #e7f3ff; padding: 4px 6px; border-radius: 3px;">
+              <strong>Bus. Coef:</strong> ${assessment.adjustments?.businessTypeCoefficient || 'N/A'}
+            </div>
+            <div style="background: #e8f5e9; padding: 4px 6px; border-radius: 3px;">
+              <strong>Loc. Score:</strong> ${assessment.adjustments?.locationScore || 'N/A'}
+            </div>
+            <div style="background: #fff3e0; padding: 4px 6px; border-radius: 3px;">
+              <strong>Operational:</strong> ${assessment.adjustments?.operationalRate ? (assessment.adjustments.operationalRate * 100).toFixed(0) + '%' : 'N/A'}
+            </div>
+            <div style="background: #fce4ec; padding: 4px 6px; border-radius: 3px;">
+              <strong>Tax Rate:</strong> ${assessment.adjustments?.taxRate ? (assessment.adjustments.taxRate * 100).toFixed(0) + '%' : 'N/A'}
+            </div>
           </div>
         </div>
       `;

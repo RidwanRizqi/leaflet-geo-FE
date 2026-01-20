@@ -174,10 +174,54 @@
         </div>
       </div>
 
+      <!-- Projection Factors -->
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0 text-white">
+            <i class="ri-line-chart-line"></i> Faktor Proyeksi Pendapatan
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <h6 class="text-muted mb-2">Business Coefficient</h6>
+                  <h4 class="text-info mb-0">{{ assessment?.adjustments?.businessTypeCoefficient || 'N/A' }}</h4>
+                  <small class="text-muted">Koefisien Jenis Usaha</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <h6 class="text-muted mb-2">Location Score</h6>
+                  <h4 class="text-success mb-0">{{ assessment?.adjustments?.locationScore || 'N/A' }}</h4>
+                  <small class="text-muted">Skor Lokasi</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body text-center">
+                  <h6 class="text-muted mb-2">Operational Rate</h6>
+                  <h4 class="text-warning mb-0">{{ (assessment?.adjustments?.operationalRate ?? 0) * 100 }}%</h4>
+                  <small class="text-muted">Tingkat Operasional</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info mb-0">
+            <i class="ri-information-line"></i>
+            <strong>Formula Proyeksi:</strong> Revenue × Business Coef × Location Score × Operational Rate × Tax Rate
+          </div>
+        </div>
+      </div>
+
       <!-- Adjustment Factors -->
       <div class="card">
         <div class="card-header">
-          <h5 class="card-title mb-0">Faktor Penyesuaian</h5>
+          <h5 class="card-title mb-0">Detail Faktor Penyesuaian</h5>
         </div>
         <div class="card-body">
           <div class="table-responsive">

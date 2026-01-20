@@ -206,7 +206,7 @@ export class AssessmentListComponent implements OnInit {
     // Open location in Google Maps in a new tab
     const lat = assessment.location?.latitude;
     const lng = assessment.location?.longitude;
-    
+
     if (lat && lng) {
       const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
       window.open(googleMapsUrl, '_blank');
@@ -231,6 +231,11 @@ export class AssessmentListComponent implements OnInit {
 
   formatCurrency(value: number | undefined): string {
     return this.assessmentService.formatCurrency(value);
+  }
+
+  formatPercentage(value: number | undefined): string {
+    if (value === undefined || value === null) return 'N/A';
+    return `${(value * 100).toFixed(0)}%`;
   }
 
   getConfidenceBadgeClass(level: string | undefined): string {
