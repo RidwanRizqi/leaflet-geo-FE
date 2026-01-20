@@ -53,8 +53,6 @@ export class AssessmentFormComponent implements OnInit {
     { value: 'CAFE', label: 'Cafe' },
     { value: 'BAR', label: 'Bar' },
     { value: 'HOTEL', label: 'Hotel' },
-    { value: 'ENTERTAINMENT', label: 'Entertainment' },
-    { value: 'SPORTS', label: 'Sports' },
     { value: 'OTHER', label: 'Other' }
   ];
 
@@ -95,6 +93,13 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   initializeForms(): void {
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
     // Step 1: Business Profile
     this.step1Form = this.fb.group({
       businessId: ['', [Validators.required, Validators.maxLength(50)]],
@@ -104,7 +109,7 @@ export class AssessmentFormComponent implements OnInit {
       buildingArea: [null],
       operatingHoursStart: ['09:00', Validators.required],
       operatingHoursEnd: ['22:00', Validators.required],
-      assessmentDate: ['', Validators.required]
+      assessmentDate: [todayStr, Validators.required]
     });
 
     // Step 2: Location + Surveyor
@@ -242,7 +247,21 @@ export class AssessmentFormComponent implements OnInit {
 
           // Patch Step 2
           if (assessment.location) {
-            this.step2Form.patchValue(assessment.location);
+            this.step2Form.patchValue({
+              address: assessment.location.address,
+              kelurahan: assessment.location.kelurahan,
+              kecamatan: assessment.location.kecamatan,
+              kabupaten: assessment.location.kabupaten,
+              latitude: assessment.location.latitude,
+              longitude: assessment.location.longitude
+            });
+          }
+
+          // Patch surveyor ID if exists
+          if (assessment.surveyorId) {
+            this.step2Form.patchValue({
+              surveyorId: assessment.surveyorId
+            });
           }
 
           // Patch Step 3 - Observations
@@ -253,10 +272,23 @@ export class AssessmentFormComponent implements OnInit {
                 observationDate: obs.observationDate?.split('T')[0],
                 dayType: obs.dayType,
                 visitors: obs.visitors,
-                avgTransaction: obs.avgTransaction,
                 durationHours: obs.durationHours,
-                visitorsPerHour: obs.visitorsPerHour
+                notes: obs.notes || ''
               });
+
+              // Load sample transactions
+              const samplesArray = obsGroup.get('sampleTransactions') as FormArray;
+              if (obs.sampleTransactions && obs.sampleTransactions.length > 0) {
+                obs.sampleTransactions.forEach((tx: any) => {
+                  const txGroup = this.createSampleTransactionFormGroup();
+                  txGroup.patchValue({
+                    amount: tx.amount,
+                    notes: tx.notes || ''
+                  });
+                  samplesArray.push(txGroup);
+                });
+              }
+
               this.observations.push(obsGroup);
             });
           }
