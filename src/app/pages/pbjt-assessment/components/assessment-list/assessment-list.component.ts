@@ -164,6 +164,20 @@ export class AssessmentListComponent implements OnInit {
     }
   }
 
+  onFirstPage(): void {
+    if (this.hasPrev) {
+      this.currentPage = 0;
+      this.applySearchAndPagination();
+    }
+  }
+
+  onLastPage(): void {
+    if (this.hasNext) {
+      this.currentPage = this.totalPages - 1;
+      this.applySearchAndPagination();
+    }
+  }
+
   viewDetail(assessment: AssessmentWithRealization): void {
     this.router.navigate(['/pbjt-assessment/detail', assessment.id]);
   }

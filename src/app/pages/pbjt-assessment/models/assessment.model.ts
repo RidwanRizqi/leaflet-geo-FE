@@ -52,13 +52,19 @@ export interface Assessment {
   updatedAt?: string;
 }
 
+// Sample Transaction with notes
+export interface SampleTransaction {
+  amount: number;
+  notes?: string;
+}
+
 export interface Observation {
   id?: number;
   observationDate: string;
   dayType: string;
   visitors: number;
   durationHours: number;
-  sampleTransactions: number[];
+  sampleTransactions: SampleTransaction[];
   notes?: string;
   visitorsPerHour?: number;
   avgTransaction?: number;
@@ -151,7 +157,7 @@ export interface ObservationRequest {
   dayType: string;
   visitors: number;
   durationHours: number;
-  sampleTransactions: number[];  // Required: 5-30 transaction values
+  sampleTransactions: SampleTransaction[];  // Required: 5-30 transaction objects
   notes?: string;
 }
 

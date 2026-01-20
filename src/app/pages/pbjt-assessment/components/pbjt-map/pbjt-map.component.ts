@@ -642,7 +642,6 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
                 <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2025)}</td>
               </tr>
             </table>
-            <div style="margin-top: 6px; font-weight: bold; color: #28a745;">Total: Rp ${this.formatCurrency(assessment.totalRealisasi)}</div>
           </div>
         `;
 
@@ -844,7 +843,6 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
                 <td style="padding: 3px; border: 1px solid #ddd; text-align: right;">${this.formatCurrencyShort(assessment.realisasi2025)}</td>
               </tr>
             </table>
-            <div style="margin-top: 6px; font-weight: bold; color: ${isHighlighted ? '#ff4757' : '#28a745'};">Total: Rp ${this.formatCurrency(assessment.totalRealisasi)}</div>
           </div>
         `;
 

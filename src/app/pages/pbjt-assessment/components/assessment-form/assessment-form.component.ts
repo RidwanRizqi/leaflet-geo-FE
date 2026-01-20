@@ -140,6 +140,16 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   /**
+   * Create a FormGroup for a single sample transaction with amount and notes
+   */
+  createSampleTransactionFormGroup(): FormGroup {
+    return this.fb.group({
+      amount: [null, [Validators.required, Validators.min(1000)]],
+      notes: ['']
+    });
+  }
+
+  /**
    * Get sample transactions FormArray for a specific observation
    */
   getSampleTransactions(obsIndex: number): FormArray {
@@ -152,7 +162,7 @@ export class AssessmentFormComponent implements OnInit {
   addSampleTransaction(obsIndex: number): void {
     const samples = this.getSampleTransactions(obsIndex);
     if (samples.length < 30) {
-      samples.push(this.fb.control(null, [Validators.required, Validators.min(1000)]));
+      samples.push(this.createSampleTransactionFormGroup());
     }
   }
 
@@ -171,12 +181,12 @@ export class AssessmentFormComponent implements OnInit {
    */
   calculateAvgTransaction(obsIndex: number): number {
     const samples = this.getSampleTransactions(obsIndex);
-    const values = samples.controls
-      .map(ctrl => ctrl.value)
-      .filter(val => val !== null && !isNaN(val));
+    const validAmounts = samples.controls
+      .map(control => control.get('amount')?.value)
+      .filter(val => val !== null && !isNaN(val) && val > 0);
 
-    if (values.length === 0) return 0;
-    return Math.round(values.reduce((sum, val) => sum + val, 0) / values.length);
+    if (validAmounts.length === 0) return 0;
+    return Math.round(validAmounts.reduce((sum, val) => sum + val, 0) / validAmounts.length);
   }
 
   addObservation(): void {
@@ -291,7 +301,10 @@ export class AssessmentFormComponent implements OnInit {
             if (control?.invalid) {
               if (key === 'sampleTransactions') {
                 const samples = control as FormArray;
-                const filledCount = samples.controls.filter(c => c.value !== null && c.value > 0).length;
+                const filledCount = samples.controls.filter(c => {
+                  const amount = c.get('amount')?.value;
+                  return amount !== null && amount !== undefined && amount > 0;
+                }).length;
                 if (filledCount < 5) {
                   errors.push(`Observasi #${i + 1}: Sample transaksi minimal 5 (saat ini: ${filledCount})`);
                 }
@@ -399,7 +412,12 @@ export class AssessmentFormComponent implements OnInit {
         dayType: obs.dayType,
         visitors: obs.visitors,
         durationHours: obs.durationHours,
-        sampleTransactions: (obs.sampleTransactions || []).filter((val: any) => val !== null && val > 0),
+        sampleTransactions: (obs.sampleTransactions || [])
+          .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0)
+          .map((tx: any) => ({
+            amount: tx.amount,
+            notes: tx.notes || ''
+          })),
         notes: obs.notes || ''
       }))
     };

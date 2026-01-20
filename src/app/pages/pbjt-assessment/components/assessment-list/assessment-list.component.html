@@ -65,7 +65,6 @@
                   <th class="text-end">Realisasi 2023</th>
                   <th class="text-end">Realisasi 2024</th>
                   <th class="text-end">Realisasi 2025</th>
-                  <th class="text-end">Total Realisasi</th>
                   <th>Tanggal</th>
                   <th>Actions</th>
                 </tr>
@@ -125,11 +124,6 @@
                     <span [class.text-muted]="(assessment.realisasi2025 || 0) === 0">
                       {{ formatCurrency(assessment.realisasi2025 || 0) }}
                     </span>
-                  </td>
-                  <td class="text-end">
-                    <strong [class.text-success]="(assessment.totalRealisasi || 0) > 0" [class.text-muted]="(assessment.totalRealisasi || 0) === 0">
-                      {{ formatCurrency(assessment.totalRealisasi || 0) }}
-                    </strong>
                   </td>
                   <td>
                     <small>{{ assessment.assessmentDate | date:'dd/MM/yyyy' }}</small>
@@ -204,6 +198,11 @@
               <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-end mb-0">
                   <li class="page-item" [class.disabled]="!hasPrev">
+                    <a class="page-link" (click)="onFirstPage()" style="cursor: pointer;" title="First Page">
+                      <i class="ri-arrow-left-double-line"></i> First
+                    </a>
+                  </li>
+                  <li class="page-item" [class.disabled]="!hasPrev">
                     <a class="page-link" (click)="onPrevPage()" style="cursor: pointer;">
                       <i class="ri-arrow-left-s-line"></i> Previous
                     </a>
@@ -214,6 +213,11 @@
                   <li class="page-item" [class.disabled]="!hasNext">
                     <a class="page-link" (click)="onNextPage()" style="cursor: pointer;">
                       Next <i class="ri-arrow-right-s-line"></i>
+                    </a>
+                  </li>
+                  <li class="page-item" [class.disabled]="!hasNext">
+                    <a class="page-link" (click)="onLastPage()" style="cursor: pointer;" title="Last Page">
+                      Last <i class="ri-arrow-right-double-line"></i>
                     </a>
                   </li>
                 </ul>
