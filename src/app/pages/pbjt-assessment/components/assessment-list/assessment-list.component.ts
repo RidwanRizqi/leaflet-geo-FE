@@ -202,6 +202,19 @@ export class AssessmentListComponent implements OnInit {
     });
   }
 
+  viewOnGoogleMaps(assessment: AssessmentWithRealization): void {
+    // Open location in Google Maps in a new tab
+    const lat = assessment.location?.latitude;
+    const lng = assessment.location?.longitude;
+    
+    if (lat && lng) {
+      const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+      window.open(googleMapsUrl, '_blank');
+    } else {
+      alert('Koordinat lokasi tidak tersedia untuk assessment ini.');
+    }
+  }
+
   deleteAssessment(assessment: AssessmentWithRealization): void {
     if (confirm(`Are you sure you want to delete assessment for ${assessment.businessName}?`)) {
       this.assessmentService.deleteAssessment(assessment.id!).subscribe({
