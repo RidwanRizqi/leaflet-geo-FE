@@ -257,19 +257,25 @@ export class AssessmentFormComponent implements OnInit {
             });
           }
 
-          // Patch surveyor ID if exists
-          if (assessment.surveyorId) {
-            this.step2Form.patchValue({
-              surveyorId: assessment.surveyorId
-            });
-          }
+          // Patch surveyor ID - surveyorId ada di root level assessment object
+          this.step2Form.patchValue({
+            surveyorId: assessment.surveyorId || ''
+          });
 
           // Patch Step 3 - Observations
           if (assessment.observations && assessment.observations.length > 0) {
             assessment.observations.forEach(obs => {
               const obsGroup = this.createObservationFormGroup();
+              
+              // Format observationDate: API returns "2012-02-16T20:29:00", we need "2012-02-16" for date input
+              let formattedDate = '';
+              if (obs.observationDate) {
+                const dateStr = obs.observationDate.toString();
+                formattedDate = dateStr.split('T')[0]; // Extract just the date part
+              }
+              
               obsGroup.patchValue({
-                observationDate: obs.observationDate?.split('T')[0],
+                observationDate: formattedDate,
                 dayType: obs.dayType,
                 visitors: obs.visitors,
                 durationHours: obs.durationHours,
@@ -321,33 +327,48 @@ export class AssessmentFormComponent implements OnInit {
     }
 
     // Check Step 3 errors (observations)
-    if (this.step3Form.invalid) {
-      if (this.observations.length < 2) {
-        errors.push('Step 3 - Observasi: Minimal 2 observasi diperlukan');
-      }
-      this.observations.controls.forEach((obs, i) => {
-        if (obs.invalid) {
-          const obsGroup = obs as FormGroup;
-          Object.keys(obsGroup.controls).forEach(key => {
-            const control = obsGroup.get(key);
-            if (control?.invalid) {
-              if (key === 'sampleTransactions') {
-                const samples = control as FormArray;
-                const filledCount = samples.controls.filter(c => {
-                  const amount = c.get('amount')?.value;
-                  return amount !== null && amount !== undefined && amount > 0;
-                }).length;
-                if (filledCount < 5) {
-                  errors.push(`Observasi #${i + 1}: Sample transaksi minimal 5 (saat ini: ${filledCount})`);
-                }
-              } else {
-                errors.push(`Observasi #${i + 1}: ${this.getFieldLabel(key)} belum diisi`);
-              }
-            }
-          });
-        }
-      });
+    // Count only filled observations (observations with date and at least 5 samples)
+    const filledObservations = this.observations.controls.filter(obs => {
+      const obsGroup = obs as FormGroup;
+      const date = obsGroup.get('observationDate')?.value;
+      const samples = obsGroup.get('sampleTransactions') as FormArray;
+      const filledSamples = samples.controls.filter(c => {
+        const amount = c.get('amount')?.value;
+        return amount !== null && amount !== undefined && amount > 0;
+      }).length;
+      return date && filledSamples >= 5;
+    });
+
+    if (filledObservations.length === 0) {
+      errors.push('Step 3 - Observasi: Minimal 1 observasi lengkap diperlukan (dengan tanggal dan minimal 5 sample transaksi)');
     }
+
+    // Validate only filled observations
+    this.observations.controls.forEach((obs, i) => {
+      const obsGroup = obs as FormGroup;
+      const date = obsGroup.get('observationDate')?.value;
+      const samples = obsGroup.get('sampleTransactions') as FormArray;
+      const filledSamples = samples.controls.filter(c => {
+        const amount = c.get('amount')?.value;
+        return amount !== null && amount !== undefined && amount > 0;
+      }).length;
+
+      // Only validate if observation has a date (user started filling it)
+      if (date) {
+        if (filledSamples < 5) {
+          errors.push(`Observasi #${i + 1}: Sample transaksi minimal 5 (saat ini: ${filledSamples})`);
+        }
+        if (!obsGroup.get('dayType')?.value) {
+          errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
+        }
+        if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
+          errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
+        }
+        if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
+          errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
+        }
+      }
+    });
 
     if (errors.length > 0) {
       alert('Field yang belum lengkap:\n\n' + errors.join('\n'));
@@ -439,19 +460,26 @@ export class AssessmentFormComponent implements OnInit {
       photoUrls: imageUrls,
 
       // Observations with sampleTransactions
-      observations: step3Value.observations.map((obs: any) => ({
-        observationDate: this.formatObservationDate(obs.observationDate),
-        dayType: obs.dayType,
-        visitors: obs.visitors,
-        durationHours: obs.durationHours,
-        sampleTransactions: (obs.sampleTransactions || [])
-          .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0)
-          .map((tx: any) => ({
-            amount: tx.amount,
-            notes: tx.notes || ''
-          })),
-        notes: obs.notes || ''
-      }))
+      // Filter hanya observasi yang terisi (ada tanggal dan minimal 5 samples)
+      observations: step3Value.observations
+        .filter((obs: any) => {
+          const samples = (obs.sampleTransactions || [])
+            .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0);
+          return obs.observationDate && samples.length >= 5;
+        })
+        .map((obs: any) => ({
+          observationDate: this.formatObservationDate(obs.observationDate),
+          dayType: obs.dayType,
+          visitors: obs.visitors,
+          durationHours: obs.durationHours,
+          sampleTransactions: (obs.sampleTransactions || [])
+            .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0)
+            .map((tx: any) => ({
+              amount: tx.amount,
+              notes: tx.notes || ''
+            })),
+          notes: obs.notes || ''
+        }))
     };
 
     const operation = this.isEditMode
