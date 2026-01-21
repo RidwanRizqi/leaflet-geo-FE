@@ -110,6 +110,9 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayer: L.GeoJSON | null = null;
   isLegendVisible: boolean = true; // Control legend visibility
 
+  // Fullscreen mode
+  isFullscreen = false;
+
   constructor(
     private restApiService: RestApiService,
     private bprdApiService: BprdApiService,
@@ -2133,6 +2136,92 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.showTematikModal = false;
   }
 
+  /**
+   * Toggle sidebar, navbar, header, and footer for fullscreen map view
+   */
+  toggleSidebarAndNavbar(): void {
+    this.isFullscreen = !this.isFullscreen;
+
+    if (this.isFullscreen) {
+      // Enter fullscreen mode: Hide everything except map
+      
+      // Hide sidebar
+      document.documentElement.setAttribute('data-sidebar-size', 'sm');
+      
+      // Hide topbar (app-topbar component)
+      const topbar = document.querySelector('app-topbar');
+      if (topbar) {
+        (topbar as HTMLElement).style.display = 'none';
+      }
+
+      // Hide footer (app-footer component)
+      const footer = document.querySelector('app-footer');
+      if (footer) {
+        (footer as HTMLElement).style.display = 'none';
+      }
+
+      // Hide header (card-header)
+      const cardHeader = document.querySelector('.card-header');
+      if (cardHeader) {
+        (cardHeader as HTMLElement).style.display = 'none';
+      }
+
+      // Expand map container
+      const mapContainer = document.querySelector('.map-container');
+      if (mapContainer) {
+        (mapContainer as HTMLElement).style.height = 'calc(100vh - 20px)';
+      }
+
+      // Hide breadcrumb navigation
+      const breadcrumb = document.querySelector('.row.mb-3');
+      if (breadcrumb) {
+        (breadcrumb as HTMLElement).style.display = 'none';
+      }
+
+    } else {
+      // Exit fullscreen mode: Show everything
+      
+      // Restore sidebar
+      document.documentElement.setAttribute('data-sidebar-size', 'lg');
+      
+      // Show topbar (app-topbar component)
+      const topbar = document.querySelector('app-topbar');
+      if (topbar) {
+        (topbar as HTMLElement).style.display = '';
+      }
+
+      // Show footer (app-footer component)
+      const footer = document.querySelector('app-footer');
+      if (footer) {
+        (footer as HTMLElement).style.display = '';
+      }
+
+      // Show header (card-header)
+      const cardHeader = document.querySelector('.card-header');
+      if (cardHeader) {
+        (cardHeader as HTMLElement).style.display = '';
+      }
+
+      // Restore map container height
+      const mapContainer = document.querySelector('.map-container');
+      if (mapContainer) {
+        (mapContainer as HTMLElement).style.height = '500px';
+      }
+
+      // Show breadcrumb navigation
+      const breadcrumb = document.querySelector('.row.mb-3');
+      if (breadcrumb) {
+        (breadcrumb as HTMLElement).style.display = '';
+      }
+    }
+
+    // Trigger map resize after DOM updates
+    if (this.map) {
+      setTimeout(() => {
+        this.map?.invalidateSize();
+      }, 300);
+    }
+  }
   /**
    * Check if tematik can be loaded
    */

@@ -846,4 +846,148 @@ h6.text-primary {
       }
     }
   }
+
+
 }
+
+// Di atas file SCSS, tambah variable
+$green-dark: #2d5016;
+$green-light: #e8f5e8;
+$green-hover: #1e3a0f;
+$shadow-green: rgba(45, 80, 22, 0.5);
+
+.floating-fullscreen-btn {
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 1050 !important;
+  background: $green-dark !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 50px !important;
+  height: 50px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 12px $shadow-green !important;
+  transition: all 0.3s ease !important;
+
+  &:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 16px rgba(45, 80, 22, 0.6) !important;
+  }
+}
+
+.btn-green-dark {
+  background-color: $green-dark !important;
+  border-color: $green-dark !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.3) !important;
+  transition: all 0.3s ease !important;
+
+  &:hover {
+    background-color: $green-hover !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px $shadow-green !important;
+  }
+}
+
+/* Floating fullscreen button hover effect */
+.floating-fullscreen-btn {
+  &:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 6px 16px rgba(45,80,22,0.5) !important;
+  }
+}
+
+/* Map container full height */
+.map-container {
+  height: calc(70vh - 120px); /* Adjust sesuai kebutuhan */
+}
+
+/* Badge dan tombol hijau tema forest */
+.badge.bg-success {
+  background-color: #28a745 !important;
+  border-radius: 20px;
+}
+
+.btn {
+  &[style*="background-color: #2d5016"] {
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #1e3a0f !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(45,80,22,0.5) !important;
+    }
+  }
+}
+
+/* Card background gradient hijau muda */
+.card {
+  &[style*="background: linear-gradient"] {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+/* Judul mengambang kiri atas */
+.floating-title {
+  position: absolute;
+  top: 16px;
+  left: 64px;
+  z-index: 1050;
+
+  .floating-title-inner {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    font-size: 14px;
+    color: #1f2933;
+  }
+
+  i {
+    color: #155034;
+    font-size: 18px;
+  }
+}
+
+/* Tombol filter mengambang kanan atas */
+.floating-filter-btn {
+  position: absolute;
+  top: 16px;
+  right: 64px;
+  z-index: 950;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: none;
+  background-color: #155034;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.45);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  i {
+    font-size: 16px;
+  }
+
+  &:hover {
+    background-color: #1e3a0f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(45, 80, 22, 0.55);
+  }
+}
+
+/* Pastikan container bisa menampung elemen mengambang */
+.map-container {
+  position: relative;
+}
+
+

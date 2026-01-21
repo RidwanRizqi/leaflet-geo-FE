@@ -20,9 +20,12 @@ export class DashboardPendapatanComponent implements OnInit {
   trendBulanan: TrendBulanan[] = [];
   topKontributor: TopKontributor[] = [];
 
-  // Filter
-  selectedYear: number = 2025;
-  availableYears: number[] = [2021, 2022, 2023, 2024, 2025];
+  // Filter - dynamic to current year
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = Array.from(
+    { length: new Date().getFullYear() - 2021 + 1 },
+    (_, i) => 2021 + i
+  );
 
   // Expand/Collapse
   expandedIndex: number | null = null;

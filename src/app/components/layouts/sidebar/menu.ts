@@ -264,6 +264,21 @@ export const MENU: MenuItem[] = [
         badge: null,
         parentId: 9,
         isLayout: false,
+      },
+      {
+        id: 94,
+        label: 'MENUITEMS.SETTING.ANGGARAN.TEXT',
+        icon: 'ri-money-dollar-circle-line',
+        isCollapsed: true,
+        link: '/setting/anggaran',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'success',
+          text: 'New'
+        },
+        parentId: 9,
+        isLayout: false,
       }
     ],
     isTitle: false,

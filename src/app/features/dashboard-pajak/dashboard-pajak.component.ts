@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexStroke, ApexYAxis, ApexGrid, ApexLegend, ChartComponent } from 'ng-apexcharts';
+import { PajakService, PajakData } from '../../services/pajak.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -14,12 +15,7 @@ export type ChartOptions = {
   colors: string[];
 };
 
-interface PajakData {
-  kategori: string;
-  tahun: number;
-  bulan: string;
-  value: number;
-}
+
 
 @Component({
   selector: 'app-dashboard-pajak',
@@ -35,9 +31,16 @@ export class DashboardPajakComponent implements OnInit {
   selectedChartOptions: Partial<ChartOptions> | null = null;
   showModal: boolean = false;
 
-  // Filter tahun
-  selectedYear: number = 2025;
-  availableYears: number[] = [2020, 2021, 2022, 2023, 2024, 2025];
+  // Filter tahun - dynamic to current year
+  selectedYear: number = new Date().getFullYear();
+  availableYears: number[] = Array.from(
+    { length: new Date().getFullYear() - 2022 + 1 },
+    (_, i) => 2022 + i
+  );
+
+  // Loading and error states
+  isLoading: boolean = false;
+  errorMessage: string = '';
 
   // Color palette for charts - Modern & Colorful
   private colorPalette = [
@@ -53,14 +56,33 @@ export class DashboardPajakComponent implements OnInit {
     '#fee140'  // Yellow
   ];
 
-  constructor() { }
+  constructor(private pajakService: PajakService) { }
 
   ngOnInit(): void {
     this.loadPajakData();
   }
 
   loadPajakData(): void {
-    // Load data from assets
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.pajakService.getPajakBulanan(this.selectedYear).subscribe({
+      next: (data: PajakData[]) => {
+        this.pajakData = data || [];
+        this.processData();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading pajak data:', error);
+        this.errorMessage = 'Gagal memuat data. Menggunakan data offline...';
+        this.isLoading = false;
+        // Fallback to static JSON if API fails
+        this.loadFallbackData();
+      }
+    });
+  }
+
+  loadFallbackData(): void {
     fetch('assets/master-pajak.json')
       .then(response => response.json())
       .then((data: PajakData[]) => {
@@ -68,7 +90,8 @@ export class DashboardPajakComponent implements OnInit {
         this.processData();
       })
       .catch(error => {
-        console.error('Error loading pajak data:', error);
+        console.error('Error loading fallback data:', error);
+        this.errorMessage = 'Tidak dapat memuat data.';
       });
   }
 
@@ -82,8 +105,8 @@ export class DashboardPajakComponent implements OnInit {
 
   onYearChange(): void {
     console.log('Year changed to:', this.selectedYear);
-    // Recreate charts with new year filter
-    this.updateCharts();
+    // Reload data from API for the new year
+    this.loadPajakData();
   }
 
   updateCharts(): void {
@@ -279,14 +302,12 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    if (value >= 1000000000) {
-      return 'Rp ' + (value / 1000000000).toFixed(2) + ' M';
-    } else if (value >= 1000000) {
-      return 'Rp ' + (value / 1000000).toFixed(2) + ' Jt';
-    } else if (value >= 1000) {
-      return 'Rp ' + (value / 1000).toFixed(0) + ' Rb';
-    }
-    return 'Rp ' + value.toFixed(0);
+    // Format with Indonesian locale: periods for thousands, comma for decimal
+    // Show full number with 2 decimal places
+    return 'Rp ' + value.toLocaleString('id-ID', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
   }
 
   adjustColor(color: string, amount: number): string {

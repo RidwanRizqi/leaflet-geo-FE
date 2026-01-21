@@ -5,11 +5,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ModalService } from 'src/app/shared/services/modal.service';
+import { SettingService, KecamatanData } from 'src/app/services/setting.service';
 import * as L from 'leaflet';
 
-// Kecamatan Interface
+// Kecamatan Interface (using string id for UUID)
 interface Kecamatan {
-    id: number;
+    id: string;
     kd_kec: string;
     nama: string;
     color: string;
@@ -54,7 +55,7 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
     fg!: FormGroup;
     submitted = false;
     isEdit = false;
-    editId: number = 0;
+    editId: string = '';
     currentLabel: string = '';  // For map label overlay
 
     // Map
@@ -65,28 +66,16 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('addEditModal', { static: false })
     addEditModal?: TemplateRef<any>;
 
-    // Dummy data
-    private dummyData: Kecamatan[] = [
-        { id: 1, kd_kec: '010', nama: 'Tempursari', color: 'rgba(255, 99, 132, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.1,−8.0],[113.2,−8.0],[113.2,−8.1],[113.1,−8.1],[113.1,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 2, kd_kec: '020', nama: 'Pronojiwo', color: 'rgba(54, 162, 235, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.2,−8.0],[113.3,−8.0],[113.3,−8.1],[113.2,−8.1],[113.2,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 3, kd_kec: '030', nama: 'Candipuro', color: 'rgba(255, 206, 86, 0.6)', geom: null, is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 4, kd_kec: '040', nama: 'Pasirian', color: 'rgba(75, 192, 192, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.3,−8.0],[113.4,−8.0],[113.4,−8.1],[113.3,−8.1],[113.3,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 5, kd_kec: '050', nama: 'Tempeh', color: 'rgba(153, 102, 255, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.4,−8.0],[113.5,−8.0],[113.5,−8.1],[113.4,−8.1],[113.4,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 6, kd_kec: '060', nama: 'Lumajang', color: 'rgba(255, 159, 64, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.15,−8.05],[113.25,−8.05],[113.25,−8.15],[113.15,−8.15],[113.15,−8.05]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 7, kd_kec: '070', nama: 'Sumbersuko', color: 'rgba(199, 199, 199, 0.6)', geom: null, is_active: false, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 8, kd_kec: '080', nama: 'Tekung', color: 'rgba(83, 102, 255, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.5,−8.0],[113.6,−8.0],[113.6,−8.1],[113.5,−8.1],[113.5,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 9, kd_kec: '090', nama: 'Kunir', color: 'rgba(255, 99, 255, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.6,−8.0],[113.7,−8.0],[113.7,−8.1],[113.6,−8.1],[113.6,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 10, kd_kec: '100', nama: 'Yosowilangun', color: 'rgba(99, 255, 132, 0.6)', geom: null, is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 11, kd_kec: '110', nama: 'Rowokangkung', color: 'rgba(162, 235, 54, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.7,−8.0],[113.8,−8.0],[113.8,−8.1],[113.7,−8.1],[113.7,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' },
-        { id: 12, kd_kec: '120', nama: 'Jatiroto', color: 'rgba(206, 86, 255, 0.6)', geom: '{"type":"Polygon","coordinates":[[[113.8,−8.0],[113.9,−8.0],[113.9,−8.1],[113.8,−8.1],[113.8,−8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15' }
-    ];
+    // Current geometry WKB (for saving to database)
+    private currentGeomWkb: string | null = null;
 
     constructor(
         private formBuilder: FormBuilder,
         private modalService: NgbModal,
         private translate: TranslateService,
         private spinner: NgxSpinnerService,
-        private customModalService: ModalService
+        private customModalService: ModalService,
+        private settingService: SettingService
     ) { }
 
     ngOnInit(): void {
@@ -144,15 +133,25 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
 
     loadData(): void {
         this.spinner.show();
-        // Simulate API delay
-        setTimeout(() => {
-            this.originalData = [...this.dummyData];
-            this.filteredData = [...this.originalData];
-            this.totalRecords = this.filteredData.length;
-            this.updatePagination();
-            this.updateDisplayedData();
-            this.spinner.hide();
-        }, 500);
+        const filters: any = {};
+        if (this.filterKdKec.trim()) filters.kd_kec = this.filterKdKec.trim();
+        if (this.filterNama.trim()) filters.nama = this.filterNama.trim();
+
+        this.settingService.getKecamatanPaginated(this.page - 1, this.pageSize, filters).subscribe({
+            next: (response) => {
+                this.originalData = response.items as Kecamatan[];
+                this.filteredData = [...this.originalData];
+                this.displayedData = [...this.originalData];
+                this.totalRecords = response.totalCount;
+                this.updatePagination();
+                this.spinner.hide();
+            },
+            error: (error) => {
+                console.error('Error loading kecamatan:', error);
+                this.customModalService.open('error', 'Gagal memuat data kecamatan');
+                this.spinner.hide();
+            }
+        });
     }
 
     updatePagination(): void {
@@ -168,8 +167,7 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
 
     onPageChange(newPage: number): void {
         this.page = newPage;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData(); // Reload from API with new page
     }
 
     onFilterChange(): void {
@@ -178,38 +176,16 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
 
     performSearch(): void {
         this.isSearching = true;
-        let result = [...this.originalData];
-
-        // Filter by kd_kec (contains match)
-        if (this.filterKdKec.trim() !== '') {
-            result = result.filter(item =>
-                item.kd_kec.toLowerCase().includes(this.filterKdKec.toLowerCase())
-            );
-        }
-
-        // Filter by nama (contains match)
-        if (this.filterNama.trim() !== '') {
-            result = result.filter(item =>
-                item.nama.toLowerCase().includes(this.filterNama.toLowerCase())
-            );
-        }
-
-        this.filteredData = result;
-        this.totalRecords = this.filteredData.length;
         this.page = 1;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData(); // Reload from API with filters
         this.isSearching = false;
     }
 
     clearFilters(): void {
         this.filterKdKec = '';
         this.filterNama = '';
-        this.filteredData = [...this.originalData];
-        this.totalRecords = this.filteredData.length;
         this.page = 1;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData(); // Reload from API without filters
     }
 
     // Color helper methods
@@ -233,7 +209,8 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
     // Modal operations
     openAddModal(): void {
         this.isEdit = false;
-        this.editId = 0;
+        this.editId = '';
+        this.currentGeomWkb = null;
         this.fg.reset({ color: '#3388ff' });
         this.submitted = false;
         this.currentLabel = '';  // Clear label for new item
@@ -244,9 +221,11 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
         }).result.then(() => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         }, () => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         });
 
         // Initialize map after modal opens
@@ -256,6 +235,7 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
     openEditModal(item: Kecamatan): void {
         this.isEdit = true;
         this.editId = item.id;
+        this.currentGeomWkb = item.geom; // Store current geometry
         this.currentLabel = item.nama;  // Set label for map overlay
         this.fg.patchValue({
             kd_kec: item.kd_kec,
@@ -270,16 +250,18 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
         }).result.then(() => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         }, () => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         });
 
         // Initialize map and show existing geometry
         setTimeout(() => {
             this.initMap();
             if (item.geom) {
-                this.displayGeometry(item.geom, item.color);
+                this.displayGeometryFromWkb(item.geom, item.color);
             }
         }, 300);
     }
@@ -363,6 +345,18 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
+    /**
+     * Display geometry from WKB hex string (from database)
+     * Note: WKB needs to be converted to GeoJSON for display
+     * For now, we'll just skip if it's WKB (the backend will need to return GeoJSON)
+     */
+    private displayGeometryFromWkb(geomWkb: string, color: string): void {
+        if (!this.map || !geomWkb) return;
+        // WKB is stored in hex format, for now we'll need backend to convert
+        // In the future, could use a JS library like wkx to parse WKB
+        console.log('Geometry WKB exists, but display requires conversion on backend');
+    }
+
     onFileChange(event: any): void {
         const file = event.target.files[0];
         if (file) {
@@ -410,44 +404,44 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
         this.spinner.show();
         const formData = this.fg.value;
 
-        // Simulate API call
-        setTimeout(() => {
-            if (this.isEdit) {
-                // Update existing
-                const index = this.originalData.findIndex(item => item.id === this.editId);
-                if (index !== -1) {
-                    this.originalData[index] = {
-                        ...this.originalData[index],
-                        kd_kec: formData.kd_kec,
-                        nama: formData.nama,
-                        color: formData.color,
-                        updated_at: new Date().toISOString().split('T')[0]
-                    };
-                }
-                this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.UPDATE'));
-            } else {
-                // Create new
-                const newItem: Kecamatan = {
-                    id: Math.max(...this.originalData.map(x => x.id)) + 1,
-                    kd_kec: formData.kd_kec,
-                    nama: formData.nama,
-                    color: formData.color,
-                    geom: null,
-                    is_active: true,
-                    created_at: new Date().toISOString().split('T')[0],
-                    updated_at: new Date().toISOString().split('T')[0]
-                };
-                this.originalData.unshift(newItem);
-                this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.ADD'));
-            }
+        const data: KecamatanData = {
+            kd_kec: formData.kd_kec,
+            nama: formData.nama,
+            color: this.getColorRgba(), // Convert to RGBA format for legacy compatibility
+            geom: this.currentGeomWkb || undefined
+        };
 
-            this.modalService.dismissAll();
-            this.filteredData = [...this.originalData];
-            this.totalRecords = this.filteredData.length;
-            this.updatePagination();
-            this.updateDisplayedData();
-            this.spinner.hide();
-        }, 500);
+        if (this.isEdit) {
+            // Update existing
+            this.settingService.updateKecamatan(this.editId, data).subscribe({
+                next: () => {
+                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.UPDATE'));
+                    this.modalService.dismissAll();
+                    this.loadData(); // Reload from API
+                    this.spinner.hide();
+                },
+                error: (error) => {
+                    console.error('Error updating kecamatan:', error);
+                    this.customModalService.open('error', 'Gagal mengupdate kecamatan');
+                    this.spinner.hide();
+                }
+            });
+        } else {
+            // Create new
+            this.settingService.createKecamatan(data).subscribe({
+                next: () => {
+                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.ADD'));
+                    this.modalService.dismissAll();
+                    this.loadData(); // Reload from API
+                    this.spinner.hide();
+                },
+                error: (error) => {
+                    console.error('Error creating kecamatan:', error);
+                    this.customModalService.open('error', 'Gagal menambah kecamatan');
+                    this.spinner.hide();
+                }
+            });
+        }
     }
 
     async deleteItem(item: Kecamatan): Promise<void> {
@@ -459,22 +453,18 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
 
             if (result === true) {
                 this.spinner.show();
-
-                // Soft delete - set is_active to false
-                setTimeout(() => {
-                    const index = this.originalData.findIndex(x => x.id === item.id);
-                    if (index !== -1) {
-                        this.originalData[index].is_active = false;
+                this.settingService.deleteKecamatan(item.id).subscribe({
+                    next: () => {
+                        this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.DELETE'));
+                        this.loadData(); // Reload from API
+                        this.spinner.hide();
+                    },
+                    error: (error) => {
+                        console.error('Error deleting kecamatan:', error);
+                        this.customModalService.open('error', 'Gagal menghapus kecamatan');
+                        this.spinner.hide();
                     }
-
-                    this.filteredData = [...this.originalData];
-                    this.totalRecords = this.filteredData.length;
-                    this.updatePagination();
-                    this.updateDisplayedData();
-
-                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.DELETE'));
-                    this.spinner.hide();
-                }, 500);
+                });
             }
         } catch (error) {
             console.log('Delete cancelled');
@@ -490,19 +480,18 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
 
             if (result === true) {
                 this.spinner.show();
-
-                setTimeout(() => {
-                    const index = this.originalData.findIndex(x => x.id === item.id);
-                    if (index !== -1) {
-                        this.originalData[index].is_active = true;
+                this.settingService.recoverKecamatan(item.id).subscribe({
+                    next: () => {
+                        this.customModalService.open('success', 'Data berhasil dipulihkan');
+                        this.loadData(); // Reload from API
+                        this.spinner.hide();
+                    },
+                    error: (error) => {
+                        console.error('Error recovering kecamatan:', error);
+                        this.customModalService.open('error', 'Gagal memulihkan kecamatan');
+                        this.spinner.hide();
                     }
-
-                    this.filteredData = [...this.originalData];
-                    this.updateDisplayedData();
-
-                    this.customModalService.open('success', 'Data berhasil dipulihkan');
-                    this.spinner.hide();
-                }, 500);
+                });
             }
         } catch (error) {
             console.log('Recover cancelled');
@@ -513,7 +502,7 @@ export class KecamatanComponent implements OnInit, OnDestroy, AfterViewInit {
         this.modalService.dismissAll();
     }
 
-    trackByFn(index: number, item: Kecamatan): number {
+    trackByFn(index: number, item: Kecamatan): string {
         return item.id;
     }
 }

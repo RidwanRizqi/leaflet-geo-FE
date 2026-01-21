@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { KecamatanComponent } from './kecamatan/kecamatan.component';
 import { KelurahanComponent } from './kelurahan/kelurahan.component';
 import { BlokComponent } from './blok/blok.component';
+import { AnggaranComponent } from './anggaran/anggaran.component';
 
 const routes: Routes = [
     {
@@ -22,6 +23,10 @@ const routes: Routes = [
     {
         path: 'blok',
         component: BlokComponent
+    },
+    {
+        path: 'anggaran',
+        component: AnggaranComponent
     }
 ];
 

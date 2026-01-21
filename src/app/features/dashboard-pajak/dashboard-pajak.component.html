@@ -11,7 +11,8 @@
             <p class="text-muted mb-0">Visualisasi dan Analisis Pendapatan Pajak Daerah</p>
           </div>
           <div class="d-flex align-items-center gap-3">
-            <select class="form-select form-select-sm" [(ngModel)]="selectedYear" (change)="onYearChange()" style="width: auto; min-width: 100px;">
+            <select class="form-select form-select-sm" [(ngModel)]="selectedYear" (change)="onYearChange()"
+              style="width: auto; min-width: 100px;">
               <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
             </select>
             <div class="header-icon">
@@ -32,8 +33,8 @@
     </div>
   </div>
 
-  <div class="row g-3 mb-4">
-    <div class="col-xl-3 col-lg-4 col-md-6" *ngFor="let kategori of kategoris; let i = index">
+  <div class="row g-3 mb-4" *ngIf="!isLoading">
+    <div class="col-xl-4 col-lg-4 col-md-6" *ngFor="let kategori of kategoris; let i = index">
       <div class="summary-card" [attr.data-index]="i">
         <div class="summary-card-icon" [ngClass]="'bg-gradient-' + (i % 5 + 1)">
           <i [class]="getCategoryIcon(kategori)"></i>
@@ -42,6 +43,30 @@
           <h6 class="category-name mb-1">{{ kategori }}</h6>
           <h4 class="category-value mb-0">{{ formatCurrency(getTotalByCategory(kategori)) }}</h4>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Spinner for Summary Cards -->
+  <div class="row mb-4" *ngIf="isLoading">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mt-3 mb-0">Memuat data pajak...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div class="row mb-4" *ngIf="errorMessage && !isLoading">
+    <div class="col-12">
+      <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="ri-error-warning-line me-2 fs-4"></i>
+        <div>{{ errorMessage }}</div>
       </div>
     </div>
   </div>
@@ -56,8 +81,22 @@
     </div>
   </div>
 
+  <!-- Loading Spinner for Charts -->
+  <div class="row g-4 mb-4" *ngIf="isLoading">
+    <div class="col-xl-6 col-lg-6" *ngFor="let item of [1,2,3,4]">
+      <div class="card">
+        <div class="card-body text-center py-5">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="text-muted mb-0">Memuat grafik...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Charts Grid (2 columns) -->
-  <div class="row g-4">
+  <div class="row g-4" *ngIf="!isLoading">
     <div class="col-xl-6 col-lg-6 mb-4" *ngFor="let kategori of kategoris; let i = index">
       <div class="chart-card-wrapper" (click)="openModal(kategori)">
         <div class="chart-card">
@@ -80,18 +119,11 @@
 
           <div class="chart-body">
             <div *ngIf="getChartOptions(kategori)">
-              <apx-chart
-                [series]="getChartOptions(kategori)!.series!"
-                [chart]="getChartOptions(kategori)!.chart!"
-                [xaxis]="getChartOptions(kategori)!.xaxis!"
-                [yaxis]="getChartOptions(kategori)!.yaxis!"
-                [dataLabels]="getChartOptions(kategori)!.dataLabels!"
-                [grid]="getChartOptions(kategori)!.grid!"
-                [stroke]="getChartOptions(kategori)!.stroke!"
-                [tooltip]="getChartOptions(kategori)!.tooltip!"
-                [legend]="getChartOptions(kategori)!.legend!"
-                [colors]="getChartOptions(kategori)!.colors!"
-              ></apx-chart>
+              <apx-chart [series]="getChartOptions(kategori)!.series!" [chart]="getChartOptions(kategori)!.chart!"
+                [xaxis]="getChartOptions(kategori)!.xaxis!" [yaxis]="getChartOptions(kategori)!.yaxis!"
+                [dataLabels]="getChartOptions(kategori)!.dataLabels!" [grid]="getChartOptions(kategori)!.grid!"
+                [stroke]="getChartOptions(kategori)!.stroke!" [tooltip]="getChartOptions(kategori)!.tooltip!"
+                [legend]="getChartOptions(kategori)!.legend!" [colors]="getChartOptions(kategori)!.colors!"></apx-chart>
             </div>
           </div>
 
@@ -113,7 +145,7 @@
 
 <!-- Enhanced Modal for enlarged chart -->
 <div class="custom-modal" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'"
-     (click)="closeModal()">
+  (click)="closeModal()">
   <div class="custom-modal-dialog" role="document" (click)="$event.stopPropagation()">
     <div class="custom-modal-content">
       <div class="custom-modal-header">
@@ -134,18 +166,11 @@
       <div class="custom-modal-body">
         <!-- Chart -->
         <div class="modal-chart-container" *ngIf="selectedChartOptions">
-          <apx-chart
-            [series]="selectedChartOptions.series!"
-            [chart]="selectedChartOptions.chart!"
-            [xaxis]="selectedChartOptions.xaxis!"
-            [yaxis]="selectedChartOptions.yaxis!"
-            [dataLabels]="selectedChartOptions.dataLabels!"
-            [grid]="selectedChartOptions.grid!"
-            [stroke]="selectedChartOptions.stroke!"
-            [tooltip]="selectedChartOptions.tooltip!"
-            [legend]="selectedChartOptions.legend!"
-            [colors]="selectedChartOptions.colors!"
-          ></apx-chart>
+          <apx-chart [series]="selectedChartOptions.series!" [chart]="selectedChartOptions.chart!"
+            [xaxis]="selectedChartOptions.xaxis!" [yaxis]="selectedChartOptions.yaxis!"
+            [dataLabels]="selectedChartOptions.dataLabels!" [grid]="selectedChartOptions.grid!"
+            [stroke]="selectedChartOptions.stroke!" [tooltip]="selectedChartOptions.tooltip!"
+            [legend]="selectedChartOptions.legend!" [colors]="selectedChartOptions.colors!"></apx-chart>
         </div>
 
         <!-- Enhanced Stats -->

@@ -84,11 +84,25 @@
     color: white;
     flex-shrink: 0;
 
-    &.bg-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    &.bg-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-    &.bg-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    &.bg-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    &.bg-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    &.bg-gradient-1 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    &.bg-gradient-2 {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    &.bg-gradient-3 {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    &.bg-gradient-4 {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    &.bg-gradient-5 {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
   }
 
   .summary-card-content {
@@ -105,13 +119,12 @@
     }
 
     .category-value {
-      font-size: 1.5rem;
+      font-size: 0.95rem;
       font-weight: 700;
       color: #2d3748;
       margin: 0;
       white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow: visible;
     }
 
     small {
@@ -163,11 +176,25 @@
       font-size: 1.5rem;
       color: white;
 
-      &.bg-gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-      &.bg-gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-      &.bg-gradient-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-      &.bg-gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-      &.bg-gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+      &.bg-gradient-1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      &.bg-gradient-2 {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      }
+
+      &.bg-gradient-3 {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      }
+
+      &.bg-gradient-4 {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+      }
+
+      &.bg-gradient-5 {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      }
     }
 
     .chart-title {
@@ -426,6 +453,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -436,6 +464,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

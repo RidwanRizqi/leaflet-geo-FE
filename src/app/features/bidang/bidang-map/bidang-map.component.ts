@@ -5,6 +5,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
 import * as L from 'leaflet';
+import 'leaflet-draw';
 import '@geoman-io/leaflet-geoman-free';
 import { SingleVertexEditor, enableSingleVertexEdit } from '../../../shared/single-vertex-editor';
 
@@ -175,6 +176,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load total count and kecamatan data on init
     this.loadTotalBidangCount();
     this.loadKecamatanData();
+
   }
 
   ngAfterViewInit(): void {
@@ -2867,7 +2869,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Setup edit mode for modifying existing polygons
    * Using Leaflet-Geoman instead of Leaflet-Draw for better programmatic control
-   * 
+   *
    * LEGACY BEHAVIOR (from screenshot):
    * - Only the SELECTED polygon is shown (e.g., one kecamatan)
    * - All other layers are HIDDEN (no kelurahan labels underneath)
@@ -3204,7 +3206,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.map) return;
 
     // Get the target ID from selectedItem based on the type
-    // selectedItem uses camelCase (kdKec, kdKel, kdBlok) 
+    // selectedItem uses camelCase (kdKec, kdKel, kdBlok)
     // cache uses snake_case (kd_kec, kd_kel, kd_blok)
     let targetId: string;
     switch (this.editTarget) {
@@ -3299,7 +3301,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       style: {
         color: '#5c5c3d', // Olive border like legacy
         weight: 2,
-        fillColor: '#8b7355', // Brown fill like legacy screenshot  
+        fillColor: '#8b7355', // Brown fill like legacy screenshot
         fillOpacity: 0.8
       }
     });

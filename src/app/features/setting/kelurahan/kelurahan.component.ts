@@ -5,17 +5,18 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ModalService } from 'src/app/shared/services/modal.service';
+import { SettingService, KelurahanData } from 'src/app/services/setting.service';
 import * as L from 'leaflet';
 
 // Interfaces
 interface Kecamatan {
-    id: number;
+    id: string;
     kd_kec: string;
     nama: string;
 }
 
 interface Kelurahan {
-    id: number;
+    id: string;
     kd_kec: string;
     kd_kel: string;
     nama: string;
@@ -65,8 +66,9 @@ export class KelurahanComponent implements OnInit, OnDestroy {
     fg!: FormGroup;
     submitted = false;
     isEdit = false;
-    editId: number = 0;
+    editId: string = '';
     currentLabel: string = '';  // For map label overlay
+    private currentGeomWkb: string | null = null;
 
     // Map
     private map: L.Map | null = null;
@@ -75,38 +77,13 @@ export class KelurahanComponent implements OnInit, OnDestroy {
     @ViewChild('addEditModal', { static: false })
     addEditModal?: TemplateRef<any>;
 
-    // Dummy Kecamatan Data
-    private dummyKecamatan: Kecamatan[] = [
-        { id: 1, kd_kec: '010', nama: 'Tempursari' },
-        { id: 2, kd_kec: '020', nama: 'Pronojiwo' },
-        { id: 3, kd_kec: '030', nama: 'Candipuro' },
-        { id: 4, kd_kec: '040', nama: 'Pasirian' },
-        { id: 5, kd_kec: '050', nama: 'Tempeh' },
-        { id: 6, kd_kec: '060', nama: 'Lumajang' }
-    ];
-
-    // Dummy Kelurahan Data
-    private dummyData: Kelurahan[] = [
-        { id: 1, kd_kec: '010', kd_kel: '001', nama: 'Tempursari', geom: '{"type":"Polygon","coordinates":[[[113.1,-8.0],[113.15,-8.0],[113.15,-8.05],[113.1,-8.05],[113.1,-8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 1, kd_kec: '010', nama: 'Tempursari' } },
-        { id: 2, kd_kec: '010', kd_kel: '002', nama: 'Bulurejo', geom: null, is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 1, kd_kec: '010', nama: 'Tempursari' } },
-        { id: 3, kd_kec: '020', kd_kel: '001', nama: 'Pronojiwo', geom: '{"type":"Polygon","coordinates":[[[113.2,-8.0],[113.25,-8.0],[113.25,-8.05],[113.2,-8.05],[113.2,-8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 2, kd_kec: '020', nama: 'Pronojiwo' } },
-        { id: 4, kd_kec: '020', kd_kel: '002', nama: 'Sumberurip', geom: '{"type":"Polygon","coordinates":[[[113.25,-8.0],[113.3,-8.0],[113.3,-8.05],[113.25,-8.05],[113.25,-8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 2, kd_kec: '020', nama: 'Pronojiwo' } },
-        { id: 5, kd_kec: '030', kd_kel: '001', nama: 'Candipuro', geom: null, is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 3, kd_kec: '030', nama: 'Candipuro' } },
-        { id: 6, kd_kec: '040', kd_kel: '001', nama: 'Pasirian', geom: '{"type":"Polygon","coordinates":[[[113.3,-8.1],[113.35,-8.1],[113.35,-8.15],[113.3,-8.15],[113.3,-8.1]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 4, kd_kec: '040', nama: 'Pasirian' } },
-        { id: 7, kd_kec: '050', kd_kel: '001', nama: 'Tempeh Kidul', geom: null, is_active: false, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 5, kd_kec: '050', nama: 'Tempeh' } },
-        { id: 8, kd_kec: '050', kd_kel: '002', nama: 'Tempeh Lor', geom: '{"type":"Polygon","coordinates":[[[113.4,-8.0],[113.45,-8.0],[113.45,-8.05],[113.4,-8.05],[113.4,-8.0]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 5, kd_kec: '050', nama: 'Tempeh' } },
-        { id: 9, kd_kec: '060', kd_kel: '001', nama: 'Tompokersan', geom: '{"type":"Polygon","coordinates":[[[113.15,-8.05],[113.2,-8.05],[113.2,-8.1],[113.15,-8.1],[113.15,-8.05]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 6, kd_kec: '060', nama: 'Lumajang' } },
-        { id: 10, kd_kec: '060', kd_kel: '002', nama: 'Jogotrunan', geom: '{"type":"Polygon","coordinates":[[[113.2,-8.05],[113.25,-8.05],[113.25,-8.1],[113.2,-8.1],[113.2,-8.05]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 6, kd_kec: '060', nama: 'Lumajang' } },
-        { id: 11, kd_kec: '060', kd_kel: '003', nama: 'Citrodiwangsan', geom: null, is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 6, kd_kec: '060', nama: 'Lumajang' } },
-        { id: 12, kd_kec: '060', kd_kel: '004', nama: 'Ditotrunan', geom: '{"type":"Polygon","coordinates":[[[113.18,-8.08],[113.22,-8.08],[113.22,-8.12],[113.18,-8.12],[113.18,-8.08]]]}', is_active: true, created_at: '2024-01-15', updated_at: '2024-01-15', kecamatan: { id: 6, kd_kec: '060', nama: 'Lumajang' } }
-    ];
-
     constructor(
         private formBuilder: FormBuilder,
         private modalService: NgbModal,
         private translate: TranslateService,
         private spinner: NgxSpinnerService,
-        private customModalService: ModalService
+        private customModalService: ModalService,
+        private settingService: SettingService
     ) { }
 
     ngOnInit(): void {
@@ -160,19 +137,33 @@ export class KelurahanComponent implements OnInit, OnDestroy {
     }
 
     loadKecamatanList(): void {
-        this.kecamatanList = [...this.dummyKecamatan];
+        // Load kecamatan from existing API endpoint
+        // For now, this will be populated from the kecamatan list API
+        this.kecamatanList = [];
     }
 
     loadData(): void {
         this.spinner.show();
-        setTimeout(() => {
-            this.originalData = [...this.dummyData];
-            this.filteredData = [...this.originalData];
-            this.totalRecords = this.filteredData.length;
-            this.updatePagination();
-            this.updateDisplayedData();
-            this.spinner.hide();
-        }, 500);
+        const filters: any = {};
+        if (this.filterKdKec) filters.kd_kec = this.filterKdKec;
+        if (this.filterKdKel.trim()) filters.kd_kel = this.filterKdKel.trim();
+        if (this.filterNama.trim()) filters.nama = this.filterNama.trim();
+
+        this.settingService.getKelurahanPaginated(this.page - 1, this.pageSize, filters).subscribe({
+            next: (response) => {
+                this.originalData = response.items as Kelurahan[];
+                this.filteredData = [...this.originalData];
+                this.displayedData = [...this.originalData];
+                this.totalRecords = response.totalCount;
+                this.updatePagination();
+                this.spinner.hide();
+            },
+            error: (error) => {
+                console.error('Error loading kelurahan:', error);
+                this.customModalService.open('error', 'Gagal memuat data kelurahan');
+                this.spinner.hide();
+            }
+        });
     }
 
     updatePagination(): void {
@@ -188,8 +179,7 @@ export class KelurahanComponent implements OnInit, OnDestroy {
 
     onPageChange(newPage: number): void {
         this.page = newPage;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData();
     }
 
     onFilterChange(): void {
@@ -198,32 +188,8 @@ export class KelurahanComponent implements OnInit, OnDestroy {
 
     performSearch(): void {
         this.isSearching = true;
-        let result = [...this.originalData];
-
-        // Filter by kecamatan
-        if (this.filterKdKec) {
-            result = result.filter(item => item.kd_kec === this.filterKdKec);
-        }
-
-        // Filter by kd_kel (contains match)
-        if (this.filterKdKel.trim() !== '') {
-            result = result.filter(item =>
-                item.kd_kel.toLowerCase().includes(this.filterKdKel.toLowerCase())
-            );
-        }
-
-        // Filter by nama (contains match)
-        if (this.filterNama.trim() !== '') {
-            result = result.filter(item =>
-                item.nama.toLowerCase().includes(this.filterNama.toLowerCase())
-            );
-        }
-
-        this.filteredData = result;
-        this.totalRecords = this.filteredData.length;
         this.page = 1;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData();
         this.isSearching = false;
     }
 
@@ -231,11 +197,8 @@ export class KelurahanComponent implements OnInit, OnDestroy {
         this.filterKdKec = '';
         this.filterKdKel = '';
         this.filterNama = '';
-        this.filteredData = [...this.originalData];
-        this.totalRecords = this.filteredData.length;
         this.page = 1;
-        this.updatePagination();
-        this.updateDisplayedData();
+        this.loadData();
     }
 
     getKecamatanDisplay(item: Kelurahan): string {
@@ -245,10 +208,11 @@ export class KelurahanComponent implements OnInit, OnDestroy {
     // Modal operations
     openAddModal(): void {
         this.isEdit = false;
-        this.editId = 0;
+        this.editId = '';
+        this.currentGeomWkb = null;
         this.fg.reset();
         this.submitted = false;
-        this.currentLabel = '';  // Clear label for new item
+        this.currentLabel = '';
         this.modalService.open(this.addEditModal!, {
             centered: true,
             size: 'xl',
@@ -256,9 +220,11 @@ export class KelurahanComponent implements OnInit, OnDestroy {
         }).result.then(() => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         }, () => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         });
 
         setTimeout(() => this.initMap(), 300);
@@ -267,7 +233,8 @@ export class KelurahanComponent implements OnInit, OnDestroy {
     openEditModal(item: Kelurahan): void {
         this.isEdit = true;
         this.editId = item.id;
-        this.currentLabel = item.nama;  // Set label for map overlay
+        this.currentGeomWkb = item.geom;
+        this.currentLabel = item.nama;
         this.fg.patchValue({
             kd_kec: item.kd_kec,
             kd_kel: item.kd_kel,
@@ -281,16 +248,16 @@ export class KelurahanComponent implements OnInit, OnDestroy {
         }).result.then(() => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         }, () => {
             this.destroyMap();
             this.currentLabel = '';
+            this.currentGeomWkb = null;
         });
 
         setTimeout(() => {
             this.initMap();
-            if (item.geom) {
-                this.displayGeometry(item.geom);
-            }
+            // Note: geom from DB is WKB, would need conversion for display
         }, 300);
     }
 
@@ -383,52 +350,47 @@ export class KelurahanComponent implements OnInit, OnDestroy {
 
     async onSubmit(): Promise<void> {
         this.submitted = true;
-
-        if (this.fg.invalid) {
-            return;
-        }
+        if (this.fg.invalid) return;
 
         this.spinner.show();
         const formData = this.fg.value;
-        const selectedKec = this.kecamatanList.find(k => k.kd_kec === formData.kd_kec);
 
-        setTimeout(() => {
-            if (this.isEdit) {
-                const index = this.originalData.findIndex(item => item.id === this.editId);
-                if (index !== -1) {
-                    this.originalData[index] = {
-                        ...this.originalData[index],
-                        kd_kec: formData.kd_kec,
-                        kd_kel: formData.kd_kel,
-                        nama: formData.nama,
-                        kecamatan: selectedKec,
-                        updated_at: new Date().toISOString().split('T')[0]
-                    };
+        const data: KelurahanData = {
+            kd_kec: formData.kd_kec,
+            kd_kel: formData.kd_kel,
+            nama: formData.nama,
+            geom: this.currentGeomWkb || undefined
+        };
+
+        if (this.isEdit) {
+            this.settingService.updateKelurahan(this.editId, data).subscribe({
+                next: () => {
+                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.UPDATE'));
+                    this.modalService.dismissAll();
+                    this.loadData();
+                    this.spinner.hide();
+                },
+                error: (error) => {
+                    console.error('Error updating kelurahan:', error);
+                    this.customModalService.open('error', 'Gagal mengupdate kelurahan');
+                    this.spinner.hide();
                 }
-                this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.UPDATE'));
-            } else {
-                const newItem: Kelurahan = {
-                    id: Math.max(...this.originalData.map(x => x.id)) + 1,
-                    kd_kec: formData.kd_kec,
-                    kd_kel: formData.kd_kel,
-                    nama: formData.nama,
-                    geom: null,
-                    is_active: true,
-                    created_at: new Date().toISOString().split('T')[0],
-                    updated_at: new Date().toISOString().split('T')[0],
-                    kecamatan: selectedKec
-                };
-                this.originalData.unshift(newItem);
-                this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.ADD'));
-            }
-
-            this.modalService.dismissAll();
-            this.filteredData = [...this.originalData];
-            this.totalRecords = this.filteredData.length;
-            this.updatePagination();
-            this.updateDisplayedData();
-            this.spinner.hide();
-        }, 500);
+            });
+        } else {
+            this.settingService.createKelurahan(data).subscribe({
+                next: () => {
+                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.ADD'));
+                    this.modalService.dismissAll();
+                    this.loadData();
+                    this.spinner.hide();
+                },
+                error: (error) => {
+                    console.error('Error creating kelurahan:', error);
+                    this.customModalService.open('error', 'Gagal menambah kelurahan');
+                    this.spinner.hide();
+                }
+            });
+        }
     }
 
     async deleteItem(item: Kelurahan): Promise<void> {
@@ -440,19 +402,18 @@ export class KelurahanComponent implements OnInit, OnDestroy {
 
             if (result === true) {
                 this.spinner.show();
-
-                setTimeout(() => {
-                    const index = this.originalData.findIndex(x => x.id === item.id);
-                    if (index !== -1) {
-                        this.originalData[index].is_active = false;
+                this.settingService.deleteKelurahan(item.id).subscribe({
+                    next: () => {
+                        this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.DELETE'));
+                        this.loadData();
+                        this.spinner.hide();
+                    },
+                    error: (error) => {
+                        console.error('Error deleting kelurahan:', error);
+                        this.customModalService.open('error', 'Gagal menghapus kelurahan');
+                        this.spinner.hide();
                     }
-
-                    this.filteredData = [...this.originalData];
-                    this.updateDisplayedData();
-
-                    this.customModalService.open('success', this.translate.instant('COMMON.SUCCESSMSG.DELETE'));
-                    this.spinner.hide();
-                }, 500);
+                });
             }
         } catch (error) {
             console.log('Delete cancelled');
@@ -468,19 +429,18 @@ export class KelurahanComponent implements OnInit, OnDestroy {
 
             if (result === true) {
                 this.spinner.show();
-
-                setTimeout(() => {
-                    const index = this.originalData.findIndex(x => x.id === item.id);
-                    if (index !== -1) {
-                        this.originalData[index].is_active = true;
+                this.settingService.recoverKelurahan(item.id).subscribe({
+                    next: () => {
+                        this.customModalService.open('success', 'Data berhasil dipulihkan');
+                        this.loadData();
+                        this.spinner.hide();
+                    },
+                    error: (error) => {
+                        console.error('Error recovering kelurahan:', error);
+                        this.customModalService.open('error', 'Gagal memulihkan kelurahan');
+                        this.spinner.hide();
                     }
-
-                    this.filteredData = [...this.originalData];
-                    this.updateDisplayedData();
-
-                    this.customModalService.open('success', 'Data berhasil dipulihkan');
-                    this.spinner.hide();
-                }, 500);
+                });
             }
         } catch (error) {
             console.log('Recover cancelled');
@@ -491,7 +451,7 @@ export class KelurahanComponent implements OnInit, OnDestroy {
         this.modalService.dismissAll();
     }
 
-    trackByFn(index: number, item: Kelurahan): number {
+    trackByFn(index: number, item: Kelurahan): string {
         return item.id;
     }
 }

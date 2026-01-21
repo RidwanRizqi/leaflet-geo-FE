@@ -12,6 +12,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { KecamatanComponent } from './kecamatan/kecamatan.component';
 import { KelurahanComponent } from './kelurahan/kelurahan.component';
 import { BlokComponent } from './blok/blok.component';
+import { AnggaranComponent } from './anggaran/anggaran.component';
 
 // Load Icons
 import { defineElement } from "@lordicon/element";
@@ -21,7 +22,8 @@ import lottie from 'lottie-web';
     declarations: [
         KecamatanComponent,
         KelurahanComponent,
-        BlokComponent
+        BlokComponent,
+        AnggaranComponent
     ],
     imports: [
         CommonModule,
