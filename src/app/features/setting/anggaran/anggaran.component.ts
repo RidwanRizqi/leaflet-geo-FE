@@ -116,12 +116,12 @@ export class AnggaranComponent implements OnInit, OnDestroy {
     }
 
     loadDropdownData(): void {
-        // Generate tahun options (current year - 5 to current year + 5)
+        // Generate tahun options (2021 to current year - same as other dashboards)
         const currentYear = new Date().getFullYear();
-        this.tahunOptions = [];
-        for (let i = currentYear - 5; i <= currentYear + 5; i++) {
-            this.tahunOptions.push(i);
-        }
+        this.tahunOptions = Array.from(
+            { length: currentYear - 2021 + 1 },
+            (_, i) => 2021 + i
+        );
 
         // Load jenis pajak options
         this.settingService.getJenisPajakOptions().subscribe({
@@ -219,6 +219,9 @@ export class AnggaranComponent implements OnInit, OnDestroy {
         this.isEdit = false;
         this.editKey = { tahun: 0, jenis: '' };
         this.fg.reset();
+        // Re-enable fields that might have been disabled during edit mode
+        this.fg.get('tahun_anggaran')?.enable();
+        this.fg.get('jenis_pajak')?.enable();
         this.submitted = false;
         this.modalService.open(this.addEditModal!, {
             centered: true,

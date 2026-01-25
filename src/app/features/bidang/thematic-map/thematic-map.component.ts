@@ -717,8 +717,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kecamatanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click: Load kelurahan boundaries (drill-down)
+                dblclick: (e) => {
+                  // Double click: Load kelurahan boundaries (drill-down)
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -928,16 +928,12 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
-          // Hide kecamatan labels temporarily
-          const wasShowingLabels = this.showKecamatanLabels;
-          if (wasShowingLabels) {
-            this.showKecamatanLabels = false;
-            // Refresh kecamatan layer without labels (no API call)
-            if (this.kecamatanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kecamatanBoundariesLayer);
-              this.kecamatanBoundariesLayer = null;
-              this.recreateKecamatanLayerFromCache();
-            }
+          // Hide ALL kecamatan boundaries when drilling down (like bidang-map)
+          this.showKecamatanLabels = false;
+          if (this.kecamatanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+            this.kecamatanBoundariesLayer = null;
+            // Do NOT recreate - keep it hidden until user navigates back
           }
 
           // Create kelurahan boundaries layer
@@ -981,8 +977,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click kelurahan: Load blok boundaries
+                dblclick: (e) => {
+                  // Double click kelurahan: Load tematik bidang data directly (like filter)
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -990,10 +986,17 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                   const kelurahanName = props.nama;
 
                   console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKec}/${kdKel})`);
-                  console.log('🏗️ Loading blok boundaries...');
+                  console.log('🎨 Loading tematik bidang data directly...');
 
-                  // Load blok boundaries for this kelurahan
-                  this.loadBlokBoundaries(kdKec, kdKel, kelurahanName, e.target);
+                  // Store selected kelurahan for navigation
+                  this.selectedKelurahanForDrilldown = {
+                    kdKec,
+                    kdKel,
+                    nama: kelurahanName
+                  };
+
+                  // Load tematik data directly for this kelurahan
+                  this.loadTematikForKelurahan(kdKec, kdKel, kelurahanName, e.target);
                 }
               });
             }
@@ -1168,15 +1171,12 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
-          // Hide kecamatan labels temporarily
-          const wasShowingLabels = this.showKecamatanLabels;
-          if (wasShowingLabels) {
-            this.showKecamatanLabels = false;
-            if (this.kecamatanBoundariesLayer && this.map) {
-              this.map.removeLayer(this.kecamatanBoundariesLayer);
-              this.kecamatanBoundariesLayer = null;
-              this.recreateKecamatanLayerFromCache();
-            }
+          // Hide ALL kecamatan boundaries when drilling down (like bidang-map)
+          this.showKecamatanLabels = false;
+          if (this.kecamatanBoundariesLayer && this.map) {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+            this.kecamatanBoundariesLayer = null;
+            // Do NOT recreate - keep it hidden until user navigates back
           }
 
           // Create count map for easy lookup based on kd_kel
@@ -1270,13 +1270,23 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.kelurahanBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
+                dblclick: (e) => {
                   L.DomEvent.stopPropagation(e);
-                  console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading blok boundaries...`);
-                  // Load blok boundaries for this kelurahan
-                  // Need kdKec from current kecamatan context
-                  const currentKdKec = this.selectedKecamatan?.kdKecamatan || '001'; // fallback
-                  this.loadBlokBoundaries(currentKdKec, kdKel, kelurahanName, e.target);
+                  console.log(`🏗️ Clicked kelurahan: ${kelurahanName} (${kdKel}) - Loading tematik bidang...`);
+
+                  // Get kdKec from current kecamatan context
+                  const currentKdKec = this.selectedKecamatan?.kdKecamatan ||
+                    this.selectedKecamatanForDrilldown?.kdKec || '001';
+
+                  // Store selected kelurahan for navigation
+                  this.selectedKelurahanForDrilldown = {
+                    kdKec: currentKdKec,
+                    kdKel,
+                    nama: kelurahanName
+                  };
+
+                  // Load tematik data directly (like the filter)
+                  this.loadTematikForKelurahan(currentKdKec, kdKel, kelurahanName, e.target);
                 }
               });
             }
@@ -1589,8 +1599,8 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.blokBoundariesLayer.resetStyle(e.target);
                   }
                 },
-                click: (e) => {
-                  // Single click blok: Load bidang boundaries
+                dblclick: (e) => {
+                  // Double click blok: Load bidang boundaries
                   L.DomEvent.stopPropagation(e); // Prevent zoom
 
                   const kdKec = props.kd_kec;
@@ -1696,6 +1706,70 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
       .setLatLng(blokLayer.getBounds().getCenter())
       .setContent('<div style="text-align: center;"><i class="ri-loader-line spin"></i> Loading bidang boundaries...</div>')
       .openOn(this.map);
+
+    // If a tematik type is selected, load tematik data for colored bidang
+    if (this.selectedTematikType) {
+      console.log(`🎨 Loading tematik bidang data with type: ${this.selectedTematikType}`);
+
+      // Prepare tematik request
+      const tematikRequest = {
+        id_kecamatan: kdKec,
+        id_kelurahan: [kdKel],
+        tahun: parseInt(this.selectedTematikTahun),
+        tematik: this.selectedTematikType
+      };
+
+      // Call tematik API instead
+      this.bprdApiService.getTematikData(tematikRequest).subscribe({
+        next: (tematikResponse: any) => {
+          this.map?.closePopup(loadingPopup);
+          console.log('✅ Received tematik bidang data:', tematikResponse);
+
+          // Update navigation state
+          this.selectedBlokForDrilldown = {
+            kdKec,
+            kdKel,
+            kdBlok,
+            nama: `Blok ${kdBlok}`
+          };
+          this.currentLevel = 'bidang';
+          this.navigationStack = [
+            { level: 'kecamatan', name: 'Semua Kecamatan' },
+            { level: 'kelurahan', name: this.selectedKecamatanForDrilldown?.nama || 'Kecamatan' },
+            { level: 'blok', name: this.selectedKelurahanForDrilldown?.nama || 'Kelurahan' }
+          ];
+
+          // Process and display tematik data (same as filter)
+          this.processTematikResponse(tematikResponse);
+
+          // Dim the blok layer
+          if (blokLayer) {
+            blokLayer.setStyle({
+              opacity: 0.3,
+              fillOpacity: 0.1
+            });
+          }
+        },
+        error: (error) => {
+          this.map?.closePopup(loadingPopup);
+          console.error('❌ Error loading tematik bidang:', error);
+          // Fallback to non-tematik boundaries
+          this.loadBidangBoundariesWithoutTematik(kdKec, kdKel, kdBlok, blokLayer);
+        }
+      });
+      return;
+    }
+
+    // No tematik selected - load regular boundaries
+    this.loadBidangBoundariesWithoutTematik(kdKec, kdKel, kdBlok, blokLayer);
+  }
+
+  // Helper method for non-tematik bidang loading
+  private loadBidangBoundariesWithoutTematik(kdKec: string, kdKel: string, kdBlok: string, blokLayer: any): void {
+    const loadingPopup = L.popup()
+      .setLatLng(blokLayer.getBounds().getCenter())
+      .setContent('<div style="text-align: center;"><i class="ri-loader-line spin"></i> Loading bidang...</div>')
+      .openOn(this.map!);
 
     this.bprdApiService.getBidangBoundariesViaBackend(kdKec, kdKel, kdBlok).subscribe({
       next: (bidangBoundaries) => {
@@ -2144,10 +2218,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.isFullscreen) {
       // Enter fullscreen mode: Hide everything except map
-      
+
       // Hide sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'sm');
-      
+
       // Hide topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
@@ -2180,10 +2254,10 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     } else {
       // Exit fullscreen mode: Show everything
-      
+
       // Restore sidebar
       document.documentElement.setAttribute('data-sidebar-size', 'lg');
-      
+
       // Show topbar (app-topbar component)
       const topbar = document.querySelector('app-topbar');
       if (topbar) {
@@ -2292,7 +2366,84 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Load tematik data from BPRD API
+   * Load tematik bidang data for a specific kelurahan (called from map drill-down)
+   * This is the interactive map equivalent of the filter functionality
+   */
+  loadTematikForKelurahan(kdKec: string, kdKel: string, kelurahanName: string, kelurahanLayer: any): void {
+    if (!this.map) {
+      console.warn('Map not ready');
+      return;
+    }
+
+    // Default to PBB if no tematik type selected
+    const tematikType = this.selectedTematikType || 'PBB';
+    const tahun = parseInt(this.selectedTematikTahun) || new Date().getFullYear();
+
+    console.log(`🎨 Loading tematik data for kelurahan ${kelurahanName} with type: ${tematikType}`);
+
+    this.isLoadingTematik = true;
+
+    // Show loading popup on the map
+    const loadingPopup = L.popup()
+      .setLatLng(kelurahanLayer.getBounds().getCenter())
+      .setContent(`<div style="text-align: center; padding: 10px;">
+        <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+        <div style="margin-top: 8px; font-weight: 500;">Memuat data tematik...</div>
+        <div style="font-size: 12px; color: #666;">${kelurahanName}</div>
+      </div>`)
+      .openOn(this.map);
+
+    // Prepare tematik request
+    const tematikRequest = {
+      id_kecamatan: kdKec,
+      id_kelurahan: [kdKel],
+      tahun: tahun,
+      tematik: tematikType
+    };
+
+    // Call tematik API
+    this.bprdApiService.getTematikData(tematikRequest).subscribe({
+      next: (tematikResponse: any) => {
+        // Close loading popup
+        this.map?.closePopup(loadingPopup);
+
+        console.log('✅ Received tematik data for kelurahan:', tematikResponse);
+
+        // Update navigation state
+        this.currentLevel = 'bidang';
+        this.navigationStack = [
+          { level: 'kecamatan', name: 'Semua Kecamatan' },
+          { level: 'kelurahan', name: this.selectedKecamatanForDrilldown?.nama || 'Kecamatan' }
+        ];
+
+        // Hide kelurahan layer
+        if (this.kelurahanBoundariesLayer && this.map) {
+          this.map.removeLayer(this.kelurahanBoundariesLayer);
+          this.kelurahanBoundariesLayer = null;
+        }
+
+        // Process and display tematik data (same function as filter modal)
+        this.processTematikResponse(tematikResponse);
+        this.isLoadingTematik = false;
+
+        // If no features found, show alert
+        if (!tematikResponse.layer || Object.keys(tematikResponse.layer).length === 0) {
+          alert(`Tidak ada data tematik untuk kelurahan ${kelurahanName}`);
+        }
+      },
+      error: (error: any) => {
+        // Close loading popup
+        this.map?.closePopup(loadingPopup);
+
+        console.error('❌ Error loading tematik data:', error);
+        this.isLoadingTematik = false;
+        alert(`Gagal memuat data tematik: ${error.message || 'Unknown error'}`);
+      }
+    });
+  }
+
+  /**
+   * Load tematik data from BPRD API (from filter modal)
    */
   loadTematikData(): void {
     if (!this.selectedTematikType || !this.selectedTematikKecamatan || !this.selectedTematikKelurahan) {
