@@ -78,6 +78,10 @@ export class DashboardPendapatanComponent implements OnInit {
       next: (data) => {
         // Handle null or non-array response
         this.targetRealisasi = Array.isArray(data) ? data : [];
+
+        // Sort by urutan (order)
+        this.targetRealisasi.sort((a, b) => (a.urutan || 0) - (b.urutan || 0));
+
         if (this.targetRealisasi.length > 0) {
           this.prepareBarChart(this.targetRealisasi);
         }
@@ -304,7 +308,25 @@ export class DashboardPendapatanComponent implements OnInit {
   }
 
   prepareBreakdownChart(item: TargetRealisasi): void {
-    if (!item.details) return;
+    // Handle case where details is empty or null
+    if (!item.details || item.details.length === 0) {
+      this.breakdownChartOptions = {
+        chart: {
+          type: 'bar',
+          height: 350
+        },
+        series: [],
+        xaxis: {
+          categories: ['No Data']
+        },
+        plotOptions: {
+          bar: {
+            horizontal: true
+          }
+        }
+      };
+      return;
+    }
 
     const labels = item.details.map(d => d.namaRekening);
     const values = item.details.map(d => d.realisasi / 1000000); // Convert to millions

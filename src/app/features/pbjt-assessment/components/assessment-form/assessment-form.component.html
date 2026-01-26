@@ -1,0 +1,412 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box">
+        <h4 class="mb-0">{{ isEditMode ? 'Edit' : 'Buat' }} Assessment PBJT</h4>
+        <p class="text-muted">Multi-step Form untuk Assessment PBJT</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="progress-steps">
+            <div class="step" [class.active]="currentStep === 0" [class.completed]="currentStep > 0">
+              <div class="step-number">1</div>
+              <div class="step-label">Profil Usaha</div>
+            </div>
+            <div class="step-line" [class.active]="currentStep >= 1"></div>
+            <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+              <div class="step-number">2</div>
+              <div class="step-label">Lokasi</div>
+            </div>
+            <div class="step-line" [class.active]="currentStep >= 2"></div>
+            <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+              <div class="step-number">3</div>
+              <div class="step-label">Observasi</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Business Profile -->
+  <div class="row" *ngIf="currentStep === 0">
+    <div class="col-12">
+      <form [formGroup]="step1Form">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Step 1: Profil Usaha</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Business ID <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="businessId"
+                     [class.is-invalid]="submitted && f1['businessId'].errors">
+              <div *ngIf="submitted && f1['businessId'].errors" class="invalid-feedback">
+                Business ID wajib diisi
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Nama Usaha <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="businessName"
+                     [class.is-invalid]="submitted && f1['businessName'].errors">
+              <div *ngIf="submitted && f1['businessName'].errors" class="invalid-feedback">
+                Nama usaha wajib diisi
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tipe Usaha <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="businessType">
+                <option *ngFor="let type of businessTypes" [value]="type.value">
+                  {{ type.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Kapasitas Tempat Duduk <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" formControlName="seatingCapacity"
+                       min="5" max="500"
+                       [class.is-invalid]="submitted && f1['seatingCapacity'].errors">
+                <small class="text-muted">Min: 5, Max: 500</small>
+                <div *ngIf="submitted && f1['seatingCapacity'].errors" class="invalid-feedback">
+                  Kapasitas harus 5-500
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Luas Bangunan (m²)</label>
+                <input type="number" class="form-control" formControlName="buildingArea"
+                       min="10">
+                <small class="text-muted">Opsional (Min: 10 m²)</small>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Jam Buka <span class="text-danger">*</span></label>
+                <input type="time" class="form-control" formControlName="operatingHoursStart"
+                       [class.is-invalid]="submitted && f1['operatingHoursStart'].errors">
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Jam Tutup <span class="text-danger">*</span></label>
+                <input type="time" class="form-control" formControlName="operatingHoursEnd"
+                       [class.is-invalid]="submitted && f1['operatingHoursEnd'].errors">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Tanggal Assessment <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" formControlName="assessmentDate"
+                     [class.is-invalid]="submitted && f1['assessmentDate'].errors">
+            </div>
+
+            <!-- Image Upload Section -->
+            <div class="mb-3">
+              <label class="form-label">
+                <i class="ri-image-line"></i> Foto Usaha
+                <span class="text-muted">(Opsional, Maks {{ maxImages }} gambar)</span>
+              </label>
+              <small class="d-block text-muted mb-2">
+                <i class="ri-information-line"></i> Upload foto menu, suasana, atau foto usaha lainnya
+              </small>
+
+              <!-- Drop Zone -->
+              <div class="image-drop-zone"
+                   [class.drag-over]="isDragOver"
+                   [class.has-images]="uploadedImages.length > 0"
+                   (dragover)="onDragOver($event)"
+                   (dragleave)="onDragLeave($event)"
+                   (drop)="onDrop($event)"
+                   (click)="fileInput.click()">
+                <input #fileInput type="file"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       multiple
+                       (change)="onFileSelect($event)"
+                       style="display: none;">
+
+                <div class="drop-zone-content" *ngIf="uploadedImages.length === 0">
+                  <i class="ri-upload-cloud-2-line drop-icon"></i>
+                  <p class="drop-text">Drag & drop gambar di sini</p>
+                  <p class="drop-subtext">atau klik untuk memilih file</p>
+                  <small class="text-muted">JPG, PNG, GIF, WebP</small>
+                </div>
+
+                <div class="drop-zone-mini" *ngIf="uploadedImages.length > 0 && uploadedImages.length < maxImages">
+                  <i class="ri-add-circle-line"></i>
+                  <span>Tambah gambar ({{ getRemainingSlots() }} slot tersisa)</span>
+                </div>
+              </div>
+
+              <!-- Image Previews -->
+              <div class="image-preview-container" *ngIf="uploadedImages.length > 0">
+                <div class="image-preview-grid">
+                  <div class="image-preview-item" *ngFor="let image of uploadedImages; let i = index">
+                    <img [src]="image.url" [alt]="image.name" class="preview-image">
+                    <div class="image-overlay">
+                      <span class="image-name" [title]="image.name">{{ image.name }}</span>
+                      <button type="button" class="btn-remove-image" (click)="removeImage(i); $event.stopPropagation()">
+                        <i class="ri-close-circle-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <small class="text-muted mt-2 d-block">
+                  <i class="ri-information-line"></i> {{ uploadedImages.length }}/{{ maxImages }} gambar. Gambar belum disimpan ke database.
+                </small>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" (click)="cancel()">Batal</button>
+              <button type="button" class="btn btn-primary" (click)="currentStep = 1">
+                Selanjutnya <i class="ri-arrow-right-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Step 2: Location -->
+  <div class="row" *ngIf="currentStep === 1">
+    <div class="col-12">
+      <form [formGroup]="step2Form">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Step 2: Lokasi</h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">Alamat <span class="text-danger">*</span></label>
+              <textarea class="form-control" formControlName="address" rows="3"
+                        [class.is-invalid]="submitted && f2['address'].errors"></textarea>
+              <div *ngIf="submitted && f2['address'].errors" class="invalid-feedback">
+                Alamat wajib diisi
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Kabupaten</label>
+              <input type="text" class="form-control" formControlName="kabupaten"
+                     readonly style="background-color: #f8f9fa;">
+              <small class="text-muted">Kabupaten sudah diset ke Lumajang</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="kecamatan"
+                      (change)="onKecamatanChange()"
+                      [class.is-invalid]="submitted && f2['kecamatan'].errors"
+                      [disabled]="isLoadingKecamatan">
+                <option value="">-- Pilih Kecamatan --</option>
+                <option *ngFor="let kec of kecamatanList" [value]="kec.value">{{ kec.label }}</option>
+              </select>
+              <small class="text-muted" *ngIf="isLoadingKecamatan">
+                Loading kecamatan...
+              </small>
+              <div *ngIf="submitted && f2['kecamatan'].errors" class="invalid-feedback">
+                Kecamatan wajib dipilih
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Kelurahan <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="kelurahan"
+                      [class.is-invalid]="submitted && f2['kelurahan'].errors"
+                      [disabled]="isLoadingKelurahan || kelurahanList.length === 0">
+                <option value="">-- Pilih Kelurahan --</option>
+                <option *ngFor="let kel of kelurahanList" [value]="kel.value">{{ kel.label }}</option>
+              </select>
+              <small class="text-muted" *ngIf="kelurahanList.length === 0 && !isLoadingKelurahan">
+                Pilih kecamatan terlebih dahulu
+              </small>
+              <small class="text-muted" *ngIf="isLoadingKelurahan">
+                Loading kelurahan...
+              </small>
+              <div *ngIf="submitted && f2['kelurahan'].errors" class="invalid-feedback">
+                Kelurahan wajib dipilih
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Latitude <span class="text-danger">*</span></label>
+                <input type="number" step="0.000001" class="form-control" formControlName="latitude"
+                       [class.is-invalid]="submitted && f2['latitude'].errors">
+                <small class="text-muted">Contoh: -8.6705</small>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Longitude <span class="text-danger">*</span></label>
+                <input type="number" step="0.000001" class="form-control" formControlName="longitude"
+                       [class.is-invalid]="submitted && f2['longitude'].errors">
+                <small class="text-muted">Contoh: 115.2126</small>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Surveyor ID <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" formControlName="surveyorId"
+                     placeholder="ID Petugas Survey"
+                     [class.is-invalid]="submitted && f2['surveyorId'].errors">
+              <div *ngIf="submitted && f2['surveyorId'].errors" class="invalid-feedback">
+                Surveyor ID wajib diisi
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" (click)="currentStep = 0">
+                <i class="ri-arrow-left-line"></i> Kembali
+              </button>
+              <button type="button" class="btn btn-primary" (click)="currentStep = 2">
+                Selanjutnya <i class="ri-arrow-right-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Step 3: Observations -->
+  <div class="row" *ngIf="currentStep === 2">
+    <div class="col-12">
+      <form [formGroup]="step3Form">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Step 3: Data Observasi (Min 2, Max 5)</h5>
+            <button type="button" class="btn btn-sm btn-primary" (click)="addObservation()"
+                    [disabled]="observations.length >= 5">
+              <i class="ri-add-line"></i> Tambah Observasi
+            </button>
+          </div>
+          <div class="card-body">
+            <div formArrayName="observations">
+              <div *ngFor="let observation of observations.controls; let i = index"
+                   [formGroupName]="i" class="border rounded p-3 mb-3 position-relative observation-card">
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                        (click)="removeObservation(i)" *ngIf="observations.length > 2">
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+
+                <h6 class="mb-3 text-primary">
+                  <i class="ri-eye-line"></i> Observasi #{{ i + 1 }}
+                </h6>
+
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Tanggal Observasi <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control" formControlName="observationDate">
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Tipe Hari <span class="text-danger">*</span></label>
+                    <select class="form-select" formControlName="dayType">
+                      <option *ngFor="let type of dayTypes" [value]="type.value">
+                        {{ type.label }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Durasi (Jam) <span class="text-danger">*</span></label>
+                    <input type="number" step="0.5" min="0.5" max="24" class="form-control" formControlName="durationHours">
+                    <small class="text-muted">Min: 0.5, Max: 24 jam</small>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Jumlah Pengunjung <span class="text-danger">*</span></label>
+                    <input type="number" min="1" max="1000" class="form-control" formControlName="visitors">
+                    <small class="text-muted">Min: 1, Max: 1000</small>
+                  </div>
+
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Catatan</label>
+                    <input type="text" class="form-control" formControlName="notes" placeholder="Catatan observasi (opsional)">
+                  </div>
+                </div>
+
+                <!-- Sample Transactions Section -->
+                <div class="sample-transactions-section mt-3">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label mb-0">
+                      <strong>Sample Transaksi (Min 5, Max 30)</strong> <span class="text-danger">*</span>
+                    </label>
+                    <div>
+                      <span class="badge bg-info me-2" *ngIf="calculateAvgTransaction(i) > 0">
+                        Rata-rata: Rp {{ calculateAvgTransaction(i) | number }}
+                      </span>
+                      <button type="button" class="btn btn-sm btn-outline-primary"
+                              (click)="addSampleTransaction(i)"
+                              [disabled]="getSampleTransactions(i).length >= 30">
+                        <i class="ri-add-line"></i> Tambah
+                      </button>
+                    </div>
+                  </div>
+                  <div class="row" formArrayName="sampleTransactions">
+                    <div class="col-md-6 col-12 mb-3"
+                         *ngFor="let tx of getSampleTransactions(i).controls; let j = index"
+                         [formGroupName]="j">
+                      <div class="border rounded p-2 position-relative">
+                        <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-1"
+                                (click)="removeSampleTransaction(i, j)"
+                                *ngIf="getSampleTransactions(i).length > 5"
+                                style="z-index: 10;">
+                          <i class="ri-close-line"></i>
+                        </button>
+                        <label class="form-label mb-1" style="font-size: 0.875rem;">
+                          <strong>Sample #{{ j + 1 }}</strong>
+                        </label>
+                        <div class="input-group input-group-sm mb-2">
+                          <span class="input-group-text">Rp</span>
+                          <input type="number" class="form-control" formControlName="amount"
+                                 placeholder="25000" min="1000">
+                        </div>
+                        <input type="text" class="form-control form-control-sm" formControlName="notes"
+                               placeholder="Catatan transaksi (opsional)">
+                      </div>
+                    </div>
+                  </div>
+                  <small class="text-muted">
+                    Masukkan nilai transaksi yang diamati (minimal 5 sampel). Total: {{ getSampleTransactions(i).length }} sampel
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="observations.length === 0" class="alert alert-info">
+              <i class="ri-information-line"></i> Belum ada data observasi. Klik "Tambah Observasi" untuk menambah data.
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" (click)="currentStep = 1">
+                <i class="ri-arrow-left-line"></i> Kembali
+              </button>
+              <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <i class="ri-save-line" *ngIf="!loading"></i>
+                {{ isEditMode ? 'Update' : 'Simpan' }} Assessment
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
