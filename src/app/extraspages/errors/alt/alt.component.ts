@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { TranslateService } from '@ngx-translate/core';
-import { LanguageService } from '../../../core/services/language.service'
+import { LanguageService } from '../../../services/language.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -18,12 +18,12 @@ export class AltComponent implements OnInit {
   LANG: any | undefined;
 
   constructor(
-    public translate: TranslateService, 
-    public languageService: LanguageService, 
-    private router: Router, 
+    public translate: TranslateService,
+    public languageService: LanguageService,
+    private router: Router,
     private route: ActivatedRoute,
     private modalService: NgbModal
-  ) { 
+  ) {
     this.route.queryParams.subscribe(params => {
       const errorCode = params['q'];
       console.log('Error Code:', errorCode);
@@ -36,7 +36,7 @@ export class AltComponent implements OnInit {
                 PAGE: lang["PAGES.ERROR.UNAUTHORIZED"],
                 COMMON: lang.COMMON,
             };
-            
+
             this.LANG = obj;
         });
       } else if (errorCode && errorCode === '403') {
@@ -47,7 +47,7 @@ export class AltComponent implements OnInit {
                 PAGE: lang["PAGES.ERROR.FORBIDDEN"],
                 COMMON: lang.COMMON,
             };
-            
+
             this.LANG = obj;
         });
       } else {
@@ -59,7 +59,7 @@ export class AltComponent implements OnInit {
                 PAGE: lang["PAGES.ERROR.NOTFOUND"],
                 COMMON: lang.COMMON,
             };
-            
+
             this.LANG = obj;
         });
       }

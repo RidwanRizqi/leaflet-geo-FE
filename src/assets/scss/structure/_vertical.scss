@@ -21,9 +21,7 @@
 }
 
 .page-content {
-  padding: calc(#{$header-height} + #{$grid-gutter-width})
-  calc(#{$grid-gutter-width} * 0.5) $footer-height
-  calc(#{$grid-gutter-width} * 0.5);
+  padding: calc(#{$header-height} + #{$grid-gutter-width}) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
 }
 
 // Glass Design Sidebar - Modern & Elegant
@@ -38,7 +36,7 @@
 
   // Green shadows
   box-shadow: 0 8px 32px rgba(21, 80, 52, 0.25),
-  0 4px 16px rgba(21, 80, 52, 0.18), 0 2px 8px rgba(21, 80, 52, 0.12);
+    0 4px 16px rgba(21, 80, 52, 0.18), 0 2px 8px rgba(21, 80, 52, 0.12);
 
   bottom: 0;
   margin-top: 0;
@@ -47,18 +45,10 @@
   padding: 0 0 calc(#{$header-height} + 25px) 0;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-  // Rounded corners aligned with card design - visible with margin
-  border-top-right-radius: 24px !important;
-  /* Top right rounded */
-  border-bottom-right-radius: 24px !important;
-  /* Bottom right rounded */
-  border-top-left-radius: 24px !important;
-  /* Top left rounded */
-  border-bottom-left-radius: 24px !important;
-  /* Bottom left rounded */
-  margin-right: 16px !important;
-  /* Increased margin to make rounded corner more visible */
-  margin-left: 16px !important;
+  // Standard Sidebar - Fit to corner
+  border-radius: 0 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
   /* Added margin left for rounded corner visibility */
 
   // Mobile responsiveness - reset margins for proper mobile behavior
@@ -133,6 +123,7 @@
       }
 
       &:hover {
+
         i,
         svg {
           opacity: 1;
@@ -234,18 +225,15 @@
         top: 0;
         bottom: 0;
         width: 1px;
-        background: linear-gradient(
-            180deg,
+        background: linear-gradient(180deg,
             transparent,
             rgba(255, 255, 255, 0.3) 20%,
             rgba(255, 255, 255, 0.3) 80%,
-            transparent
-        );
+            transparent);
       }
 
       .nav-link {
-        padding: $vertical-menu-sub-item-padding-y
-        $vertical-menu-sub-item-padding-x !important;
+        padding: $vertical-menu-sub-item-padding-y $vertical-menu-sub-item-padding-x !important;
         color: rgba(255, 255, 255, 0.8);
         font-size: $vertical-menu-sub-item-font-size;
         font-family: $vertical-menu-sub-item-font-family;
@@ -355,13 +343,13 @@
       -webkit-backdrop-filter: blur(40px) saturate(160%);
       border: 1px solid rgba(21, 80, 52, 0.2);
       box-shadow: 0 8px 32px rgba(21, 80, 52, 0.3),
-      0 4px 16px rgba(21, 80, 52, 0.2), 0 2px 8px rgba(21, 80, 52, 0.15);
+        0 4px 16px rgba(21, 80, 52, 0.2), 0 2px 8px rgba(21, 80, 52, 0.15);
       margin-right: 16px !important;
       margin-left: 16px !important;
       border-top-right-radius: 24px !important;
-      border-bottom-right-radius: 24px !important;
-      border-top-left-radius: 24px !important;
-      border-bottom-left-radius: 24px !important;
+      margin-right: 0 !important;
+      margin-left: 0 !important;
+      border-radius: 0 !important;
 
       // Simplified overlay for better visibility
       &::after {
@@ -371,15 +359,13 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(
-            135deg,
+        background: linear-gradient(135deg,
             rgba(0, 0, 0, 0.3) 0%,
             rgba(0, 0, 0, 0.2) 25%,
             rgba(0, 0, 0, 0.15) 50%,
             rgba(0, 0, 0, 0.2) 75%,
-            rgba(0, 0, 0, 0.25) 100%
-        );
-        border-radius: 24px;
+            rgba(0, 0, 0, 0.25) 100%);
+        border-radius: 0;
         pointer-events: none;
         z-index: 1;
       }
@@ -406,7 +392,7 @@
             background: rgba(255, 255, 255, 0.2) !important;
             transform: translateX(2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+              inset 0 1px 0 rgba(255, 255, 255, 0.3);
           }
 
           &.active {
@@ -414,7 +400,7 @@
             background: rgba(255, 255, 255, 0.25) !important;
             transform: translateX(2px);
             box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
             &::before {
               background: #ffffff !important;
@@ -471,13 +457,11 @@
           z-index: 100 !important;
 
           &::before {
-            background: linear-gradient(
-                180deg,
+            background: linear-gradient(180deg,
                 transparent,
                 rgba(255, 255, 255, 0.2) 20%,
                 rgba(255, 255, 255, 0.2) 80%,
-                transparent
-            );
+                transparent);
             z-index: 1;
           }
 
@@ -738,6 +722,7 @@
 
 // Sidebar size controls - desktop toggle functionality
 [data-layout="vertical"] {
+
   // Default/Large sidebar
   &[data-sidebar-size="lg"],
   &:not([data-sidebar-size]) {
@@ -802,7 +787,7 @@
     .row {
       margin: 0;
 
-      > * {
+      >* {
         width: 100%;
         padding: 0;
       }
@@ -1096,7 +1081,7 @@
           position: relative;
 
           &:hover {
-            > a.menu-link {
+            >a.menu-link {
               position: relative;
               width: calc(200px + var(--#{$prefix}vertical-menu-width-sm));
               transition: none;
@@ -1140,7 +1125,7 @@
               }
             }
 
-            > .menu-dropdown {
+            >.menu-dropdown {
               display: block !important;
               left: var(--#{$prefix}vertical-menu-width-sm);
               position: absolute;
@@ -1164,18 +1149,14 @@
 
                 &:hover {
                   color: var(--#{$prefix}primary) !important;
-                  background: rgba(
-                      var(--#{$prefix}primary-rgb),
-                      0.1
-                  ) !important;
+                  background: rgba(var(--#{$prefix}primary-rgb),
+                    0.1) !important;
                 }
 
                 &.active {
                   color: var(--#{$prefix}primary) !important;
-                  background: rgba(
-                      var(--#{$prefix}primary-rgb),
-                      0.15
-                  ) !important;
+                  background: rgba(var(--#{$prefix}primary-rgb),
+                    0.15) !important;
                 }
               }
             }
@@ -1187,7 +1168,7 @@
 
           .nav-item {
             &:hover {
-              > .nav-link {
+              >.nav-link {
                 color: var(--#{$prefix}primary) !important;
                 background: rgba(var(--#{$prefix}primary-rgb), 0.1) !important;
 
@@ -1261,6 +1242,7 @@
 
         .navbar-menu {
           .navbar-nav {
+
             // Dark mode menu title for small sidebar
             .menu-title {
               i {
@@ -1285,14 +1267,14 @@
 
             .nav-item {
               &:hover {
-                > a.menu-link {
+                >a.menu-link {
                   background: #ffffff !important;
                   border-color: rgba(var(--#{$prefix}border-color-rgb), 0.2);
                   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
                   color: var(--#{$prefix}primary) !important;
                 }
 
-                > .menu-dropdown {
+                >.menu-dropdown {
                   background: #ffffff !important;
                   border-color: rgba(var(--#{$prefix}border-color-rgb), 0.2);
                   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -1303,18 +1285,14 @@
 
                     &:hover {
                       color: var(--#{$prefix}primary) !important;
-                      background: rgba(
-                          var(--#{$prefix}primary-rgb),
-                          0.2
-                      ) !important;
+                      background: rgba(var(--#{$prefix}primary-rgb),
+                        0.2) !important;
                     }
 
                     &.active {
                       color: var(--#{$prefix}primary) !important;
-                      background: rgba(
-                          var(--#{$prefix}primary-rgb),
-                          0.15
-                      ) !important;
+                      background: rgba(var(--#{$prefix}primary-rgb),
+                        0.15) !important;
                     }
                   }
                 }
@@ -1327,27 +1305,21 @@
 
                 &:hover {
                   color: #ffffff !important;
-                  background: rgba(
-                      var(--#{$prefix}primary-rgb),
-                      0.2
-                  ) !important;
+                  background: rgba(var(--#{$prefix}primary-rgb),
+                    0.2) !important;
                 }
 
                 &.active {
                   color: #ffffff !important;
-                  background: rgba(
-                      var(--#{$prefix}primary-rgb),
-                      0.3
-                  ) !important;
+                  background: rgba(var(--#{$prefix}primary-rgb),
+                    0.3) !important;
                 }
               }
 
               .menu-dropdown {
                 background: #ffffff !important;
-                border-color: rgba(
-                    var(--#{$prefix}border-color-rgb),
-                    0.2
-                ) !important;
+                border-color: rgba(var(--#{$prefix}border-color-rgb),
+                  0.2) !important;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
 
                 // Nested dropdown dengan background putih
@@ -1356,18 +1328,14 @@
 
                   &:hover {
                     color: var(--#{$prefix}primary) !important;
-                    background: rgba(
-                        var(--#{$prefix}primary-rgb),
-                        0.1
-                    ) !important;
+                    background: rgba(var(--#{$prefix}primary-rgb),
+                      0.1) !important;
                   }
 
                   &.active {
                     color: var(--#{$prefix}primary) !important;
-                    background: rgba(
-                        var(--#{$prefix}primary-rgb),
-                        0.15
-                    ) !important;
+                    background: rgba(var(--#{$prefix}primary-rgb),
+                      0.15) !important;
                   }
                 }
               }
@@ -1397,8 +1365,7 @@
         .nav-link {
           display: block;
           text-align: center;
-          padding: $vertical-menu-sub-item-padding-y
-          calc(#{$vertical-menu-sub-item-padding-x} * 0.35);
+          padding: $vertical-menu-sub-item-padding-y calc(#{$vertical-menu-sub-item-padding-x} * 0.35);
 
           i {
             display: block;
@@ -1557,7 +1524,7 @@
       }
 
       // Show menu-dropdown when parent is expanded
-      .nav-link[aria-expanded="true"] + .menu-dropdown {
+      .nav-link[aria-expanded="true"]+.menu-dropdown {
         display: block !important;
       }
     }
@@ -1600,6 +1567,7 @@
 }
 
 @if $sidebar-img {
+
   //sidebar-images
   .sidebar-background {
     position: absolute;
@@ -1649,9 +1617,7 @@
 
   @media (min-width: 768px) {
     .page-content {
-      padding: calc(#{$header-height} + #{$grid-gutter-width} * 2)
-      calc(#{$grid-gutter-width} * 0.5) $footer-height
-      calc(#{$grid-gutter-width} * 0.5);
+      padding: calc(#{$header-height} + #{$grid-gutter-width} * 2) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
     }
 
     .navbar-menu {
@@ -1665,18 +1631,12 @@
     }
 
     .footer {
-      left: calc(
-        var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) -
-        3.6rem
-      );
+      left: calc(var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) - 3.6rem);
       right: calc(var(--#{$prefix}semibox-width) - 5.4rem);
     }
 
     #page-topbar {
-      left: calc(
-        var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) -
-        3.9rem
-      );
+      left: calc(var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) - 3.9rem);
       right: calc(var(--#{$prefix}semibox-width) - 5.4rem);
       top: 25px;
       border-radius: $border-radius;
@@ -1694,17 +1654,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-md) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-md) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-md) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-md) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
     }
 
@@ -1718,17 +1672,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) - 5.5rem + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) - 5.5rem + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) - 5.5rem + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) - 5.5rem + 25px);
       }
     }
 
@@ -1738,17 +1686,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
     }
 
@@ -1780,9 +1722,7 @@
 
   @media (min-width: 1440px) {
     .page-content {
-      padding: calc(#{$header-height} + #{$grid-gutter-width} * 2)
-      calc(#{$grid-gutter-width} * 0.5) $footer-height
-      calc(#{$grid-gutter-width} * 0.5);
+      padding: calc(#{$header-height} + #{$grid-gutter-width} * 2) calc(#{$grid-gutter-width} * 0.5) $footer-height calc(#{$grid-gutter-width} * 0.5);
     }
 
     .navbar-menu {
@@ -1796,18 +1736,12 @@
     }
 
     .footer {
-      left: calc(
-        var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) -
-        3.6rem
-      );
+      left: calc(var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) - 3.6rem);
       right: calc(var(--#{$prefix}semibox-width) - 5.4rem);
     }
 
     #page-topbar {
-      left: calc(
-        var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) -
-        3.9rem
-      );
+      left: calc(var(--#{$prefix}vertical-menu-width) + var(--#{$prefix}semibox-width) - 3.9rem);
       right: calc(var(--#{$prefix}semibox-width) - 5.4rem);
       top: 25px;
       border-radius: $border-radius;
@@ -1825,17 +1759,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-md) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-md) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-md) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-md) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
     }
 
@@ -1849,17 +1777,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) - 5.5rem + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) - 5.5rem + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) - 5.5rem + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) - 5.5rem + 25px);
       }
     }
 
@@ -1869,17 +1791,11 @@
       }
 
       #page-topbar {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
 
       .footer {
-        left: calc(
-          var(--#{$prefix}vertical-menu-width-sm) +
-          var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px
-        );
+        left: calc(var(--#{$prefix}vertical-menu-width-sm) + var(--#{$prefix}semibox-width) + #{$grid-gutter-width} + 25px);
       }
     }
   }

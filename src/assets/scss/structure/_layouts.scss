@@ -4,17 +4,16 @@
 
 // Main body background with subtle primary gradient
 body {
-    background:
-        radial-gradient(ellipse 120% 200% at 20% 10%,
-            rgba(var(--#{$prefix}primary-rgb), 0.02) 0%,
-            transparent 40%),
-        radial-gradient(ellipse 100% 150% at 80% 90%,
-            rgba(var(--#{$prefix}primary-rgb), 0.015) 0%,
-            transparent 50%),
-        radial-gradient(ellipse 80% 120% at 50% 50%,
-            rgba(var(--#{$prefix}primary-rgb), 0.01) 0%,
-            transparent 60%),
-        var(--#{$prefix}body-bg);
+    background: radial-gradient(ellipse 120% 200% at 20% 10%,
+        rgba(var(--#{$prefix}primary-rgb), 0.02) 0%,
+        transparent 40%),
+    radial-gradient(ellipse 100% 150% at 80% 90%,
+        rgba(var(--#{$prefix}primary-rgb), 0.015) 0%,
+        transparent 50%),
+    radial-gradient(ellipse 80% 120% at 50% 50%,
+        rgba(var(--#{$prefix}primary-rgb), 0.01) 0%,
+        transparent 60%),
+    var(--#{$prefix}body-bg);
 
     background-attachment: fixed;
     background-size: 100% 100%, 80% 80%, 120% 120%, auto;
@@ -28,32 +27,31 @@ body {
 // Layout wrapper with elegant primary gradient from sidebar
 #layout-wrapper {
     // Animated gradient background flowing from sidebar to right - REDUCED INTENSITY
-    background:
-        // Animated primary gradient from left (sidebar) to right - MUCH MORE SUBTLE
-        linear-gradient(90deg,
-            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-            rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
-            rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
-            rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
-            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-            rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
-            rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
-            rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
-            transparent 100%),
-        // Animated radial gradient for depth - positioned at sidebar - REDUCED
-        radial-gradient(ellipse 200% 400% at 8% 50%,
-            rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
-            rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
-            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-            rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
-            transparent 100%),
-        // Animated ambient glow for dynamic lighting - REDUCED
-        radial-gradient(ellipse 300% 300% at 50% 50%,
-            rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
-            rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
-            rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
-            transparent 100%),
-        var(--#{$prefix}body-bg);
+    background: // Animated primary gradient from left (sidebar) to right - MUCH MORE SUBTLE
+    linear-gradient(90deg,
+        rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+        rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
+        rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
+        rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
+        rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+        rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
+        rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
+        rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
+        transparent 100%),
+    // Animated radial gradient for depth - positioned at sidebar - REDUCED
+    radial-gradient(ellipse 200% 400% at 8% 50%,
+        rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
+        rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
+        rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+        rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
+        transparent 100%),
+    // Animated ambient glow for dynamic lighting - REDUCED
+    radial-gradient(ellipse 300% 300% at 50% 50%,
+        rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
+        rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
+        rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
+        transparent 100%),
+    var(--#{$prefix}body-bg);
 
     background-attachment: fixed;
     background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, auto;
@@ -73,15 +71,14 @@ body {
         left: 0;
         right: 0;
         bottom: 0;
-        background:
-            radial-gradient(ellipse 150% 200% at 20% 30%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
-                transparent 80%),
-            radial-gradient(ellipse 120% 180% at 80% 70%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 50%,
-                transparent 90%);
+        background: radial-gradient(ellipse 150% 200% at 20% 30%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
+            transparent 80%),
+        radial-gradient(ellipse 120% 180% at 80% 70%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 50%,
+            transparent 90%);
         background-size: 100% 100%, 100% 100%;
         background-position: center, center;
         background-repeat: no-repeat;
@@ -94,141 +91,139 @@ body {
 // Animated gradient keyframes - REDUCED INTENSITY AND SMOOTHER
 @keyframes gradientFlow {
     0% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 50% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 50% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     25% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.10) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.008) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.10) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 30% 30%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.10) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.008) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.10) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 30% 30%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     50% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 70% 70%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 70% 70%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     75% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.10) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.008) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.10) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 30% 70%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.10) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.008) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.10) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 30% 70%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     100% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 50% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.005) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 50% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.008) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 }
 
 @keyframes gradientPulse {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.4;
         transform: scale(1);
     }
+
     50% {
         opacity: 0.7;
         transform: scale(1.02);
@@ -237,141 +232,139 @@ body {
 
 @keyframes gradientFlowDark {
     0% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 50% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 50% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     25% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.22) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.15) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.10) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.09) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 30% 30%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.22) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.15) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.10) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.15) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.09) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 30% 30%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     50% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.25) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.11) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 70% 70%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.25) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.11) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 70% 70%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     75% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.25) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.11) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 30% 70%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.035) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.25) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.11) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 30% 70%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.035) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 
     100% {
-        background:
-            linear-gradient(90deg,
-                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
-                rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
-                rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
-                rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
-                transparent 100%),
-            radial-gradient(ellipse 200% 400% at 8% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
-                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
-                transparent 100%),
-            radial-gradient(ellipse 300% 300% at 50% 50%,
-                rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
-                rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
-                rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
-                transparent 100%),
-            var(--#{$prefix}body-bg);
+        background: linear-gradient(90deg,
+            rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
+            rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
+            rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
+            rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
+            transparent 100%),
+        radial-gradient(ellipse 200% 400% at 8% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
+            rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
+            transparent 100%),
+        radial-gradient(ellipse 300% 300% at 50% 50%,
+            rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
+            rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
+            rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
+            transparent 100%),
+        var(--#{$prefix}body-bg);
     }
 }
 
 @keyframes gradientPulseDark {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.5;
         transform: scale(1);
     }
+
     50% {
         opacity: 0.8;
         transform: scale(1.03);
@@ -382,17 +375,16 @@ body {
 @if $enable-dark-mode {
     @include color-mode(dark, true) {
         body {
-            background:
-                radial-gradient(ellipse 120% 200% at 20% 10%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
-                    transparent 40%),
-                radial-gradient(ellipse 100% 150% at 80% 90%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.02) 0%,
-                    transparent 50%),
-                radial-gradient(ellipse 80% 120% at 50% 50%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.015) 0%,
-                    transparent 60%),
-                var(--#{$prefix}body-bg);
+            background: radial-gradient(ellipse 120% 200% at 20% 10%,
+                rgba(var(--#{$prefix}primary-rgb), 0.03) 0%,
+                transparent 40%),
+            radial-gradient(ellipse 100% 150% at 80% 90%,
+                rgba(var(--#{$prefix}primary-rgb), 0.02) 0%,
+                transparent 50%),
+            radial-gradient(ellipse 80% 120% at 50% 50%,
+                rgba(var(--#{$prefix}primary-rgb), 0.015) 0%,
+                transparent 60%),
+            var(--#{$prefix}body-bg);
 
             background-attachment: fixed;
             background-size: 100% 100%, 80% 80%, 120% 120%, auto;
@@ -402,47 +394,45 @@ body {
 
         #layout-wrapper {
             // Dark mode animated gradient from sidebar - REDUCED INTENSITY
-            background:
-                // Animated primary gradient from left (sidebar) to right - REDUCED for dark mode
-                linear-gradient(90deg,
-                    rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
-                    transparent 100%),
-                // Animated radial gradient for dark mode depth - positioned at sidebar
-                radial-gradient(ellipse 200% 400% at 8% 50%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
-                    transparent 100%),
-                // Animated ambient glow for dynamic lighting in dark mode
-                radial-gradient(ellipse 300% 300% at 50% 50%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
-                    rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
-                    transparent 100%),
-                var(--#{$prefix}body-bg);
+            background: // Animated primary gradient from left (sidebar) to right - REDUCED for dark mode
+            linear-gradient(90deg,
+                rgba(var(--#{$prefix}primary-rgb), 0.18) 0%,
+                rgba(var(--#{$prefix}primary-rgb), 0.12) 8%,
+                rgba(var(--#{$prefix}primary-rgb), 0.08) 20%,
+                rgba(var(--#{$prefix}primary-rgb), 0.06) 35%,
+                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+                rgba(var(--#{$prefix}primary-rgb), 0.03) 65%,
+                rgba(var(--#{$prefix}primary-rgb), 0.02) 80%,
+                rgba(var(--#{$prefix}primary-rgb), 0.01) 90%,
+                transparent 100%),
+            // Animated radial gradient for dark mode depth - positioned at sidebar
+            radial-gradient(ellipse 200% 400% at 8% 50%,
+                rgba(var(--#{$prefix}primary-rgb), 0.12) 0%,
+                rgba(var(--#{$prefix}primary-rgb), 0.07) 25%,
+                rgba(var(--#{$prefix}primary-rgb), 0.04) 50%,
+                rgba(var(--#{$prefix}primary-rgb), 0.02) 75%,
+                transparent 100%),
+            // Animated ambient glow for dynamic lighting in dark mode
+            radial-gradient(ellipse 300% 300% at 50% 50%,
+                rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
+                rgba(var(--#{$prefix}primary-rgb), 0.025) 40%,
+                rgba(var(--#{$prefix}primary-rgb), 0.015) 70%,
+                transparent 100%),
+            var(--#{$prefix}body-bg);
 
             // Dark mode animated gradient effect - SMOOTHER
             animation: gradientFlowDark 15s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
 
             // Dark mode pseudo-element for additional animated layer - REDUCED
             &::before {
-                background:
-                    radial-gradient(ellipse 150% 200% at 20% 30%,
-                        rgba(var(--#{$prefix}primary-rgb), 0.06) 0%,
-                        rgba(var(--#{$prefix}primary-rgb), 0.03) 40%,
-                        transparent 80%),
-                    radial-gradient(ellipse 120% 180% at 80% 70%,
-                        rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
-                        rgba(var(--#{$prefix}primary-rgb), 0.025) 50%,
-                        transparent 90%);
+                background: radial-gradient(ellipse 150% 200% at 20% 30%,
+                    rgba(var(--#{$prefix}primary-rgb), 0.06) 0%,
+                    rgba(var(--#{$prefix}primary-rgb), 0.03) 40%,
+                    transparent 80%),
+                radial-gradient(ellipse 120% 180% at 80% 70%,
+                    rgba(var(--#{$prefix}primary-rgb), 0.05) 0%,
+                    rgba(var(--#{$prefix}primary-rgb), 0.025) 50%,
+                    transparent 90%);
                 animation: gradientPulseDark 12s cubic-bezier(0.4, 0.0, 0.2, 1) infinite;
             }
         }
@@ -601,6 +591,7 @@ body {
         .navbar-menu {
             position: absolute;
         }
+
     }
 
     &[data-layout="horizontal"] {

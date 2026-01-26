@@ -3,8 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgPipesModule } from 'ngx-pipes';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { LayoutsModule } from './layouts/layouts.module';
-import { PagesModule } from './pages/pages.module';
+import { LayoutsModule } from './components/layouts/layouts.module';
+import { PagesModule } from './features/pages.module';
 import {
   HttpClient,
   HTTP_INTERCEPTORS,
@@ -16,8 +16,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from '../environments/environment';
 
 // Interceptor
-import { HttpInterceptorService } from './core/helpers/http.interceptor';
-import { ErrorInterceptor } from './core/helpers/error.interceptor';
+import { HttpInterceptorService } from './interceptors/http.interceptor';
+import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 // Language
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -30,10 +30,10 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { EffectsModule } from '@ngrx/effects';
 
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { fetchUserInitializer } from './core/factories/fetch-user.factory'
+import { fetchUserInitializer } from './factories/fetch-user.factory'
 import { Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { RestApiService } from './core/services/rest-api.service';
+import { RestApiService } from './services/rest-api.service';
 import { SharedModule } from './shared/shared.module';
 
 // New Translation Initializer

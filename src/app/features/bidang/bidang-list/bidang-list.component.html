@@ -1,0 +1,189 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="card-title mb-0">
+            <i class="ri-list-check-2 me-2"></i>
+            Bidang List View
+          </h4>
+          <div class="d-flex gap-2">
+            <button 
+              class="btn btn-outline-primary btn-sm" 
+              (click)="refreshData()"
+              [disabled]="isLoading">
+              <i class="ri-refresh-line me-1"></i>
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <!-- Search and Filter Section -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Search by NOP, Province, District..."
+                [(ngModel)]="searchTerm"
+                (keyup.enter)="onSearch()">
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                (click)="onSearch()"
+                [disabled]="isLoading">
+                <i class="ri-search-line"></i>
+              </button>
+              <button 
+                class="btn btn-outline-secondary" 
+                type="button" 
+                (click)="clearSearch()"
+                [disabled]="isLoading">
+                <i class="ri-close-line"></i>
+              </button>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <select 
+              class="form-select" 
+              [(ngModel)]="selectedProvince"
+              (change)="onProvinceChange()"
+              [disabled]="isLoading">
+              <option value="">All Provinces</option>
+              <option *ngFor="let province of provinces" [value]="province.code">
+                {{ province.name }} ({{ province.code }})
+              </option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <div class="d-flex gap-2">
+              <button 
+                class="btn btn-outline-primary btn-sm" 
+                (click)="loadPrevPage()"
+                [disabled]="!hasPrev || isLoading">
+                <i class="ri-arrow-left-s-line"></i>
+              </button>
+              <button 
+                class="btn btn-outline-primary btn-sm" 
+                (click)="loadNextPage()"
+                [disabled]="!hasNext || isLoading">
+                <i class="ri-arrow-right-s-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading bidang data...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+          <i class="ri-error-warning-line me-2"></i>
+          {{ errorMessage }}
+        </div>
+
+        <!-- Data Table -->
+        <div *ngIf="!isLoading && !errorMessage && bidangData.length > 0" class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>NOP</th>
+                <th>Province</th>
+                <th>District</th>
+                <th>Sub-District</th>
+                <th>Village</th>
+                <th>Block</th>
+                <th>Sequence</th>
+                <th>Created</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of bidangData">
+                <td>
+                  <code class="text-primary">{{ item.nop || 'N/A' }}</code>
+                </td>
+                <td>
+                  <span class="badge bg-info">{{ getProvinceName(item.kd_prop) }}</span>
+                </td>
+                <td>{{ item.kd_dati2 || 'N/A' }}</td>
+                <td>{{ item.kd_kec || 'N/A' }}</td>
+                <td>{{ item.kd_kel || 'N/A' }}</td>
+                <td>{{ item.kd_blok || 'N/A' }}</td>
+                <td>{{ item.no_urut || 'N/A' }}</td>
+                <td>
+                  <small class="text-muted">{{ formatDate(item.created_at) }}</small>
+                </td>
+                <td>
+                  <span 
+                    class="badge" 
+                    [class.bg-success]="item.is_active"
+                    [class.bg-secondary]="!item.is_active">
+                    {{ item.is_active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Info -->
+        <div *ngIf="!isLoading && !errorMessage && totalElements > 0" class="mt-3">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p class="mb-0 text-muted">{{ getPaginationInfo() }}</p>
+            </div>
+            <div class="col-md-6">
+              <nav aria-label="Bidang pagination">
+                <ul class="pagination pagination-sm justify-content-end mb-0">
+                  <li class="page-item" [class.disabled]="!hasPrev">
+                    <button 
+                      class="page-link" 
+                      (click)="loadPrevPage()"
+                      [disabled]="!hasPrev">
+                      <i class="ri-arrow-left-s-line"></i>
+                    </button>
+                  </li>
+                  
+                  <li class="page-item active">
+                    <span class="page-link">
+                      {{ currentPage + 1 }} / {{ totalPages }}
+                    </span>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="!hasNext">
+                    <button 
+                      class="page-link" 
+                      (click)="loadNextPage()"
+                      [disabled]="!hasNext">
+                      <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Data State -->
+        <div *ngIf="!isLoading && !errorMessage && totalElements === 0" class="text-center py-5">
+          <i class="ri-list-check-2 display-1 text-muted"></i>
+          <h5 class="mt-3">No Data Available</h5>
+          <p class="text-muted">No bidang data found. Please try adjusting your search criteria.</p>
+          <button class="btn btn-primary" (click)="refreshData()">
+            <i class="ri-refresh-line me-1"></i>
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

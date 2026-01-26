@@ -1,0 +1,98 @@
+<form [formGroup]="fg" (ngSubmit)="onSubmit()" novalidate>
+  <div class="row">
+    <!-- Event Name -->
+    <div class="col-12 mb-3">
+      <label for="event_name" class="form-label">{{ "EVENTS.FORM.EVENT_NAME.LABEL" | translate }} <span class="text-danger">*</span></label>
+      <input
+        type="text"
+        id="event_name"
+        class="form-control"
+        formControlName="event_name"
+        [class.is-invalid]="isFieldInvalid('event_name')"
+        [placeholder]="'EVENTS.FORM.EVENT_NAME.PLACEHOLDER' | translate"
+      />
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('event_name')">
+        <div *ngIf="f['event_name'].errors?.['required']">{{ "EVENTS.FORM.EVENT_NAME.REQUIRED" | translate }}</div>
+        <div *ngIf="f['event_name'].errors?.['maxlength']">{{ "EVENTS.FORM.EVENT_NAME.MAXLENGTH" | translate }}</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="col-12 mb-3">
+      <label for="description" class="form-label">{{ "EVENTS.FORM.DESCRIPTION.LABEL" | translate }}</label>
+      <textarea
+        id="description"
+        class="form-control"
+        formControlName="description"
+        rows="3"
+        [placeholder]="'EVENTS.FORM.DESCRIPTION.PLACEHOLDER' | translate"
+      ></textarea>
+    </div>
+
+    <!-- Event Date -->
+    <div class="col-md-6 mb-3">
+      <label for="event_date" class="form-label">{{ "EVENTS.FORM.EVENT_DATE.LABEL" | translate }} <span class="text-danger">*</span></label>
+      <input
+        type="datetime-local"
+        id="event_date"
+        class="form-control"
+        formControlName="event_date"
+        [class.is-invalid]="isFieldInvalid('event_date')"
+      />
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('event_date')">
+        <div *ngIf="f['event_date'].errors?.['required']">{{ "EVENTS.FORM.EVENT_DATE.REQUIRED" | translate }}</div>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="col-md-6 mb-3">
+      <label for="status" class="form-label">{{ "EVENTS.FORM.STATUS.LABEL" | translate }} <span class="text-danger">*</span></label>
+      <select
+        id="status"
+        class="form-select"
+        formControlName="status"
+        [class.is-invalid]="isFieldInvalid('status')"
+      >
+        <option value="active">{{ "EVENTS.FORM.STATUS.ACTIVE" | translate }}</option>
+        <option value="inactive">{{ "EVENTS.FORM.STATUS.INACTIVE" | translate }}</option>
+        <option value="completed">{{ "EVENTS.FORM.STATUS.COMPLETED" | translate }}</option>
+      </select>
+      <div class="invalid-feedback" *ngIf="isFieldInvalid('status')">
+        <div *ngIf="f['status'].errors?.['required']">{{ "EVENTS.FORM.STATUS.REQUIRED" | translate }}</div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="col-12 mb-3">
+      <label for="location" class="form-label">{{ "EVENTS.FORM.LOCATION.LABEL" | translate }}</label>
+      <input
+        type="text"
+        id="location"
+        class="form-control"
+        formControlName="location"
+        [placeholder]="'EVENTS.FORM.LOCATION.PLACEHOLDER' | translate"
+      />
+    </div>
+
+    <!-- Event Image -->
+    <div class="col-12 mb-3">
+      <label for="event_image" class="form-label">{{ "EVENTS.FORM.EVENT_IMAGE.LABEL" | translate }}</label>
+      <input
+        type="url"
+        id="event_image"
+        class="form-control"
+        formControlName="event_image"
+        [placeholder]="'EVENTS.FORM.EVENT_IMAGE.PLACEHOLDER' | translate"
+      />
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">
+      {{ "EVENTS.BUTTONS.CANCEL" | translate }}
+    </button>
+    <button type="submit" class="btn btn-primary" [disabled]="fg.invalid && submitted">
+      {{ (isEdit ? "EVENTS.BUTTONS.UPDATE" : "EVENTS.BUTTONS.SAVE") | translate }}
+    </button>
+  </div>
+</form>

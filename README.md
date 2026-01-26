@@ -94,7 +94,7 @@ export class FeatureComponent implements OnInit, OnDestroy {
   
   constructor(
     private fb: FormBuilder,
-    private restApiService: RestApiService // Direct injection
+    private restApiService: RestApiService
   ) {}
   
   ngOnInit(): void {

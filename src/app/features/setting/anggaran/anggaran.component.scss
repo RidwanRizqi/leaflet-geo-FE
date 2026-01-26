@@ -1,0 +1,20 @@
+// Anggaran Component Styles
+
+// Table styling for currency display
+.table {
+    td.fw-bold {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+}
+
+// Form input styling
+.form-control::-webkit-outer-spin-button,
+.form-control::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-control[type=number] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}

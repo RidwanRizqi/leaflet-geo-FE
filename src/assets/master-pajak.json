@@ -270,24 +270,6 @@
         "value": 182246026
     },
     {
-        "kategori": "Perhotelan",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 174924399
-    },
-    {
-        "kategori": "Perhotelan",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 158143211
-    },
-    {
-        "kategori": "Perhotelan",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 164545863
-    },
-    {
         "kategori": "Restoran",
         "tahun": 2022,
         "bulan": "Januari",
@@ -556,24 +538,6 @@
         "tahun": 2025,
         "bulan": "September",
         "value": 599891879
-    },
-    {
-        "kategori": "Restoran",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 711487360
-    },
-    {
-        "kategori": "Restoran",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 601562585
-    },
-    {
-        "kategori": "Restoran",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 1027096927
     },
     {
         "kategori": "Parkir",
@@ -846,24 +810,6 @@
         "value": 41604236
     },
     {
-        "kategori": "Parkir",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 44098177
-    },
-    {
-        "kategori": "Parkir",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 41961479
-    },
-    {
-        "kategori": "Parkir",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 49605150
-    },
-    {
         "kategori": "Tenaga Listrik",
         "tahun": 2022,
         "bulan": "Januari",
@@ -1130,26 +1076,8 @@
     {
         "kategori": "Tenaga Listrik",
         "tahun": 2025,
-        "bulan": "September",
+        "bulan": "September ",
         "value": 3302696231
-    },
-    {
-        "kategori": "Tenaga Listrik",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 3371995621
-    },
-    {
-        "kategori": "Tenaga Listrik",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 3460873943
-    },
-    {
-        "kategori": "Tenaga Listrik",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 3503347906
     },
     {
         "kategori": "Air Tanah",
@@ -1416,101 +1344,77 @@
         "value": 104661282
     },
     {
-        "kategori": "Air Tanah",
-        "tahun": 2025,
-        "bulan": "September",
-        "value": 107482144
-    },
-    {
-        "kategori": "Air Tanah",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 105326046
-    },
-    {
-        "kategori": "Air Tanah",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 100205704
-    },
-    {
-        "kategori": "Air Tanah",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 108093640
-    },
-    {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Januari",
-        "value": 58440850
+        "value": 101848075
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Februari",
-        "value": 265126500
+        "value": 92258700
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Maret",
-        "value": 176004874
+        "value": 354853249
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "April",
-        "value": 131175650
+        "value": 121113675
     },
 
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Mei",
-        "value": 119565050
+        "value": 99249500
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Juni",
-        "value": 146632750
+        "value": 164847475
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Juli",
-        "value": 150567650
+        "value": 102996275
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Agustus",
-        "value": 173938300
+        "value": 150124763
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "September",
-        "value": 212633392
+        "value": 159903675
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Oktober",
-        "value": 134823950
+        "value": 210867892
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "November",
-        "value": 102390521
+        "value": 125170546
     },
     {
         "kategori": "Reklame",
         "tahun": 2022,
         "bulan": "Desember",
-        "value": 270475213
+        "value": 183133450
     },
     {
         "kategori": "Reklame",
@@ -1711,96 +1615,6 @@
         "value": 198736116
     },
     {
-        "kategori": "Reklame",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 116853200
-    },
-    {
-        "kategori": "Reklame",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 139922768
-    },
-    {
-        "kategori": "Reklame",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 336696844
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Januari",
-        "value": 3385500
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Februari",
-        "value": 10072407
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Maret",
-        "value": 7176336
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "April",
-        "value": 6648858
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Mei",
-        "value": 9509284
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Juni",
-        "value": 25125223
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Juli",
-        "value": 8534474
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Agustus",
-        "value": 9900139
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "September",
-        "value": 9685377
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Oktober",
-        "value": 10747043
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "November",
-        "value": 8540427
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2022,
-        "bulan": "Desember",
-        "value": 8965472
-    },
-    {
         "kategori": "Kesenian dan Hiburan",
         "tahun": 2023,
         "bulan": "Januari",
@@ -1991,30 +1805,6 @@
         "tahun": 2025,
         "bulan": "Agustus",
         "value": 182009429
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2025,
-        "bulan": "September",
-        "value": 265444055
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 197378030
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2025,
-        "bulan": "November",
-        "value": 170388436
-    },
-    {
-        "kategori": "Kesenian dan Hiburan",
-        "tahun": 2025,
-        "bulan": "Desember",
-        "value": 90954526
     },
     {
         "kategori": "Minerba",
@@ -2236,204 +2026,192 @@
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Januari",
-        "value": 1029140000
+        "value": 1091640000
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Februari",
-        "value": 1340296250
+        "value": 1327796250
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Maret",
-        "value": 1850839000
+        "value": 1224260000
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "April",
-        "value": 680971250
+        "value": 542727500
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Mei",
-        "value": 2001080500
+        "value": 1888923000
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Juni",
-        "value": 2227200250
+        "value": 2236580250
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Juli",
-        "value": 2240111000
+        "value": 1956523500
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Agustus",
-        "value": 1522399250
+        "value": 1295063000
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "September",
-        "value": 1514697750
+        "value": 1113640500
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Oktober",
-        "value": 1658539750
+        "value": 882238250
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "November",
-        "value": 2523285000
+        "value": 1221570000
     },
     {
         "kategori": "Minerba",
         "tahun": 2023,
         "bulan": "Desember",
-        "value": 3513005000
+        "value": 2127774250
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Januari",
-        "value": 2237942000
+        "value": 813498000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Februari",
-        "value": 1576412250
+        "value": 368296250
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Maret",
-        "value": 1430646000
+        "value": 171830750
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "April",
-        "value": 1000099250
+        "value": 222563750
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Mei",
-        "value": 1956591000
+        "value": 349930000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Juni",
-        "value": 1520730750
+        "value": 194292000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Juli",
-        "value": 2189953368
+        "value": 308971250
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Agustus",
-        "value": 2469809500
+        "value": 266810000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "September",
-        "value": 2690850500
+        "value": 470139000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Oktober",
-        "value": 2594119500
+        "value": 306465250
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "November",
-        "value": 2231913220
+        "value": 336420000
     },
     {
         "kategori": "Minerba",
         "tahun": 2024,
         "bulan": "Desember",
-        "value": 2769586750
+        "value": 976204250
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Januari",
-        "value": 1571779650
+        "value": 844873750
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Februari",
-        "value": 1271298000
+        "value": 398685000
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Maret",
-        "value": 1121786200
+        "value": 209247500
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "April",
-        "value": 1070105375
+        "value": 75066250
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Mei",
-        "value": 1526200200
+        "value": 129825500
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Juni",
-        "value": 1329210400
+        "value": 176398750
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Juli",
-        "value": 1852809700
+        "value": 50461250
     },
     {
         "kategori": "Minerba",
         "tahun": 2025,
         "bulan": "Agustus",
-        "value": 2852411600
-    },
-    {
-        "kategori": "Minerba",
-        "tahun": 2025,
-        "bulan": "September",
-        "value": 3133246200
-    },
-    {
-        "kategori": "Minerba",
-        "tahun": 2025,
-        "bulan": "Oktober",
-        "value": 3260249300
+        "value": 222195750
     }
 ]

@@ -299,6 +299,126 @@
           "HINT": "Cari berdasarkan nama karyawan, email, atau departemen..."
         }
       }
+    },
+    "SETTING": {
+      "KECAMATAN": {
+        "TITLE": "Kecamatan",
+        "BREADCRUMB": {
+          "LABEL1": "Kecamatan"
+        },
+        "DATATABLES": {
+          "KD_KEC": "Kode Kecamatan",
+          "NAMA": "Nama",
+          "WARNA": "Warna",
+          "PETA": "Peta",
+          "STATUS": "Status",
+          "ACTION": "Aksi"
+        },
+        "FILTER": {
+          "KD_KEC": "Kode Kecamatan..."
+        },
+        "FORM": {
+          "KD_KEC": {
+            "TEXT": "Kode Kecamatan",
+            "PLACEHOLDER": "Masukkan kode kecamatan",
+            "INVALID": "Kode kecamatan wajib diisi."
+          },
+          "NAMA": {
+            "TEXT": "Nama Kecamatan",
+            "PLACEHOLDER": "Masukkan nama kecamatan",
+            "INVALID": "Nama kecamatan wajib diisi."
+          },
+          "WARNA": {
+            "TEXT": "Warna"
+          },
+          "GEOJSON": {
+            "TEXT": "Upload File GeoJSON",
+            "HELP": "Pilih file .geojson atau .json untuk peta"
+          },
+          "MAP_PREVIEW": "Pratinjau Peta"
+        }
+      },
+      "KELURAHAN": {
+        "TITLE": "Kelurahan",
+        "BREADCRUMB": {
+          "LABEL1": "Kelurahan"
+        },
+        "DATATABLES": {
+          "KECAMATAN": "Kecamatan",
+          "KD_KEL": "Kode Kelurahan",
+          "NAMA": "Nama",
+          "PETA": "Peta",
+          "STATUS": "Status",
+          "ACTION": "Aksi"
+        },
+        "FILTER": {
+          "KECAMATAN": "Pilih Kecamatan...",
+          "KD_KEL": "Kode Kelurahan..."
+        },
+        "FORM": {
+          "KECAMATAN": {
+            "TEXT": "Kecamatan",
+            "PLACEHOLDER": "Pilih kecamatan",
+            "INVALID": "Kecamatan wajib dipilih."
+          },
+          "KD_KEL": {
+            "TEXT": "Kode Kelurahan",
+            "PLACEHOLDER": "Masukkan kode kelurahan",
+            "INVALID": "Kode kelurahan wajib diisi."
+          },
+          "NAMA": {
+            "TEXT": "Nama Kelurahan",
+            "PLACEHOLDER": "Masukkan nama kelurahan",
+            "INVALID": "Nama kelurahan wajib diisi."
+          },
+          "GEOJSON": {
+            "TEXT": "Upload File GeoJSON",
+            "HELP": "Pilih file .geojson atau .json untuk peta"
+          },
+          "MAP_PREVIEW": "Pratinjau Peta"
+        }
+      },
+      "BLOK": {
+        "TITLE": "Blok",
+        "BREADCRUMB": {
+          "LABEL1": "Blok"
+        },
+        "DATATABLES": {
+          "KECAMATAN": "Kecamatan",
+          "KELURAHAN": "Kelurahan",
+          "BLOK": "Blok",
+          "PETA": "Peta",
+          "STATUS": "Status",
+          "ACTION": "Aksi"
+        },
+        "FILTER": {
+          "KECAMATAN": "Pilih Kecamatan...",
+          "KELURAHAN": "Pilih Kelurahan...",
+          "KD_BLOK": "Kode Blok..."
+        },
+        "FORM": {
+          "KECAMATAN": {
+            "TEXT": "Kecamatan",
+            "PLACEHOLDER": "Pilih kecamatan",
+            "INVALID": "Kecamatan wajib dipilih."
+          },
+          "KELURAHAN": {
+            "TEXT": "Kelurahan",
+            "PLACEHOLDER": "Pilih kelurahan",
+            "INVALID": "Kelurahan wajib dipilih."
+          },
+          "KD_BLOK": {
+            "TEXT": "Kode Blok",
+            "PLACEHOLDER": "Masukkan kode blok",
+            "INVALID": "Kode blok wajib diisi."
+          },
+          "GEOJSON": {
+            "TEXT": "Upload File GeoJSON",
+            "HELP": "Pilih file .geojson atau .json untuk peta"
+          },
+          "MAP_PREVIEW": "Pratinjau Peta"
+        }
+      }
     }
   },
   "REMOTEPAGE": {
@@ -669,6 +789,35 @@
       },
       "EMAILRECIPIENT": {
         "TEXT": "Penerima Email"
+      }
+    },
+    "SETTING": {
+      "TEXT": "Pengaturan",
+      "KECAMATAN": {
+        "TEXT": "Kecamatan"
+      },
+      "KELURAHAN": {
+        "TEXT": "Kelurahan"
+      },
+      "BLOK": {
+        "TEXT": "Blok"
+      },
+      "ANGGARAN": {
+        "TEXT": "Anggaran"
+      }
+    },
+    "BIDANG": {
+      "TEXT": "Bidang",
+      "MAP": {
+        "TEXT": "Peta Bidang"
+      },
+      "LIST": {
+        "TEXT": "Daftar Bidang"
+      }
+    },
+    "THEMATIC": {
+      "MAP": {
+        "TEXT": "Peta Tematik"
       }
     }
   },

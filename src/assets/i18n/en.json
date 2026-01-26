@@ -688,6 +688,45 @@
       "EMAILRECIPIENT": {
         "TEXT": "Email Recipient"
       }
+    },
+    "TEMATIK": {
+      "TEXT": "Tematik",
+      "PENGGUNAAN_TANAH": {
+        "TEXT": "Penggunaan Tanah"
+      },
+      "KELAS_TANAH": {
+        "TEXT": "Kelas Tanah"
+      },
+      "PENGGUNAAN_BANGUNAN": {
+        "TEXT": "Penggunaan Bangunan"
+      },
+      "KELAS_BANGUNAN": {
+        "TEXT": "Kelas Bangunan"
+      },
+      "ZNT": {
+        "TEXT": "ZNT"
+      },
+      "KETETAPAN_PER_BUKU": {
+        "TEXT": "Ketetapan Per Buku"
+      },
+      "NILAI_INDIVIDU": {
+        "TEXT": "Nilai Individu"
+      },
+      "STATUS_PEMBAYARAN": {
+        "TEXT": "Status Pembayaran"
+      }
+    },
+    "SETTING": {
+      "TEXT": "Setting",
+      "KECAMATAN": {
+        "TEXT": "Kecamatan"
+      },
+      "KELURAHAN": {
+        "TEXT": "Kelurahan"
+      },
+      "BLOK": {
+        "TEXT": "Blok"
+      }
     }
   },
   "TOUR": {

@@ -13,7 +13,7 @@
   backdrop-filter: blur(40px) saturate(150%);
   -webkit-backdrop-filter: blur(40px) saturate(150%);
 
-  border-radius: 16px 16px 16px 16px !important;
+  border-radius: 0 !important;
 
   overflow: visible;
   box-sizing: border-box;
@@ -131,7 +131,10 @@
     pointer-events: auto !important;
     border-radius: 12px;
 
-    &:hover, &:focus, &:active, &.active {
+    &:hover,
+    &:focus,
+    &:active,
+    &.active {
       background-color: rgba(255, 255, 255, 0.2);
       color: var(--#{$prefix}primary);
       transform: translateY(-1px);
@@ -406,7 +409,7 @@
     border-right: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-top: 2px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 16px 16px 16px 16px !important;
+    border-radius: 0 !important;
 
     box-shadow:
       0 8px 32px rgba(0, 0, 0, 0.3),
@@ -442,7 +445,11 @@
       }
 
       .btn-topbar {
-        &:hover, &:focus, &:active, &.active {
+
+        &:hover,
+        &:focus,
+        &:active,
+        &.active {
           background-color: rgba(255, 255, 255, 0.1);
           color: #ffffff;
         }
@@ -615,8 +622,8 @@
   &:is([data-sidebar-size="sm"], [data-sidebar-size="sm-hover"]) {
     #page-topbar {
       @media (min-width: 768px) {
-        left: calc(var(--#{$prefix}vertical-menu-width-sm) + 16px);
-        right: 16px;
+        left: var(--#{$prefix}vertical-menu-width-sm);
+        right: 0;
       }
     }
   }
@@ -624,8 +631,8 @@
   &[data-sidebar-size="md"] {
     #page-topbar {
       @media (min-width: 768px) {
-        left: calc(var(--#{$prefix}vertical-menu-width-md) + 16px);
-        right: 16px;
+        left: var(--#{$prefix}vertical-menu-width-md);
+        right: 0;
       }
     }
   }
@@ -635,8 +642,8 @@
   &:not([data-sidebar-size]) {
     #page-topbar {
       @media (min-width: 768px) {
-        left: calc(var(--#{$prefix}vertical-menu-width) + 16px);
-        right: 16px;
+        left: var(--#{$prefix}vertical-menu-width);
+        right: 0;
       }
     }
   }

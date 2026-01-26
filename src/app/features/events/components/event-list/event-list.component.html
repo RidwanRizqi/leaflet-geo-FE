@@ -1,0 +1,227 @@
+<!-- Start Breadcrumbs -->
+<app-breadcrumbs
+  [title]="breadCrumbTitle"
+  [breadcrumbItems]="breadCrumbItems"
+></app-breadcrumbs>
+<!-- End Breadcrumbs -->
+
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-primary btn-label waves-effect waves-light"
+          (click)="openAddModal()"
+        >
+          <i class="ri-add-line label-icon align-middle fs-16 me-2"></i>
+          {{ "EVENTS.BUTTONS.ADD" | translate }}
+        </button>
+        <button
+          class="btn btn-danger btn-label waves-effect waves-light"
+          (click)="deleteBulkEvents()"
+          [disabled]="selectedItems.size === 0"
+        >
+          <i class="ri-delete-bin-line label-icon align-middle fs-16 me-2"></i>
+          {{ "EVENTS.BUTTONS.DELETE_SELECTED" | translate }} ({{ selectedItems.size }})
+        </button>
+      </div>
+
+      <div class="d-flex gap-2">
+        <!-- Status Filter -->
+        <select
+          class="form-select"
+          [(ngModel)]="statusFilter"
+          (change)="onStatusFilterChange()"
+          style="width: 150px;"
+        >
+          <option value="">{{ "EVENTS.SEARCH.ALL_STATUS" | translate }}</option>
+          <option value="active">{{ "EVENTS.FORM.STATUS.ACTIVE" | translate }}</option>
+          <option value="inactive">{{ "EVENTS.FORM.STATUS.INACTIVE" | translate }}</option>
+          <option value="completed">{{ "EVENTS.FORM.STATUS.COMPLETED" | translate }}</option>
+        </select>
+
+        <!-- Search Box -->
+        <div class="search-box ms-2">
+          <input
+            type="text"
+            class="form-control search"
+            [placeholder]="'EVENTS.SEARCH.PLACEHOLDER' | translate"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput($event)"
+            (keyup.enter)="onSearch()"
+          />
+          <i class="ri-search-line search-icon" *ngIf="!isSearching"></i>
+          <div class="search-icon" *ngIf="isSearching">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+              <span class="visually-hidden">Searching...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div *ngIf="totalRecords > 0; else noData" class="table-responsive table-card mb-1">
+      <table class="table">
+        <thead>
+          <tr class="table-light text-muted">
+            <th scope="col" style="width: 50px;">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [(ngModel)]="selectAll"
+                (change)="toggleSelectAll()"
+              />
+            </th>
+            <th scope="col">{{ "EVENTS.TABLE.EVENT_NAME" | translate }}</th>
+            <th scope="col">{{ "EVENTS.TABLE.DESCRIPTION" | translate }}</th>
+            <th scope="col">{{ "EVENTS.TABLE.DATE_TIME" | translate }}</th>
+            <th scope="col">{{ "EVENTS.TABLE.LOCATION" | translate }}</th>
+            <th scope="col" style="width: 120px;">{{ "EVENTS.TABLE.STATUS" | translate }}</th>
+            <th scope="col" style="width: 150px;">{{ "EVENTS.TABLE.ACTIONS" | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events; trackBy: trackByEventId">
+            <td>
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [checked]="selectedItems.has(event.id)"
+                (change)="toggleSelection(event.id)"
+              />
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img
+                  *ngIf="event.event_image"
+                  [src]="event.event_image"
+                  class="avatar-xs rounded me-2"
+                  [alt]="event.event_name"
+                />
+                <div>
+                  <h6 class="mb-0">{{ event.event_name }}</h6>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="text-muted">
+                {{ event.description | slice:0:100 }}
+                <span *ngIf="event.description && event.description.length > 100">...</span>
+              </span>
+            </td>
+            <td>
+              <div>
+                <strong>{{ formatDateTime(event.event_date) }}</strong>
+              </div>
+            </td>
+            <td>
+              <span class="text-muted">{{ event.location || '-' }}</span>
+            </td>
+            <td>
+              <span [class]="getStatusBadgeClass(event.status)">
+                {{ event.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-primary"
+                  (click)="openEditModal(event)"
+                  title="Edit"
+                >
+                  <i class="ri-edit-line"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-warning"
+                  (click)="softDeleteEvent(event)"
+                  *ngIf="event.status === 'active'"
+                  title="Deactivate"
+                >
+                  <i class="ri-pause-line"></i>
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger"
+                  (click)="confirmDelete(event)"
+                  title="Delete"
+                >
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalRecords > 0" class="d-flex justify-content-between align-items-center mt-3">
+      <div class="text-muted">
+        Showing {{ ((page - 1) * pageSize) + 1 }} to {{ Math.min(page * pageSize, totalRecords) }} of {{ totalRecords }} entries
+      </div>
+
+      <ngb-pagination
+        [(page)]="page"
+        [pageSize]="pageSize"
+        [collectionSize]="totalRecords"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="onPageChange($event)"
+      ></ngb-pagination>
+    </div>
+
+    <!-- No Data Template -->
+    <ng-template #noData>
+      <div class="text-center py-5">
+        <div class="mb-3">
+          <i class="ri-calendar-event-line display-4 text-muted"></i>
+        </div>
+        <h5 class="text-muted">{{ "EVENTS.NODATA.TITLE" | translate }}</h5>
+        <p class="text-muted">{{ "EVENTS.NODATA.MESSAGE" | translate }}</p>
+        <button class="btn btn-primary" (click)="openAddModal()">
+          <i class="ri-add-line me-1"></i>
+          {{ "EVENTS.BUTTONS.ADD" | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<ng-template #addEditModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ (isEdit ? "EVENTS.BUTTONS.EDIT" : "EVENTS.BUTTONS.ADD") | translate }}</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <app-event-form
+      [event]="selectedEvent"
+      [isEdit]="isEdit"
+      (save)="onSaveEvent($event)"
+      (cancel)="modal.dismiss()"
+    ></app-event-form>
+  </div>
+</ng-template>
+
+<!-- Delete Confirmation Modal -->
+<ng-template #deleteModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">Confirm Delete</h4>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body">
+    <p>{{ "EVENTS.MESSAGES.CONFIRM_DELETE" | translate }}</p>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">{{ "EVENTS.BUTTONS.CANCEL" | translate }}</button>
+    <button type="button" class="btn btn-danger" (click)="deleteEvent()">{{ "EVENTS.BUTTONS.DELETE" | translate }}</button>
+  </div>
+</ng-template>
