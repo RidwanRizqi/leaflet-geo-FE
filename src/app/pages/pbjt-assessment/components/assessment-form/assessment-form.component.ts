@@ -266,14 +266,14 @@ export class AssessmentFormComponent implements OnInit {
           if (assessment.observations && assessment.observations.length > 0) {
             assessment.observations.forEach(obs => {
               const obsGroup = this.createObservationFormGroup();
-              
+
               // Format observationDate: API returns "2012-02-16T20:29:00", we need "2012-02-16" for date input
               let formattedDate = '';
               if (obs.observationDate) {
                 const dateStr = obs.observationDate.toString();
                 formattedDate = dateStr.split('T')[0]; // Extract just the date part
               }
-              
+
               obsGroup.patchValue({
                 observationDate: formattedDate,
                 dayType: obs.dayType,
