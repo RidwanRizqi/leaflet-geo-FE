@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
@@ -35,9 +35,9 @@ interface BidangDetailResponse {
 }
 
 @Component({
-  selector: 'app-bidang-map',
+  selector: 'app-thematic-map',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './thematic-map.component.html',
   styleUrls: ['./thematic-map.component.scss']
 })
@@ -110,8 +110,32 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   tematikLayer: L.GeoJSON | null = null;
   isLegendVisible: boolean = true; // Control legend visibility
 
+  // Thematic Sidebar Modal properties
+  showCariNopModal = false;
+  showKoordinatModal = false;
+  nopSearch = '';
+  namaSearch = '';
+  latitude = '';
+  longitude = '';
+
   // Fullscreen mode
   isFullscreen = false;
+
+  // Layer Legend Control properties
+  showLayerControl = false;
+  selectedBaseLayer = 'satellite';
+  baseLayers: { [key: string]: L.TileLayer } = {};
+  currentBaseLayer: L.TileLayer | null = null;
+
+  layerVisibility: { [key: string]: boolean; batasKecamatan: boolean; tematik: boolean } = {
+    batasKecamatan: true,
+    tematik: true
+  };
+
+  layerOpacity: { [key: string]: number; kecamatan: number; tematik: number } = {
+    kecamatan: 70,
+    tematik: 70
+  };
 
   constructor(
     private restApiService: RestApiService,
@@ -131,6 +155,9 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Hide global sidebar when on this page (like bidang-map)
+    this.hideGlobalSidebar();
+
     // Check for route data to pre-select tematik type
     this.route.data.subscribe(data => {
       if (data['tematikType']) {
@@ -153,6 +180,9 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Restore global sidebar when leaving this page
+    this.showGlobalSidebar();
+
     if (this.map) {
       // Remove bidang boundaries layer
       if (this.bidangBoundariesLayer) {
@@ -195,42 +225,32 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
         // Basic Leaflet map initialization - Center di Lumajang
         this.map = L.map(this.mapContainer.nativeElement, {
           center: [-8.1335, 113.2246], // Koordinat Lumajang
-          zoom: 11
+          zoom: 11,
+          doubleClickZoom: false
         });
 
-        // Define base layers
-        const baseLayers = {
-          'Google Satellite': L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+        // Define base layers and store references for custom layer control
+        this.baseLayers = {
+          'satellite': L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
             maxZoom: 20,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
             attribution: '© Google Maps'
           }),
-          'Google Hybrid': L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+          'streets': L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
             maxZoom: 20,
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
             attribution: '© Google Maps'
           }),
-          'Google Streets': L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-            attribution: '© Google Maps'
-          }),
-          'Google Terrain': L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
-            maxZoom: 20,
-            subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-            attribution: '© Google Maps'
-          }),
-          'OpenStreetMap': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          'osm': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
           })
         };
 
         // Add default layer (Google Satellite)
-        baseLayers['Google Satellite'].addTo(this.map);
-
-        // Add layer control
-        L.control.layers(baseLayers).addTo(this.map);
+        this.currentBaseLayer = this.baseLayers['satellite'];
+        this.currentBaseLayer.addTo(this.map);
+        this.selectedBaseLayer = 'satellite';
 
         // Load kecamatan boundaries from BPRD API
         this.loadBprdKecamatanBoundaries();
@@ -2311,6 +2331,13 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   getTematikTypeLabel(): string {
     switch (this.selectedTematikType) {
+      // New types from HTML
+      case 'njop': return 'Nilai Jual Objek Pajak (NJOP)';
+      case 'buku': return 'Buku 1, 2, 3, 4, 5';
+      case 'ketetapan': return 'Ketetapan PBB';
+      case 'pembayaran': return 'Status Pembayaran';
+
+      // Existing/Legacy types
       case 'gunaTanah': return 'Penggunaan Tanah';
       case 'kelasTanah': return 'Kelas Tanah';
       case 'gunaBangunan': return 'Penggunaan Bangunan';
@@ -2745,4 +2772,193 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
   toggleLegend(): void {
     this.isLegendVisible = !this.isLegendVisible;
   }
+
+  /**
+   * Handle actions from thematic sidebar
+   */
+  onThematicAction(action: string) {
+    switch (action) {
+      case 'cari-nop':
+        this.showCariNopModal = true;
+        break;
+      case 'lokasi-koordinat':
+        this.showKoordinatModal = true;
+        break;
+      case 'kembali':
+        // Close all modals
+        this.showCariNopModal = false;
+        this.showKoordinatModal = false;
+        break;
+    }
+  }
+
+  /**
+   * Search NOP
+   */
+  searchNop() {
+    console.log('Search NOP:', this.nopSearch, this.namaSearch);
+    this.closeCariNopModal();
+  }
+
+  /**
+   * Set Koordinat and fly to location
+   */
+  setKoordinat() {
+    if (this.map && this.latitude && this.longitude) {
+      const lat = parseFloat(this.latitude);
+      const lng = parseFloat(this.longitude);
+      this.map.flyTo([lat, lng], 18);
+    }
+    this.closeKoordinatModal();
+  }
+
+  /**
+   * Close Cari NOP Modal
+   */
+  closeCariNopModal() {
+    this.showCariNopModal = false;
+  }
+
+  /**
+   * Close Koordinat Modal
+   */
+  closeKoordinatModal() {
+    this.showKoordinatModal = false;
+  }
+
+  /**
+   * Hide global sidebar when on map page (like bidang-map)
+   */
+  private hideGlobalSidebar(): void {
+    // Add class to hide global sidebar and expand main content
+    document.body.classList.add('thematic-map-active');
+
+    // Also directly hide the sidebar element for immediate effect
+    const sidebar = document.querySelector('.app-menu, .navbar-menu');
+    if (sidebar) {
+      (sidebar as HTMLElement).style.display = 'none';
+    }
+
+    // Hide topbar
+    const topbar = document.querySelector('.topbar, #page-topbar');
+    if (topbar) {
+      (topbar as HTMLElement).style.display = 'none';
+    }
+
+    // Expand main content to full width
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      (mainContent as HTMLElement).style.marginLeft = '0';
+      (mainContent as HTMLElement).style.paddingTop = '0';
+    }
+
+    // Hide the vertical wrapper background
+    const verticalWrapper = document.querySelector('.vertical-wrapper');
+    if (verticalWrapper) {
+      (verticalWrapper as HTMLElement).style.marginLeft = '0';
+    }
+  }
+
+  /**
+   * Show global sidebar when leaving map page
+   */
+  private showGlobalSidebar(): void {
+    // Remove class
+    document.body.classList.remove('thematic-map-active');
+
+    // Restore sidebar visibility
+    const sidebar = document.querySelector('.app-menu, .navbar-menu');
+    if (sidebar) {
+      (sidebar as HTMLElement).style.display = '';
+    }
+
+    // Restore topbar
+    const topbar = document.querySelector('.topbar, #page-topbar');
+    if (topbar) {
+      (topbar as HTMLElement).style.display = '';
+    }
+
+    // Restore main content margin  
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      (mainContent as HTMLElement).style.marginLeft = '';
+      (mainContent as HTMLElement).style.paddingTop = '';
+    }
+
+    // Restore vertical wrapper
+    const verticalWrapper = document.querySelector('.vertical-wrapper');
+    if (verticalWrapper) {
+      (verticalWrapper as HTMLElement).style.marginLeft = '';
+    }
+  }
+
+  /**
+   * Toggle visibility of a layer
+   */
+  toggleLayerVisibility(layerType: string): void {
+    if (!this.map) return;
+
+    switch (layerType) {
+      case 'batasKecamatan':
+        if (this.kecamatanBoundariesLayer) {
+          if (this.layerVisibility['batasKecamatan']) {
+            this.map.addLayer(this.kecamatanBoundariesLayer);
+          } else {
+            this.map.removeLayer(this.kecamatanBoundariesLayer);
+          }
+        }
+        break;
+      case 'tematik':
+        if (this.tematikLayer) {
+          if (this.layerVisibility['tematik']) {
+            this.map.addLayer(this.tematikLayer);
+          } else {
+            this.map.removeLayer(this.tematikLayer);
+          }
+        }
+        break;
+    }
+  }
+
+  /**
+   * Update opacity of a layer
+   */
+  updateLayerOpacity(layerType: string): void {
+    const opacity = this.layerOpacity[layerType] / 100;
+
+    switch (layerType) {
+      case 'kecamatan':
+        if (this.kecamatanBoundariesLayer) {
+          this.kecamatanBoundariesLayer.setStyle({ fillOpacity: opacity * 0.6, opacity: opacity });
+        }
+        break;
+      case 'tematik':
+        if (this.tematikLayer) {
+          this.tematikLayer.setStyle({ fillOpacity: opacity * 0.6, opacity: opacity });
+        }
+        break;
+    }
+  }
+
+  /**
+   * Change base map layer
+   */
+  changeBaseLayer(layerType: string): void {
+    if (!this.map) return;
+
+    // Remove current base layer
+    if (this.currentBaseLayer) {
+      this.map.removeLayer(this.currentBaseLayer);
+    }
+
+    // Add new base layer
+    if (this.baseLayers[layerType]) {
+      this.currentBaseLayer = this.baseLayers[layerType];
+      this.currentBaseLayer.addTo(this.map);
+      this.currentBaseLayer.bringToBack();
+    }
+
+    this.selectedBaseLayer = layerType;
+  }
+
 }
