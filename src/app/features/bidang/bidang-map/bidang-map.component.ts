@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink, Router } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { RestApiService } from '../../../services/rest-api.service';
 import { BprdApiService, KecamatanBoundary, BlokBoundary, BidangBoundary } from '../../../services/bprd-api.service';
@@ -39,7 +40,7 @@ interface BidangDetailResponse {
 @Component({
   selector: 'app-bidang-map',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './bidang-map.component.html',
   styleUrls: ['./bidang-map.component.scss']
 })
@@ -47,7 +48,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
   private map: L.Map | null = null;
-  private geoJsonLayer: L.GeoJSON | null = null;
+  geoJsonLayer: L.GeoJSON | null = null;
 
   // Data properties
   geoJsonData: any[] = [];
@@ -138,11 +139,10 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   layerOpacity = {
-    batasKecamatan: 0.7,
-    batasKelurahan: 0.7,
-    batasBlok: 0.7,
-    bidang: 0.7,
-    satellite: 1
+    kecamatan: 70,
+    kelurahan: 70,
+    blok: 70,
+    bidang: 70
   };
 
   // ==========================================
@@ -156,9 +156,26 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   isEditToolbarVisible = false;
   selectedEditFeature: any = null;
 
+  // ==========================================
+  // Fullscreen Mode
+  // ==========================================
+  isFullscreen = false;
+
+  // ==========================================
+  // Sidebar Modal Properties
+  // ==========================================
+  showCariNopModal = false;
+  showKoordinatModal = false;
+  showFilterModal = false;
+  nopSearch = '';
+  namaSearch = '';
+  coordLatitude: number | null = null;
+  coordLongitude: number | null = null;
+
   constructor(
     private restApiService: RestApiService,
-    private bprdApiService: BprdApiService
+    private bprdApiService: BprdApiService,
+    private router: Router
   ) {
     // Expose methods to global window for popup buttons
     (window as any).closeKelurahanView = () => {
@@ -173,6 +190,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Hide global sidebar when on this page (like legacy app)
+    this.hideGlobalSidebar();
+
     // Load total count and kecamatan data on init
     this.loadTotalBidangCount();
     this.loadKecamatanData();
@@ -187,6 +207,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Restore global sidebar when leaving this page
+    this.showGlobalSidebar();
+
     if (this.map) {
       // Remove bidang boundaries layer
       if (this.bidangBoundariesLayer) {
@@ -258,6 +281,19 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Load kecamatan boundaries from BPRD API
         this.loadBprdKecamatanBoundaries();
+
+        // Ensure map renders correctly after DOM is ready
+        setTimeout(() => {
+          if (this.map) {
+            this.map.invalidateSize();
+          }
+        }, 100);
+
+        setTimeout(() => {
+          if (this.map) {
+            this.map.invalidateSize();
+          }
+        }, 500);
 
         console.log('Map initialized successfully');
       } catch (error) {
@@ -523,18 +559,33 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.selectedKecamatan) {
       this.loadKelurahanData();
-      // Remove all kecamatan boundaries when a specific kecamatan is selected
-      if (this.kecamatanBoundariesLayer && this.map) {
-        this.map.removeLayer(this.kecamatanBoundariesLayer);
-        this.kecamatanBoundariesLayer = null;
+
+      // Use the drill-down logic to visualize the kecamatan and load kelurahan boundaries
+      // This handles zooming, displaying the selected kecamatan background, and loading kelurahan boundaries
+      if (this.selectedKecamatan.kdKecamatan) {
+        this.loadKelurahanBoundariesWithCount(
+          this.selectedKecamatan.kdKecamatan,
+          this.selectedKecamatan.nmKecamatan || 'Kecamatan Terpilih'
+        );
       }
-      // Note: Kecamatan boundaries are already loaded from BPRD API
-      // No need to reload individual kecamatan boundary
     } else {
       // Reset - show all kecamatan boundaries from cached data (no API call)
       if (!this.kecamatanBoundariesLayer && this.bprdKecamatanData && this.bprdKecamatanData.length > 0) {
         this.recreateKecamatanLayerFromCache();
       }
+    }
+  }
+
+  /**
+   * Handle kecamatan selection change from Filter Modal
+   * Loads data but DOES NOT update the map immediately
+   */
+  onFilterKecamatanChange(): void {
+    this.selectedKelurahan = null; // Reset selection
+    this.kelurahanList = [];
+
+    if (this.selectedKecamatan) {
+      this.loadKelurahanData();
     }
   }
 
@@ -548,8 +599,23 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.selectedKelurahan) {
       this.currentPage = 0;
       this.loadBidangData();
-      // Note: Kelurahan boundaries loaded via double-click drill-down
-      // from BPRD API, not from shapefile
+
+      // Use the drill-down logic to visualize the kelurahan and load blok boundaries
+      // This handles zooming, displaying the selected kelurahan background, and loading blok boundaries
+      if (this.selectedKelurahan.kdKelurahan && this.selectedKecamatan) {
+        const kdKec = this.selectedKecamatan.kdKecamatan;
+        const kdKel = this.selectedKelurahan.kdKelurahan;
+        const kelurahanName = this.selectedKelurahan.nmKelurahan || 'Kelurahan Terpilih';
+
+        console.log(`🔄 Drill-down via filter to kelurahan: ${kelurahanName} (${kdKec}/${kdKel})`);
+
+        this.loadBlokBoundaries(
+          kdKec,
+          kdKel,
+          kelurahanName,
+          null // No layer clicked, so pass null
+        );
+      }
     }
   }
 
@@ -1209,6 +1275,17 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           this.currentLevel = 'kelurahan';
           this.navigationStack = [{ level: 'kecamatan', name: 'Semua Kecamatan' }];
 
+          // Step 1.5: If kecamatanLayer is missing (e.g. from filter), try to find it in bprdKecamatanData
+          if (!kecamatanLayer && this.bprdKecamatanData) {
+            const boundary = this.bprdKecamatanData.find(k => k.kd_kec === kdKec);
+            if (boundary && boundary.geojson) {
+              console.log(`🔄 Found kecamatan boundary in data for ${kecamatanName}`);
+              // Create a temporary GeoJSON object that mimics the layer
+              const geojsonFeature = this.convertBprdGeomToGeoJSON(boundary);
+              kecamatanLayer = L.geoJSON(geojsonFeature);
+            }
+          }
+
           // Step 2: Create selectedKecamatanLayer - single polygon for this kecamatan (like legacy layerKecamatan)
           if (this.selectedKecamatanLayer && this.map) {
             this.map.removeLayer(this.selectedKecamatanLayer);
@@ -1216,8 +1293,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           // Get GeoJSON from clicked kecamatan layer and create grey-styled layer
-          if (kecamatanLayer && kecamatanLayer.toGeoJSON) {
-            const kecamatanGeojson = kecamatanLayer.toGeoJSON();
+          if (kecamatanLayer && (kecamatanLayer.toGeoJSON || kecamatanLayer.feature)) {
+            const kecamatanGeojson = kecamatanLayer.toGeoJSON ? kecamatanLayer.toGeoJSON() : kecamatanLayer.feature;
             this.selectedKecamatanLayer = L.geoJSON(kecamatanGeojson, {
               style: {
                 color: 'grey',
@@ -1590,10 +1667,20 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`🎯 Count URL: /api/bidang/blok-with-count/${kdProp}/${kdDati2}/${kdKecParam}/${kdKelParam}`);
 
     // Show loading indicator
-    const loadingPopup = L.popup()
-      .setLatLng(kelurahanLayer.getBounds().getCenter())
-      .setContent('<div style="text-align: center;"><i class="ri-loader-line spin"></i> Loading blok boundaries...</div>')
-      .openOn(this.map);
+    let loadingPopup: any = null;
+    if (kelurahanLayer && kelurahanLayer.getBounds) {
+      try {
+        loadingPopup = L.popup()
+          .setLatLng(kelurahanLayer.getBounds().getCenter())
+          .setContent('<div style="text-align: center;"><i class="ri-loader-line spin"></i> Loading blok boundaries...</div>')
+          .openOn(this.map);
+      } catch (e) {
+        console.warn('Could not open loading popup on layer center');
+      }
+    } else {
+      // Just show simple loading toast or rely on main loader
+      this.isLoadingBidang = true;
+    }
 
     // Hit 2 endpoints in parallel: boundaries from BPRD + count from local DB
     const boundariesRequest$ = this.bprdApiService.getBlokBoundariesViaBackend(kdKec, kdKel);
@@ -1718,9 +1805,23 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
               this.selectedKelurahanLayer = null;
             }
 
+            // If kelurahanLayer is missing (from filter), try to find it in the existing kelurahanBoundariesLayer
+            if (!kelurahanLayer && this.kelurahanBoundariesLayer) {
+              this.kelurahanBoundariesLayer.eachLayer((layer: any) => {
+                const props = layer.feature?.properties;
+                // Match by kd_kel/kd_kec
+                if (props &&
+                  (props.kd_kel === kdKel || props.kd_kel === kdKelParam) &&
+                  (props.kd_kec === kdKec || props.kd_kec === kdKecParam)) {
+                  console.log(`🔄 Found kelurahan layer in map for ${kelurahanName}`);
+                  kelurahanLayer = layer;
+                }
+              });
+            }
+
             // Create grey-styled layer from clicked kelurahan
-            if (kelurahanLayer && kelurahanLayer.toGeoJSON) {
-              const kelurahanGeojson = kelurahanLayer.toGeoJSON();
+            if (kelurahanLayer && (kelurahanLayer.toGeoJSON || kelurahanLayer.feature)) {
+              const kelurahanGeojson = kelurahanLayer.toGeoJSON ? kelurahanLayer.toGeoJSON() : kelurahanLayer.feature;
               this.selectedKelurahanLayer = L.geoJSON(kelurahanGeojson, {
                 style: {
                   color: 'grey',
@@ -1752,30 +1853,54 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             // Add blok layer to map
             this.blokBoundariesLayer.addTo(this.map);
 
+            // If we didn't have a kelurahanLayer (from filter), zoom to blok bounds
+            if (!kelurahanLayer && this.blokBoundariesLayer) {
+              const bounds = this.blokBoundariesLayer.getBounds();
+              if (bounds && bounds.isValid()) {
+                this.map.fitBounds(bounds, { padding: [30, 30] });
+                console.log('🔍 Fitted bounds to blok layer (from filter)');
+              }
+            }
+
+            // Reset loading state
+            this.isLoadingBidang = false;
+
             console.log(`✅ Blok boundaries with count displayed for ${kelurahanName}`);
           }
         } else {
           // Close loading popup and show no data message
           this.map?.closePopup(loadingPopup);
-          const noDataPopup = L.popup()
-            .setLatLng(kelurahanLayer.getBounds().getCenter())
-            .setContent(`<div style="text-align: center; color: #f59e0b;">⚠️ No blok boundaries found for ${kelurahanName}</div>`)
-            .openOn(this.map!);
+          this.isLoadingBidang = false;
 
-          setTimeout(() => this.map?.closePopup(noDataPopup), 3000);
+          // Only show popup if we have a valid location
+          if (kelurahanLayer && kelurahanLayer.getBounds) {
+            const noDataPopup = L.popup()
+              .setLatLng(kelurahanLayer.getBounds().getCenter())
+              .setContent(`<div style="text-align: center; color: #f59e0b;">⚠️ No blok boundaries found for ${kelurahanName}</div>`)
+              .openOn(this.map!);
+
+            setTimeout(() => this.map?.closePopup(noDataPopup), 3000);
+          } else {
+            console.warn(`⚠️ No blok boundaries found for ${kelurahanName}`);
+          }
         }
       },
       error: (error) => {
         // Close loading popup
         this.map?.closePopup(loadingPopup);
+        this.isLoadingBidang = false;
 
         console.error('❌ Error loading blok boundaries or count:', error);
-        const errorPopup = L.popup()
-          .setLatLng(kelurahanLayer.getBounds().getCenter())
-          .setContent(`<div style="text-align: center; color: #dc2626;">❌ Failed to load blok boundaries for ${kelurahanName}</div>`)
-          .openOn(this.map!);
 
-        setTimeout(() => this.map?.closePopup(errorPopup), 3000);
+        // Only show popup if we have a valid location
+        if (kelurahanLayer && kelurahanLayer.getBounds) {
+          const errorPopup = L.popup()
+            .setLatLng(kelurahanLayer.getBounds().getCenter())
+            .setContent(`<div style="text-align: center; color: #dc2626;">❌ Failed to load blok boundaries for ${kelurahanName}</div>`)
+            .openOn(this.map!);
+
+          setTimeout(() => this.map?.closePopup(errorPopup), 3000);
+        }
       }
     });
   }
@@ -2662,6 +2787,253 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Toggle fullscreen mode for the map
+   */
+  toggleFullscreen(): void {
+    this.isFullscreen = !this.isFullscreen;
+
+    // Toggle fullscreen class on host element
+    const hostElement = document.querySelector('app-bidang-map');
+    if (hostElement) {
+      hostElement.classList.toggle('fullscreen-mode', this.isFullscreen);
+    }
+
+    // Toggle body class for hiding sidebar/navbar
+    document.body.classList.toggle('bidang-map-fullscreen', this.isFullscreen);
+
+    // Invalidate map size after animation completes
+    setTimeout(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      }
+    }, 300);
+  }
+
+  // ==========================================
+  // Sidebar Modal Methods
+  // ==========================================
+
+  /**
+   * Hide global sidebar when on map page (like legacy app)
+   */
+  private hideGlobalSidebar(): void {
+    // Add class to hide global sidebar and expand main content
+    document.body.classList.add('bidang-map-active');
+
+    // Also directly hide the sidebar element for immediate effect
+    const sidebar = document.querySelector('.app-menu, .navbar-menu');
+    if (sidebar) {
+      (sidebar as HTMLElement).style.display = 'none';
+    }
+
+    // Expand main content to full width
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      (mainContent as HTMLElement).style.marginLeft = '0';
+    }
+  }
+
+  /**
+   * Show global sidebar when leaving map page
+   */
+  private showGlobalSidebar(): void {
+    // Remove class
+    document.body.classList.remove('bidang-map-active');
+
+    // Restore sidebar visibility
+    const sidebar = document.querySelector('.app-menu, .navbar-menu');
+    if (sidebar) {
+      (sidebar as HTMLElement).style.display = '';
+    }
+
+    // Restore main content margin  
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      (mainContent as HTMLElement).style.marginLeft = '';
+    }
+  }
+
+  /**
+   * Open Cari NOP modal
+   */
+  openCariNopModal(): void {
+    this.showCariNopModal = true;
+    this.nopSearch = '';
+    this.namaSearch = '';
+  }
+
+  /**
+   * Close Cari NOP modal
+   */
+  closeCariNopModal(): void {
+    this.showCariNopModal = false;
+  }
+
+  /**
+   * Search for NOP
+   */
+  searchNop(): void {
+    console.log('Searching NOP:', this.nopSearch, 'Nama:', this.namaSearch);
+    // TODO: Implement NOP search functionality
+    // This would call the API to search for bidang by NOP or name
+    // and then zoom to the found bidang on the map
+    this.closeCariNopModal();
+  }
+
+  /**
+   * Open Koordinat modal
+   */
+  openKoordinatModal(): void {
+    this.showKoordinatModal = true;
+    this.coordLatitude = null;
+    this.coordLongitude = null;
+  }
+
+  /**
+   * Close Koordinat modal
+   */
+  closeKoordinatModal(): void {
+    this.showKoordinatModal = false;
+  }
+
+  /**
+   * Set map location to specified coordinates
+   */
+  setKoordinat(): void {
+    if (this.coordLatitude && this.coordLongitude && this.map) {
+      console.log('Setting location to:', this.coordLatitude, this.coordLongitude);
+      this.map.setView([this.coordLatitude, this.coordLongitude], 18);
+
+      // Add a temporary marker at the location
+      const marker = L.marker([this.coordLatitude, this.coordLongitude])
+        .addTo(this.map)
+        .bindPopup(`<b>Koordinat</b><br>Lat: ${this.coordLatitude}<br>Lng: ${this.coordLongitude}`)
+        .openPopup();
+
+      // Remove marker after 10 seconds
+      setTimeout(() => {
+        if (this.map) {
+          this.map.removeLayer(marker);
+        }
+      }, 10000);
+    }
+    this.closeKoordinatModal();
+  }
+
+  /**
+   * Open Filter Wilayah modal
+   */
+  openFilterModal(): void {
+    this.showFilterModal = true;
+  }
+
+  /**
+   * Close Filter Wilayah modal
+   */
+  closeFilterModal(): void {
+    this.showFilterModal = false;
+  }
+
+  /**
+   * Apply filter and load bidang data - triggers proper drilldown
+   */
+  applyFilter(): void {
+    if (!this.selectedKecamatan) {
+      return;
+    }
+
+    console.log('🔍 Applying filter for kecamatan:', this.selectedKecamatan);
+
+    // Close the modal first
+    this.closeFilterModal();
+
+    // ========== CLEAR ALL PREVIOUS LAYERS FIRST ==========
+    // This ensures no stale data from previous filters
+    this.clearAllBoundaryLayers();
+
+    // If kelurahan is selected, drill down directly to blok level
+    if (this.selectedKelurahan) {
+      console.log('🔍 Applying filter for kelurahan:', this.selectedKelurahan);
+
+      const kdKec = this.selectedKecamatan.kdKecamatan;
+      const kdKel = this.selectedKelurahan.kdKelurahan;
+      const kelurahanName = this.selectedKelurahan.nmKelurahan || 'Kelurahan Terpilih';
+
+      // Set up navigation context first (since we're skipping kecamatan view)
+      this.selectedKecamatanForDrilldown = {
+        kdKec: kdKec,
+        nama: this.selectedKecamatan.nmKecamatan || 'Kecamatan'
+      };
+
+      // Directly load blok boundaries for the selected kelurahan
+      this.loadBlokBoundaries(kdKec, kdKel, kelurahanName, null);
+    } else {
+      // Only kecamatan selected - trigger kecamatan drilldown
+      this.onKecamatanChange();
+    }
+  }
+
+  /**
+   * Clear all boundary layers from the map
+   */
+  private clearAllBoundaryLayers(): void {
+    if (!this.map) return;
+
+    // Clear kecamatan layer
+    if (this.kecamatanBoundariesLayer) {
+      this.map.removeLayer(this.kecamatanBoundariesLayer);
+      this.kecamatanBoundariesLayer = null;
+    }
+
+    // Clear selected kecamatan layer
+    if (this.selectedKecamatanLayer) {
+      this.map.removeLayer(this.selectedKecamatanLayer);
+      this.selectedKecamatanLayer = null;
+    }
+
+    // Clear kelurahan layer
+    if (this.kelurahanBoundariesLayer) {
+      this.map.removeLayer(this.kelurahanBoundariesLayer);
+      this.kelurahanBoundariesLayer = null;
+    }
+
+    // Clear selected kelurahan layer
+    if (this.selectedKelurahanLayer) {
+      this.map.removeLayer(this.selectedKelurahanLayer);
+      this.selectedKelurahanLayer = null;
+    }
+
+    // Clear blok layer
+    if (this.blokBoundariesLayer) {
+      this.map.removeLayer(this.blokBoundariesLayer);
+      this.blokBoundariesLayer = null;
+    }
+
+    // Clear bidang layer
+    if (this.bidangBoundariesLayer) {
+      this.map.removeLayer(this.bidangBoundariesLayer);
+      this.bidangBoundariesLayer = null;
+    }
+
+    // Also clear the main bidang layer
+    this.clearMap();
+
+    console.log('🧹 Cleared all boundary layers');
+  }
+
+  /**
+   * Navigate back to the main menu/dashboard
+   * This restores the global sidebar and navigates
+   */
+  goBackToMenu(): void {
+    // Restore the global sidebar first
+    this.showGlobalSidebar();
+
+    // Navigate to dashboard-pajak (main dashboard)
+    this.router.navigate(['/dashboard-pajak']);
+  }
+
+  /**
    * Toggle visibility of overlay layers
    */
   toggleLayerVisibility(layerType: string): void {
@@ -2710,27 +3082,33 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Update opacity of overlay layers
    */
-  updateLayerOpacity(layerType: string, opacity: number): void {
-    let layer: L.GeoJSON | null = null;
+  updateLayerOpacity(layerType: string): void {
+    // Get opacity from property (0-100 scale, convert to 0-1)
+    const opacityPercent = (this.layerOpacity as any)[layerType] || 70;
+    const opacity = opacityPercent / 100;
+
+    let layers: (L.GeoJSON | null)[] = [];
 
     switch (layerType) {
-      case 'batasKecamatan':
-        layer = this.kecamatanBoundariesLayer;
+      case 'kecamatan':
+        layers = [this.kecamatanBoundariesLayer, this.selectedKecamatanLayer];
         break;
-      case 'batasKelurahan':
-        layer = this.kelurahanBoundariesLayer;
+      case 'kelurahan':
+        layers = [this.kelurahanBoundariesLayer, this.selectedKelurahanLayer];
         break;
-      case 'batasBlok':
-        layer = this.blokBoundariesLayer;
+      case 'blok':
+        layers = [this.blokBoundariesLayer];
         break;
       case 'bidang':
-        layer = this.bidangBoundariesLayer;
+        layers = [this.bidangBoundariesLayer, this.geoJsonLayer];
         break;
     }
 
-    if (layer) {
-      layer.setStyle({ fillOpacity: opacity * 0.5, opacity: opacity });
-    }
+    layers.forEach(layer => {
+      if (layer) {
+        layer.setStyle({ fillOpacity: opacity * 0.6, opacity: opacity });
+      }
+    });
   }
 
   /**

@@ -1,218 +1,261 @@
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <div class="d-flex justify-content-between align-items-center">
-          <h4 class="card-title mb-0">
-            <i class="ri-map-2-line me-2"></i>
-            Bidang Map View - Filter by Location
-          </h4>
-          <div class="d-flex align-items-center">
-            <span *ngIf="isLoadingTotalCount" class="badge bg-secondary me-2">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading...
-            </span>
-            <span *ngIf="!isLoadingTotalCount" class="badge bg-primary fs-6">
-              <i class="ri-map-pin-line me-1"></i>
-              Total Bidang di Kabupaten Lumajang : {{ totalBidangCount | number }}
-            </span>
-          </div>
+<!-- Main Container with Sidebar + Content Layout (like legacy SIG) -->
+<div class="bidang-map-wrapper">
+  <!-- ========== LEFT SIDEBAR (like legacy col-2) ========== -->
+  <div class="bidang-sidebar">
+    <div class="sidebar-scroll">
+      <!-- Search Tools Section -->
+      <div class="sidebar-section" *ngIf="editMode === 'none'">
+        <button class="sidebar-btn" (click)="openCariNopModal()">
+          <i class="ri-search-eye-line"></i>
+          <span>Cari NOP</span>
+        </button>
+        <button class="sidebar-btn" (click)="openKoordinatModal()">
+          <i class="ri-map-pin-line"></i>
+          <span>Lokasi Koordinat</span>
+        </button>
+        <button class="sidebar-btn" (click)="openFilterModal()">
+          <i class="ri-filter-3-line"></i>
+          <span>Filter Wilayah</span>
+        </button>
+        <button class="sidebar-btn" routerLink="/bidang/thematic-map">
+          <i class="ri-palette-line"></i>
+          <span>Tematik</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider" *ngIf="editMode === 'none'"></div>
+
+      <!-- Edit Tools - Based on current level (like legacy viewMode) -->
+      <!-- Edit Kecamatan - Only when viewing kelurahan -->
+      <div class="sidebar-section"
+        *ngIf="currentLevel === 'kelurahan' && selectedKecamatanForDrilldown && editMode === 'none'">
+        <button class="sidebar-btn" (click)="toggleEditMode('edit', 'kecamatan')">
+          <i class="ri-edit-2-line"></i>
+          <span>Edit Kecamatan</span>
+        </button>
+      </div>
+
+      <!-- Edit Kelurahan - Only when viewing blok -->
+      <div class="sidebar-section"
+        *ngIf="currentLevel === 'blok' && selectedKelurahanForDrilldown && editMode === 'none'">
+        <button class="sidebar-btn" (click)="toggleEditMode('edit', 'kelurahan')">
+          <i class="ri-edit-2-line"></i>
+          <span>Edit Kelurahan</span>
+        </button>
+      </div>
+
+      <!-- Blok/Bidang Tools - Only when viewing bidang -->
+      <div class="sidebar-section" *ngIf="currentLevel === 'bidang' && selectedBlokForDrilldown && editMode === 'none'">
+        <button class="sidebar-btn" (click)="toggleEditMode('edit', 'blok')">
+          <i class="ri-edit-square-line"></i>
+          <span>Edit Blok</span>
+        </button>
+        <button class="sidebar-btn" (click)="toggleEditMode('draw')">
+          <i class="ri-shape-line"></i>
+          <span>Gambar Bidang</span>
+        </button>
+        <button class="sidebar-btn" (click)="toggleEditMode('edit', 'bidang')">
+          <i class="ri-pencil-line"></i>
+          <span>Edit Bidang</span>
+        </button>
+        <button class="sidebar-btn" (click)="toggleEditMode('move')">
+          <i class="ri-drag-move-2-line"></i>
+          <span>Geser Bidang</span>
+        </button>
+        <button class="sidebar-btn" (click)="toggleEditMode('delete')">
+          <i class="ri-delete-bin-line"></i>
+          <span>Hapus Bidang</span>
+        </button>
+      </div>
+
+      <!-- Action buttons when in edit mode -->
+      <div class="sidebar-section" *ngIf="editMode !== 'none'">
+        <div class="sidebar-mode-indicator">
+          <i class="ri-tools-line"></i>
+          <span>Mode: {{ editMode | titlecase }}</span>
+        </div>
+        <button class="sidebar-btn btn-success" (click)="saveEditChanges()" [disabled]="pendingChanges.length === 0">
+          <i class="ri-save-line"></i>
+          <span>Simpan Perubahan</span>
+        </button>
+        <button class="sidebar-btn btn-secondary" (click)="cancelEditMode()">
+          <i class="ri-hand-coin-line"></i>
+          <span>Selesai Interaksi</span>
+        </button>
+        <div class="pending-indicator" *ngIf="pendingChanges.length > 0">
+          {{ pendingChanges.length }} perubahan pending
         </div>
       </div>
 
-      <div class="card-body">
-        <!-- Filter Controls -->
-        <div class="row mb-3">
-          <div class="col-md-4">
-            <label for="kecamatanSelect" class="form-label">
-              <i class="ri-map-pin-line me-1"></i>
-              Pilih Kecamatan
-            </label>
-            <select id="kecamatanSelect" class="form-select" [(ngModel)]="selectedKecamatan"
-              (ngModelChange)="onKecamatanChange()" [disabled]="isLoadingKecamatan">
-              <option [ngValue]="null">-- Pilih Kecamatan --</option>
-              <option *ngFor="let kecamatan of kecamatanList" [ngValue]="kecamatan">
-                {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-            <div *ngIf="isLoadingKecamatan" class="form-text">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading kecamatan...
-            </div>
-          </div>
+      <div class="sidebar-divider"></div>
 
-          <div class="col-md-4">
-            <label for="kelurahanSelect" class="form-label">
-              <i class="ri-home-line me-1"></i>
-              Pilih Kelurahan
-            </label>
-            <select id="kelurahanSelect" class="form-select" [(ngModel)]="selectedKelurahan"
-              (ngModelChange)="onKelurahanChange()" [disabled]="isLoadingKelurahan || !selectedKecamatan">
-              <option [ngValue]="null">-- Pilih Kelurahan (Opsional) --</option>
-              <option *ngFor="let kelurahan of kelurahanList" [ngValue]="kelurahan">
-                {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-            <div *ngIf="isLoadingKelurahan" class="form-text">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading kelurahan...
-            </div>
-          </div>
+      <!-- Navigation / Kembali -->
+      <div class="sidebar-section">
+        <button class="sidebar-btn" (click)="goBackToMenu()">
+          <i class="ri-arrow-left-line"></i>
+          <span>Kembali</span>
+        </button>
+      </div>
 
-          <div class="col-md-4">
-            <label class="form-label">&nbsp;</label>
-            <div class="d-flex gap-2">
-              <button class="btn btn-primary" (click)="loadBidangByKecamatan()"
-                [disabled]="!selectedKecamatan || isLoadingBidang">
-                <i class="ri-search-line me-1"></i>
-                Load Data
-              </button>
-            </div>
+      <!-- Tematik Legend (shown when tematik layers active) -->
+      <div class="sidebar-section sidebar-legend" *ngIf="tematikLayersArray.length > 0">
+        <div class="sidebar-legend-title">
+          <i class="ri-palette-line me-2"></i> Legend Tematik
+        </div>
+        <div class="legend-items">
+          <div *ngFor="let layer of tematikLayersArray" class="legend-item-row">
+            <span class="legend-color" [style.background-color]="layer.color"></span>
+            <span class="legend-label">{{ layer.label }}</span>
+            <span class="legend-count">({{ layer.count ?? layer.data?.length ?? 0 }})</span>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Navigation Breadcrumb -->
-        <div class="row mb-3" *ngIf="navigationStack.length > 0">
-          <div class="col-12">
-            <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded">
-              <div class="d-flex align-items-center">
-                <i class="ri-navigation-line me-2 text-primary"></i>
-                <span class="fw-bold me-2">Navigasi:</span>
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item">
-                      <a href="javascript:void(0)" (click)="goToLevel('kecamatan')" class="text-decoration-none">
-                        <i class="ri-home-line me-1"></i>Semua Kecamatan
-                      </a>
-                    </li>
-                    <li class="breadcrumb-item"
-                      *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
-                      <span class="text-muted">{{ selectedKecamatanForDrilldown?.nama }}</span>
-                    </li>
-                    <li class="breadcrumb-item" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
-                      <span class="text-muted">{{ selectedKelurahanForDrilldown?.nama }}</span>
-                    </li>
-                    <li class="breadcrumb-item" *ngIf="currentLevel === 'bidang'">
-                      <span class="text-muted">{{ selectedBlokForDrilldown?.nama }}</span>
-                    </li>
-                  </ol>
-                </nav>
-              </div>
-              <div class="d-flex gap-2">
-                <button *ngIf="currentLevel === 'kelurahan'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
-                  title="Kembali ke Kecamatan">
-                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Kecamatan
-                </button>
-                <button *ngIf="currentLevel === 'blok'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
-                  title="Kembali ke Kelurahan">
-                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Kelurahan
-                </button>
-                <button *ngIf="currentLevel === 'bidang'" class="btn btn-outline-primary btn-sm" (click)="goBack()"
-                  title="Kembali ke Blok">
-                  <i class="ri-arrow-left-line me-1"></i>Kembali ke Blok
-                </button>
-              </div>
-            </div>
-          </div>
+  <!-- ========== MAIN CONTENT (like legacy col-10) ========== -->
+  <div class="bidang-main-content">
+    <div class="card card-green-theme border-0 h-100">
+      <!-- Map Container (full height, no header) -->
+      <div class="card-body p-0">
+        <!-- Navigation Breadcrumb (floating on map) -->
+        <div class="floating-breadcrumb" *ngIf="navigationStack.length > 0">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+              <li class="breadcrumb-item">
+                <a href="javascript:void(0)" (click)="goToLevel('kecamatan')">
+                  <i class="ri-home-line me-1"></i>Kecamatan
+                </a>
+              </li>
+              <li class="breadcrumb-item"
+                *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
+                <span>{{ selectedKecamatanForDrilldown?.nama }}</span>
+              </li>
+              <li class="breadcrumb-item" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
+                <span>{{ selectedKelurahanForDrilldown?.nama }}</span>
+              </li>
+              <li class="breadcrumb-item" *ngIf="currentLevel === 'bidang'">
+                <span>{{ selectedBlokForDrilldown?.nama }}</span>
+              </li>
+            </ol>
+          </nav>
+          <button *ngIf="currentLevel !== 'kecamatan'" class="btn btn-sm btn-light" (click)="goBack()">
+            <i class="ri-arrow-left-line"></i>
+          </button>
+        </div>
+
+        <!-- Floating Total Bidang Badge -->
+        <div class="floating-badge">
+          <span *ngIf="isLoadingTotalCount" class="badge bg-secondary">
+            <i class="ri-loader-4-line spin me-1"></i>Loading...
+          </span>
+          <span *ngIf="!isLoadingTotalCount" class="badge bg-success">
+            <i class="ri-map-pin-line me-1"></i>{{ totalBidangCount | number }} Total Bidang
+          </span>
         </div>
 
         <!-- Map Container -->
         <div class="map-container position-relative">
           <div #mapContainer class="leaflet-container"></div>
 
-          <!-- Layer Legend Panel -->
+          <!-- Layer Legend Panel (Improved with Opacity Sliders) -->
           <div class="layer-legend-panel" *ngIf="showLayerLegend">
             <div class="legend-header">
               <i class="ri-stack-line me-1"></i>
               <span>Layer Control</span>
-              <button class="btn btn-sm btn-link p-0 ms-auto" (click)="toggleLayerLegend()">
+              <button class="btn btn-sm btn-link p-0 ms-auto text-white" (click)="toggleLayerLegend()">
                 <i class="ri-close-line"></i>
               </button>
             </div>
             <div class="legend-body">
-              <!-- Overlay Layers -->
+              <!-- Overlay Layers with Opacity -->
               <div class="legend-section">
-                <small class="text-muted fw-bold">Overlay Layers</small>
+                <small class="section-title">Overlay Layers</small>
 
-                <!-- Batas Kecamatan -->
-                <div class="legend-item">
-                  <label class="d-flex align-items-center">
+                <!-- Kecamatan -->
+                <div class="legend-item-advanced" *ngIf="kecamatanBoundariesLayer || selectedKecamatanLayer">
+                  <div class="layer-row">
                     <input type="checkbox" [(ngModel)]="layerVisibility.batasKecamatan"
-                      (change)="toggleLayerVisibility('batasKecamatan')" class="form-check-input me-2">
-                    <span>Batas Kecamatan</span>
-                  </label>
-                  <input type="range" class="form-range" min="0" max="1" step="0.1"
-                    [(ngModel)]="layerOpacity.batasKecamatan"
-                    (ngModelChange)="updateLayerOpacity('batasKecamatan', $event)">
+                      (change)="toggleLayerVisibility('batasKecamatan')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #22c55e, #16a34a);"></span>
+                    <span class="layer-name">Kecamatan</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.batasKecamatan">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.kecamatan"
+                      (input)="updateLayerOpacity('kecamatan')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.kecamatan }}%</span>
+                  </div>
                 </div>
 
-                <!-- Batas Kelurahan -->
-                <div class="legend-item" *ngIf="kelurahanBoundariesLayer">
-                  <label class="d-flex align-items-center">
+                <!-- Kelurahan -->
+                <div class="legend-item-advanced" *ngIf="kelurahanBoundariesLayer || selectedKelurahanLayer">
+                  <div class="layer-row">
                     <input type="checkbox" [(ngModel)]="layerVisibility.batasKelurahan"
-                      (change)="toggleLayerVisibility('batasKelurahan')" class="form-check-input me-2">
-                    <span>Batas Kelurahan</span>
-                  </label>
-                  <input type="range" class="form-range" min="0" max="1" step="0.1"
-                    [(ngModel)]="layerOpacity.batasKelurahan"
-                    (ngModelChange)="updateLayerOpacity('batasKelurahan', $event)">
+                      (change)="toggleLayerVisibility('batasKelurahan')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"></span>
+                    <span class="layer-name">Kelurahan</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.batasKelurahan">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.kelurahan"
+                      (input)="updateLayerOpacity('kelurahan')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.kelurahan }}%</span>
+                  </div>
                 </div>
 
-                <!-- Batas Blok -->
-                <div class="legend-item" *ngIf="blokBoundariesLayer">
-                  <label class="d-flex align-items-center">
+                <!-- Blok -->
+                <div class="legend-item-advanced" *ngIf="blokBoundariesLayer">
+                  <div class="layer-row">
                     <input type="checkbox" [(ngModel)]="layerVisibility.batasBlok"
-                      (change)="toggleLayerVisibility('batasBlok')" class="form-check-input me-2">
-                    <span>Batas Blok</span>
-                  </label>
-                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.batasBlok"
-                    (ngModelChange)="updateLayerOpacity('batasBlok', $event)">
+                      (change)="toggleLayerVisibility('batasBlok')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #f97316, #ea580c);"></span>
+                    <span class="layer-name">Blok</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.batasBlok">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.blok"
+                      (input)="updateLayerOpacity('blok')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.blok }}%</span>
+                  </div>
                 </div>
 
                 <!-- Bidang -->
-                <div class="legend-item" *ngIf="bidangBoundariesLayer">
-                  <label class="d-flex align-items-center">
+                <div class="legend-item-advanced" *ngIf="bidangBoundariesLayer || geoJsonLayer">
+                  <div class="layer-row">
                     <input type="checkbox" [(ngModel)]="layerVisibility.bidang"
-                      (change)="toggleLayerVisibility('bidang')" class="form-check-input me-2">
-                    <span>Bidang</span>
-                  </label>
-                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.bidang"
-                    (ngModelChange)="updateLayerOpacity('bidang', $event)">
+                      (change)="toggleLayerVisibility('bidang')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);"></span>
+                    <span class="layer-name">Bidang</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.bidang">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.bidang"
+                      (input)="updateLayerOpacity('bidang')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.bidang }}%</span>
+                  </div>
                 </div>
               </div>
 
-              <hr class="my-2">
+              <hr class="legend-divider">
 
-              <!-- Base Layers -->
+              <!-- Base Map Selection -->
               <div class="legend-section">
-                <small class="text-muted fw-bold">Base Maps</small>
-
-                <!-- Google Satellite -->
-                <div class="legend-item">
-                  <label class="d-flex align-items-center">
+                <small class="section-title">Base Map</small>
+                <div class="base-map-options">
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'satellite'">
                     <input type="radio" name="baseLayer" value="satellite" [(ngModel)]="selectedBaseLayer"
-                      (change)="changeBaseLayer('satellite')" class="form-check-input me-2">
-                    <span>Google Satellite</span>
+                      (change)="changeBaseLayer('satellite')">
+                    <i class="ri-earth-fill"></i>
+                    <span>Satellite</span>
                   </label>
-                  <input type="range" class="form-range" min="0" max="1" step="0.1" [(ngModel)]="layerOpacity.satellite"
-                    (ngModelChange)="updateBaseLayerOpacity($event)">
-                </div>
-
-                <!-- Google Streets -->
-                <div class="legend-item">
-                  <label class="d-flex align-items-center">
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'streets'">
                     <input type="radio" name="baseLayer" value="streets" [(ngModel)]="selectedBaseLayer"
-                      (change)="changeBaseLayer('streets')" class="form-check-input me-2">
-                    <span>Google Map</span>
+                      (change)="changeBaseLayer('streets')">
+                    <i class="ri-road-map-line"></i>
+                    <span>Streets</span>
                   </label>
-                </div>
-
-                <!-- OpenStreetMap -->
-                <div class="legend-item">
-                  <label class="d-flex align-items-center">
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'osm'">
                     <input type="radio" name="baseLayer" value="osm" [(ngModel)]="selectedBaseLayer"
-                      (change)="changeBaseLayer('osm')" class="form-check-input me-2">
-                    <span>OpenStreet Map</span>
+                      (change)="changeBaseLayer('osm')">
+                    <i class="ri-map-2-line"></i>
+                    <span>OSM</span>
                   </label>
                 </div>
               </div>
@@ -224,156 +267,123 @@
             title="Toggle Layer Control">
             <i class="ri-stack-line"></i>
           </button>
-
-          <!-- Edit Toolbar Panel - Shows based on navigation context -->
-          <!-- Only show when user has navigated into a level (not at kecamatan overview) -->
-          <div class="edit-toolbar-panel" *ngIf="currentLevel !== 'kecamatan'">
-            <div class="edit-toolbar-header">
-              <i class="ri-edit-2-line me-1"></i>
-              <span>Edit Tools</span>
-            </div>
-            <div class="edit-toolbar-body">
-              <!-- Edit Kecamatan - Only when viewing kelurahan (have selected a kecamatan) -->
-              <button *ngIf="currentLevel === 'kelurahan' && selectedKecamatanForDrilldown" class="edit-btn"
-                [class.active]="editMode === 'edit' && editTarget === 'kecamatan'"
-                (click)="toggleEditMode('edit', 'kecamatan')" title="Edit batas Kecamatan">
-                <i class="ri-edit-line"></i>
-                <span>Edit Kecamatan</span>
-              </button>
-
-              <!-- Edit Kelurahan - Only when viewing blok (have selected a kelurahan) -->
-              <button *ngIf="currentLevel === 'blok' && selectedKelurahanForDrilldown" class="edit-btn"
-                [class.active]="editMode === 'edit' && editTarget === 'kelurahan'"
-                (click)="toggleEditMode('edit', 'kelurahan')" title="Edit batas Kelurahan">
-                <i class="ri-edit-line"></i>
-                <span>Edit Kelurahan</span>
-              </button>
-
-              <!-- Edit Blok - Only when viewing bidang (have selected a blok) -->
-              <button *ngIf="currentLevel === 'bidang' && selectedBlokForDrilldown" class="edit-btn"
-                [class.active]="editMode === 'edit' && editTarget === 'blok'" (click)="toggleEditMode('edit', 'blok')"
-                title="Edit batas Blok">
-                <i class="ri-edit-line"></i>
-                <span>Edit Blok</span>
-              </button>
-
-              <hr *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'" class="my-2">
-
-              <!-- Draw Button - Only for blok/bidang levels -->
-              <button *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'" class="edit-btn"
-                [class.active]="editMode === 'draw'" (click)="toggleEditMode('draw')" title="Gambar Bidang Baru">
-                <i class="ri-shape-line"></i>
-                <span>Draw Bidang</span>
-              </button>
-
-              <!-- Edit Bidang - Only at bidang level -->
-              <button *ngIf="currentLevel === 'bidang'" class="edit-btn"
-                [class.active]="editMode === 'edit' && editTarget === 'bidang'"
-                (click)="toggleEditMode('edit', 'bidang')" title="Edit Bidang">
-                <i class="ri-edit-line"></i>
-                <span>Edit Bidang</span>
-              </button>
-
-              <!-- Geser Bidang (Move) - Only at bidang level -->
-              <button *ngIf="currentLevel === 'bidang'" class="edit-btn" [class.active]="editMode === 'move'"
-                (click)="toggleEditMode('move')" title="Geser/Pindahkan Bidang">
-                <i class="ri-drag-move-2-line"></i>
-                <span>Geser Bidang</span>
-              </button>
-
-              <!-- Delete Button - Only for bidang level -->
-              <button *ngIf="currentLevel === 'bidang'" class="edit-btn" [class.active]="editMode === 'delete'"
-                (click)="toggleEditMode('delete')" title="Hapus Bidang">
-                <i class="ri-delete-bin-line"></i>
-                <span>Delete</span>
-              </button>
-
-              <hr *ngIf="editMode !== 'none'" class="my-2">
-
-              <!-- Save/Cancel when in edit mode -->
-              <div *ngIf="editMode !== 'none'" class="edit-actions">
-                <button class="btn btn-sm btn-success w-100 mb-2" (click)="saveEditChanges()"
-                  [disabled]="pendingChanges.length === 0">
-                  <i class="ri-save-line me-1"></i>Save
-                </button>
-                <button class="btn btn-sm btn-secondary w-100" (click)="cancelEditMode()">
-                  <i class="ri-close-line me-1"></i>Cancel
-                </button>
-              </div>
-
-              <!-- Pending changes indicator -->
-              <div *ngIf="pendingChanges.length > 0" class="pending-badge">
-                {{ pendingChanges.length }} changes pending
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Loading State -->
-        <div *ngIf="isLoadingBidang" class="mt-3 text-center">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-2">Loading bidang data...</p>
+        <!-- Loading/Error States -->
+        <div *ngIf="isLoadingBidang" class="loading-overlay">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 mb-0">Loading...</p>
         </div>
-
-        <!-- Error State -->
-        <div *ngIf="errorMessage" class="mt-3 alert alert-danger">
-          <i class="ri-error-warning-line me-2"></i>
-          {{ errorMessage }}
-        </div>
-
-        <!-- Data Info -->
-        <div *ngIf="!isLoadingBidang && !errorMessage && geoJsonData.length > 0" class="mt-3">
-          <div class="alert alert-success">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>Bidang Data Loaded:</strong> {{ getPaginationInfo() }}
-                <div *ngIf="selectedKecamatan" class="mt-1">
-                  <small>
-                    <strong>Kecamatan:</strong> {{ selectedKecamatan.nmKecamatan }} ({{ selectedKecamatan.kdKecamatan
-                    }})
-                    <span *ngIf="selectedKelurahan">
-                      | <strong>Kelurahan:</strong> {{ selectedKelurahan.nmKelurahan }} ({{
-                      selectedKelurahan.kdKelurahan }})
-                    </span>
-                  </small>
-                </div>
-              </div>
-              <div class="text-end">
-                <small class="text-muted">
-                  <i class="ri-information-line me-1"></i>
-                  Total Database: {{ totalBidangCount | number }} bidang
-                </small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Pagination Controls -->
-          <div *ngIf="totalElements > 0" class="d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-outline-primary" (click)="loadPrevPage()" [disabled]="!hasPrev">
-                <i class="ri-arrow-left-s-line"></i> Previous
-              </button>
-              <button class="btn btn-sm btn-outline-primary" (click)="loadNextPage()" [disabled]="!hasNext">
-                Next <i class="ri-arrow-right-s-line"></i>
-              </button>
-            </div>
-
-            <div class="d-flex gap-2">
-              <button class="btn btn-sm btn-primary" (click)="refreshData()">
-                <i class="ri-refresh-line me-1"></i> Refresh Data
-              </button>
-              <button class="btn btn-sm btn-secondary" (click)="refreshMap()">
-                <i class="ri-map-pin-line me-1"></i> Refresh Map
-              </button>
-            </div>
-          </div>
+        <div *ngIf="errorMessage" class="mt-2 alert alert-danger py-2">
+          <i class="ri-error-warning-line me-2"></i>{{ errorMessage }}
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Cari NOP Modal -->
+<div class="modal fade" [class.show]="showCariNopModal" [style.display]="showCariNopModal ? 'block' : 'none'"
+  style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="ri-search-eye-line me-2"></i>Cari NOP / Nama
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCariNopModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">NOP</label>
+          <input type="text" class="form-control" [(ngModel)]="nopSearch" placeholder="Masukkan NOP">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Nama WP</label>
+          <input type="text" class="form-control" [(ngModel)]="namaSearch" placeholder="Masukkan nama">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeCariNopModal()">Batal</button>
+        <button class="btn btn-primary" (click)="searchNop()">Cari</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Koordinat Modal -->
+<div class="modal fade" [class.show]="showKoordinatModal" [style.display]="showKoordinatModal ? 'block' : 'none'"
+  style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="ri-map-pin-line me-2"></i>Set Koordinat
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeKoordinatModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Latitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="coordLatitude" placeholder="-8.12345">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Longitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="coordLongitude" placeholder="113.12345">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeKoordinatModal()">Batal</button>
+        <button class="btn btn-info" (click)="setKoordinat()" [disabled]="!coordLatitude || !coordLongitude">
+          Set Lokasi
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filter Wilayah Modal (Compact) -->
+<div class="filter-modal-overlay" *ngIf="showFilterModal" (click)="closeFilterModal()">
+  <div class="filter-modal-content" (click)="$event.stopPropagation()">
+    <div class="filter-modal-header">
+      <i class="ri-filter-3-line"></i>
+      <span>Filter Wilayah</span>
+      <button class="filter-close-btn" (click)="closeFilterModal()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="filter-modal-body">
+      <div class="filter-field">
+        <label>Kecamatan</label>
+        <select [(ngModel)]="selectedKecamatan" (ngModelChange)="onFilterKecamatanChange()"
+          [disabled]="isLoadingKecamatan">
+          <option [ngValue]="null">-- Pilih --</option>
+          <option *ngFor="let kecamatan of kecamatanList" [ngValue]="kecamatan">
+            {{ kecamatan.nmKecamatan }} ({{ kecamatan.jumlahBidang || 0 }})
+          </option>
+        </select>
+        <i class="ri-arrow-down-s-line select-arrow"></i>
+      </div>
+      <div class="filter-field">
+        <label>Kelurahan</label>
+        <select [(ngModel)]="selectedKelurahan" [disabled]="isLoadingKelurahan || !selectedKecamatan">
+          <option [ngValue]="null">-- Pilih --</option>
+          <option *ngFor="let kelurahan of kelurahanList" [ngValue]="kelurahan">
+            {{ kelurahan.nmKelurahan }} ({{ kelurahan.jumlahBidang || 0 }})
+          </option>
+        </select>
+        <i class="ri-arrow-down-s-line select-arrow"></i>
+      </div>
+    </div>
+    <div class="filter-modal-footer">
+      <button class="filter-btn-cancel" (click)="closeFilterModal()">Batal</button>
+      <button class="filter-btn-apply" (click)="applyFilter()" [disabled]="!selectedKecamatan || isLoadingBidang">
+        <i class="ri-check-line"></i> Terapkan
+      </button>
+    </div>
+  </div>
+</div>
+
 
 <!-- Objek Pajak Modal -->
 <div *ngIf="showObjekPajakModal" class="modal fade show d-block" tabindex="-1" role="dialog"

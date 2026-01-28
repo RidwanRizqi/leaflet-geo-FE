@@ -90,3 +90,118 @@
 }
 
 // NOTE: Removed Geoman marker hiding CSS - now using hover-based pm.enable() in code
+
+// ==========================================
+// Bidang Map Active Mode (hide global sidebar)
+// ==========================================
+body.bidang-map-active {
+
+  // Hide global sidebar completely
+  .app-menu,
+  .navbar-menu {
+    display: none !important;
+    width: 0 !important;
+  }
+
+  // Reset main content margin to 0
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  // Hide vertical menu
+  .vertical-menu {
+    width: 0 !important;
+    display: none !important;
+  }
+
+  // Hide hamburger button and topbar-left area (the arrow icon)
+  .vertical-menu-btn,
+  .topbar-header,
+  .navbar-header,
+  #page-topbar .navbar-header {
+    display: none !important;
+  }
+
+  // Page content should have no padding
+  .page-content {
+    padding: 0 !important;
+  }
+
+  .container-fluid {
+    padding: 0;
+    max-width: 100%;
+  }
+}
+
+// ==========================================
+// Bidang Map Fullscreen Mode
+// ==========================================
+body.bidang-map-fullscreen {
+  overflow: hidden;
+
+  // Hide sidebar
+  .app-menu,
+  .navbar-menu {
+    display: none !important;
+  }
+
+  // Hide topbar (optional - can keep if needed)
+  // #page-topbar {
+  //   display: none !important;
+  // }
+
+  // Take full width
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  // Page content full screen
+  .page-content {
+    padding: 0 !important;
+    min-height: 100vh;
+  }
+
+  .container-fluid {
+    max-width: 100%;
+    padding: 0;
+  }
+}
+
+// Fullscreen mode component styles
+app-bidang-map.fullscreen-mode {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1040;
+  background: #f8f9fa;
+  overflow: auto;
+
+  .row {
+    margin: 0;
+    height: 100%;
+  }
+
+  .col-12 {
+    padding: 0;
+    height: 100%;
+  }
+
+  .card {
+    margin: 0;
+    border-radius: 0;
+    height: 100%;
+  }
+
+  .card-body {
+    height: calc(100% - 70px);
+    overflow: hidden;
+    padding: 10px;
+  }
+
+  .map-container {
+    height: calc(100vh - 180px) !important;
+    min-height: calc(100vh - 180px) !important;
+  }
+}
