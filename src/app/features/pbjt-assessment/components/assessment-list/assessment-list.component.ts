@@ -59,7 +59,7 @@ export class AssessmentListComponent implements OnInit {
           // Map response data including realization from history
           this.filteredAssessments = response.data.map(item => {
             const history = item.realisasiHistory || [];
-            
+
             // Helper to find amount by year
             const getAmount = (year: number) => {
               const record = history.find(h => h.tahun === year);
@@ -109,7 +109,7 @@ export class AssessmentListComponent implements OnInit {
    * Handle search input change
    */
   onSearch(): void {
-    this.currentPage = 0; 
+    this.currentPage = 0;
     this.loadAssessments(); // Reload from server (will reset to page 0)
     // Note: Search term is not sent to server yet as API doesn't support it
   }

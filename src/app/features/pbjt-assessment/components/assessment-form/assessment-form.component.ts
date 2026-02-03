@@ -41,7 +41,7 @@ export class AssessmentFormComponent implements OnInit {
   isLoadingKecamatan = false;
   isLoadingKelurahan = false;
   selectedKdKec: string | null = null;
-  
+
   // Calculation result
   calculationResult: any = null;
   isCalculating = false;
@@ -136,7 +136,7 @@ export class AssessmentFormComponent implements OnInit {
     // Initially toggle both methods to true (or as needed)
     this.showSampleMethod = true;
     this.showMenuMethod = true;
-    
+
     // Step 2: Location + Surveyor
     this.step2Form = this.fb.group({
       address: ['', Validators.required],
@@ -156,14 +156,14 @@ export class AssessmentFormComponent implements OnInit {
     // Step 3: Observations
     // Made optional to support Menu-Only Method
     this.step3Form = this.fb.group({
-      observations: this.fb.array([]) 
+      observations: this.fb.array([])
     });
   }
 
   get observations(): FormArray {
     return this.step3Form.get('observations') as FormArray;
   }
-  
+
   get menuItems(): FormArray {
     return this.step1Form.get('menuItems') as FormArray;
   }
@@ -189,11 +189,11 @@ export class AssessmentFormComponent implements OnInit {
   toggleSampleMethod() {
       this.showSampleMethod = !this.showSampleMethod;
   }
-  
+
   toggleMenuMethod() {
       this.showMenuMethod = !this.showMenuMethod;
   }
-  
+
   asFormGroup(control: any): FormGroup {
       return control as FormGroup;
   }
@@ -205,7 +205,7 @@ export class AssessmentFormComponent implements OnInit {
       visitors: [10, [Validators.required, Validators.min(1), Validators.max(1000)]],
       durationHours: [2, [Validators.required, Validators.min(0.5), Validators.max(24)]],
       // Samples are optional if using Menu Method
-      sampleTransactions: this.fb.array([]),  
+      sampleTransactions: this.fb.array([]),
       notes: ['']
     });
   }
@@ -299,7 +299,7 @@ export class AssessmentFormComponent implements OnInit {
           // Patch Menu Items for Menu Based Method
           if (assessment.menuItems && assessment.menuItems.length > 0) {
              this.menuItems.clear(); // Clear default initialized item
-             
+
              assessment.menuItems.forEach((item: any) => {
                  const itemGroup = this.fb.group({
                     name: [item.name, Validators.required],
@@ -442,7 +442,7 @@ export class AssessmentFormComponent implements OnInit {
         this.observations.controls.forEach((obs, i) => {
           const obsGroup = obs as FormGroup;
           const date = obsGroup.get('observationDate')?.value;
-          
+
           // Only validate if observation has a date (user started filling it)
           if (date) {
             if (!obsGroup.get('dayType')?.value) {
@@ -522,16 +522,16 @@ export class AssessmentFormComponent implements OnInit {
       alert("Mohon lengkapi profil usaha (Step 1) terlebih dahulu");
       return;
     }
-    
+
     this.isCalculating = true;
     const request = this.prepareRequest([]); // Empty images for calculation
-    
+
     // DEBUG: Log request to verify data
     console.log('🔍 [DEBUG] Calculate Request:', JSON.stringify(request, null, 2));
     console.log('🔍 [DEBUG] showMenuMethod:', this.showMenuMethod);
     console.log('🔍 [DEBUG] showSampleMethod:', this.showSampleMethod);
     console.log('🔍 [DEBUG] menuItems from step1Form:', this.step1Form.get('menuItems')?.value);
-    
+
     this.assessmentService.calculateAssessment(request).subscribe({
       next: (response) => {
         console.log('✅ [DEBUG] Calculation Response:', response);
@@ -564,7 +564,7 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursStart: step1Value.operatingHoursStart,
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
-      
+
       // Menu Items & Opening Days (New Mappings)
       // Only include if Menu Method is active
       openingDaysPerMonth: this.showMenuMethod ? step1Value.openingDaysPerMonth : null,

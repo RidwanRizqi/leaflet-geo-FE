@@ -27,7 +27,7 @@ export interface Assessment {
   monthlyRevenueAdjusted?: number;
   monthlyPbjt?: number;
   annualPbjt?: number;
-  
+
   // Menu Based Results
   monthlyRevenueMenuBased?: number;
   monthlyPbjtMenuBased?: number;
