@@ -45,6 +45,13 @@ export class PbjtAssessmentService {
   }
 
   /**
+   * Calculate potential assessment without saving
+   */
+  calculateAssessment(assessment: AssessmentRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/calculate`, assessment);
+  }
+
+  /**
    * Get assessments by kecamatan
    */
   getAssessmentsByKecamatan(kecamatan: string): Observable<AssessmentListResponse> {

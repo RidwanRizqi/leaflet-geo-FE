@@ -41,6 +41,10 @@ export class AssessmentFormComponent implements OnInit {
   isLoadingKecamatan = false;
   isLoadingKelurahan = false;
   selectedKdKec: string | null = null;
+  
+  // Calculation result
+  calculationResult: any = null;
+  isCalculating = false;
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
@@ -57,10 +61,22 @@ export class AssessmentFormComponent implements OnInit {
   ];
 
   dayTypes = [
-    { value: 'WEEKDAY_PEAK', label: 'Hari Kerja - Ramai' },
-    { value: 'WEEKDAY_OFFPEAK', label: 'Hari Kerja - Sepi' },
-    { value: 'WEEKEND_PEAK', label: 'Akhir Pekan - Ramai' }
+    { value: 'WEEKDAY_PEAK', label: 'Hari Kerja - Ramai (Siang 12-14)' },
+    { value: 'WEEKDAY_OFFPEAK', label: 'Hari Kerja - Sepi (Sore 15-17)' },
+    { value: 'WEEKEND_PEAK', label: 'Akhir Pekan - Ramai (Malam 18-20)' },
+    { value: 'WEEKEND_OFFPEAK', label: 'Akhir Pekan - Sepi (Sore 15-17)' }
   ];
+
+  roadTypes = [
+    { value: 'ARTERI', label: 'Jalan Arteri (+20%)' },
+    { value: 'KOLEKTOR', label: 'Jalan Kolektor (+15%)' },
+    { value: 'LOKAL', label: 'Jalan Lokal (+5%)' },
+    { value: 'GANG', label: 'Gang / Jalan Kecil (0%)' }
+  ];
+
+  // UI State for Step 3 Methods
+  showSampleMethod = true;
+  showMenuMethod = true;
 
   constructor(
     private fb: FormBuilder,
@@ -109,9 +125,18 @@ export class AssessmentFormComponent implements OnInit {
       buildingArea: [null],
       operatingHoursStart: ['09:00', Validators.required],
       operatingHoursEnd: ['22:00', Validators.required],
-      assessmentDate: [todayStr, Validators.required]
+      assessmentDate: [todayStr, Validators.required],
+      // Menu Method Inputs
+      openingDaysPerMonth: [25, [Validators.min(1), Validators.max(31)]],
+      menuItems: this.fb.array([])
     });
 
+    this.addMenuItem(); // Add initial menu item row
+
+    // Initially toggle both methods to true (or as needed)
+    this.showSampleMethod = true;
+    this.showMenuMethod = true;
+    
     // Step 2: Location + Surveyor
     this.step2Form = this.fb.group({
       address: ['', Validators.required],
@@ -120,17 +145,57 @@ export class AssessmentFormComponent implements OnInit {
       kabupaten: ['Lumajang', Validators.required],
       latitude: [null, [Validators.required, Validators.min(-90), Validators.max(90)]],
       longitude: [null, [Validators.required, Validators.min(-180), Validators.max(180)]],
+      // Advanced Location Factors
+      roadType: [''],
+      nearSchool: [false],
+      nearOffice: [false],
+      nearMarket: [false],
       surveyorId: ['', Validators.required]  // Required by backend
     });
 
     // Step 3: Observations
+    // Made optional to support Menu-Only Method
     this.step3Form = this.fb.group({
-      observations: this.fb.array([], [Validators.required, Validators.minLength(2)])
+      observations: this.fb.array([]) 
     });
   }
 
   get observations(): FormArray {
     return this.step3Form.get('observations') as FormArray;
+  }
+  
+  get menuItems(): FormArray {
+    return this.step1Form.get('menuItems') as FormArray;
+  }
+
+  addMenuItem(): void {
+    const itemGroup = this.fb.group({
+      name: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(1)]],
+      category: ['FOOD', Validators.required]
+    });
+    this.menuItems.push(itemGroup);
+  }
+
+  removeMenuItem(index: number): void {
+    if (this.menuItems.length > 1) {
+      this.menuItems.removeAt(index);
+    } else {
+        // Reset if only one
+        this.menuItems.at(0).reset({category: 'FOOD'});
+    }
+  }
+
+  toggleSampleMethod() {
+      this.showSampleMethod = !this.showSampleMethod;
+  }
+  
+  toggleMenuMethod() {
+      this.showMenuMethod = !this.showMenuMethod;
+  }
+  
+  asFormGroup(control: any): FormGroup {
+      return control as FormGroup;
   }
 
   createObservationFormGroup(): FormGroup {
@@ -139,7 +204,8 @@ export class AssessmentFormComponent implements OnInit {
       dayType: ['WEEKDAY_PEAK', Validators.required],
       visitors: [10, [Validators.required, Validators.min(1), Validators.max(1000)]],
       durationHours: [2, [Validators.required, Validators.min(0.5), Validators.max(24)]],
-      sampleTransactions: this.fb.array([], [Validators.required, Validators.minLength(5)]),  // 5-30 sample values
+      // Samples are optional if using Menu Method
+      sampleTransactions: this.fb.array([]),  
       notes: ['']
     });
   }
@@ -172,7 +238,7 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   /**
-   * Remove sample transaction input
+   * Remove sample transaction input (minimum 5 required)
    */
   removeSampleTransaction(obsIndex: number, sampleIndex: number): void {
     const samples = this.getSampleTransactions(obsIndex);
@@ -208,9 +274,7 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   removeObservation(index: number): void {
-    if (this.observations.length > 2) {
-      this.observations.removeAt(index);
-    }
+    this.observations.removeAt(index);
   }
 
   loadAssessment(): void {
@@ -231,6 +295,26 @@ export class AssessmentFormComponent implements OnInit {
             operatingHoursEnd: assessment.operatingHoursEnd,
             assessmentDate: assessment.assessmentDate?.split('T')[0]
           });
+
+          // Patch Menu Items for Menu Based Method
+          if (assessment.menuItems && assessment.menuItems.length > 0) {
+             this.menuItems.clear(); // Clear default initialized item
+             
+             assessment.menuItems.forEach((item: any) => {
+                 const itemGroup = this.fb.group({
+                    name: [item.name, Validators.required],
+                    price: [item.price, [Validators.required, Validators.min(1)]],
+                    category: [item.category, Validators.required]
+                 });
+                 this.menuItems.push(itemGroup);
+             });
+          }
+
+          if (assessment.openingDaysPerMonth) {
+              this.step1Form.patchValue({
+                  openingDaysPerMonth: assessment.openingDaysPerMonth
+              });
+          }
 
           // Load existing images if any
           if (assessment.photoUrls && assessment.photoUrls.length > 0) {
@@ -327,48 +411,52 @@ export class AssessmentFormComponent implements OnInit {
     }
 
     // Check Step 3 errors (observations)
-    // Count only filled observations (observations with date and at least 5 samples)
-    const filledObservations = this.observations.controls.filter(obs => {
-      const obsGroup = obs as FormGroup;
-      const date = obsGroup.get('observationDate')?.value;
-      const samples = obsGroup.get('sampleTransactions') as FormArray;
-      const filledSamples = samples.controls.filter(c => {
-        const amount = c.get('amount')?.value;
-        return amount !== null && amount !== undefined && amount > 0;
-      }).length;
-      return date && filledSamples >= 5;
+    // Validate if user has provided EITHER Observations OR Menu Items
+    const validObservations = this.observations.controls.filter(obs => {
+        return !!obs.get('observationDate')?.value;
     });
 
-    if (filledObservations.length === 0) {
-      errors.push('Step 3 - Observasi: Minimal 1 observasi lengkap diperlukan (dengan tanggal dan minimal 5 sample transaksi)');
+    // Check valid Menu Items
+    let hasMenuItems = false;
+    if (this.showMenuMethod) {
+        hasMenuItems = this.menuItems.controls.some(item => {
+            const val = item.value;
+            return val.name && val.price > 0 && val.category;
+        });
     }
 
-    // Validate only filled observations
-    this.observations.controls.forEach((obs, i) => {
-      const obsGroup = obs as FormGroup;
-      const date = obsGroup.get('observationDate')?.value;
-      const samples = obsGroup.get('sampleTransactions') as FormArray;
-      const filledSamples = samples.controls.filter(c => {
-        const amount = c.get('amount')?.value;
-        return amount !== null && amount !== undefined && amount > 0;
-      }).length;
+    if (this.showSampleMethod && validObservations.length === 0) {
+        errors.push('Metode Sample aktif: Minimal 1 Observasi lengkap diperlukan');
+    }
 
-      // Only validate if observation has a date (user started filling it)
-      if (date) {
-        if (filledSamples < 5) {
-          errors.push(`Observasi #${i + 1}: Sample transaksi minimal 5 (saat ini: ${filledSamples})`);
-        }
-        if (!obsGroup.get('dayType')?.value) {
-          errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
-        }
-        if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
-          errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
-        }
-        if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
-          errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
-        }
-      }
-    });
+    if (this.showMenuMethod && !hasMenuItems) {
+        errors.push('Metode Menu aktif: Minimal 1 Menu lengkap diperlukan');
+    }
+
+    if (!this.showSampleMethod && !this.showMenuMethod) {
+       errors.push('Wajib memilih minimal satu metode perhitungan (Sample atau Menu)');
+    }
+
+    // Validate only filled observations details IF method is active
+    if (this.showSampleMethod) {
+        this.observations.controls.forEach((obs, i) => {
+          const obsGroup = obs as FormGroup;
+          const date = obsGroup.get('observationDate')?.value;
+          
+          // Only validate if observation has a date (user started filling it)
+          if (date) {
+            if (!obsGroup.get('dayType')?.value) {
+              errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
+            }
+            if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
+              errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
+            }
+            if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
+              errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
+            }
+          }
+        });
+    }
 
     if (errors.length > 0) {
       alert('Field yang belum lengkap:\n\n' + errors.join('\n'));
@@ -425,16 +513,48 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   /**
-   * Submit assessment data with image URLs
+   * Calculate estimates before submitting
    */
-  private submitAssessmentData(imageUrls: string[]): void {
+  calculateEstimates(): void {
+    // Basic validation
+    if (this.step1Form.invalid) {
+      this.markFormGroupTouched(this.step1Form);
+      alert("Mohon lengkapi profil usaha (Step 1) terlebih dahulu");
+      return;
+    }
+    
+    this.isCalculating = true;
+    const request = this.prepareRequest([]); // Empty images for calculation
+    
+    // DEBUG: Log request to verify data
+    console.log('🔍 [DEBUG] Calculate Request:', JSON.stringify(request, null, 2));
+    console.log('🔍 [DEBUG] showMenuMethod:', this.showMenuMethod);
+    console.log('🔍 [DEBUG] showSampleMethod:', this.showSampleMethod);
+    console.log('🔍 [DEBUG] menuItems from step1Form:', this.step1Form.get('menuItems')?.value);
+    
+    this.assessmentService.calculateAssessment(request).subscribe({
+      next: (response) => {
+        console.log('✅ [DEBUG] Calculation Response:', response);
+        this.calculationResult = response.data;
+        this.isCalculating = false;
+        // Optionally scroll to result
+      },
+      error: (err) => {
+        console.error("Calculation error", err);
+        alert("Gagal melakukan kalkulasi: " + (err.error?.message || err.message || 'Unknown error'));
+        this.isCalculating = false;
+      }
+    });
+  }
+
+  private prepareRequest(imageUrls: string[] = []): AssessmentRequest {
     // Merge all step forms
     const step1Value = this.step1Form.value;
     const step2Value = this.step2Form.value;
     const step3Value = this.step3Form.getRawValue();
 
     // Build request matching backend AssessmentRequestDTO (flat structure)
-    const request: AssessmentRequest = {
+    return {
       // Business info
       businessId: step1Value.businessId,
       businessName: step1Value.businessName,
@@ -444,6 +564,17 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursStart: step1Value.operatingHoursStart,
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
+      
+      // Menu Items & Opening Days (New Mappings)
+      // Only include if Menu Method is active
+      openingDaysPerMonth: this.showMenuMethod ? step1Value.openingDaysPerMonth : null,
+      menuItems: this.showMenuMethod ? (step1Value.menuItems || [])
+        .filter((item: any) => item.name && item.price > 0 && item.category) // Basic filtering
+        .map((item: any) => ({
+            name: item.name,
+            price: item.price,
+            category: item.category
+        })) : [],
 
       // Location - FLAT (not nested)
       address: step2Value.address,
@@ -453,6 +584,12 @@ export class AssessmentFormComponent implements OnInit {
       latitude: step2Value.latitude,
       longitude: step2Value.longitude,
 
+      // Advanced Location Factors
+      roadType: step2Value.roadType || null,
+      nearSchool: !!step2Value.nearSchool,
+      nearOffice: !!step2Value.nearOffice,
+      nearMarket: !!step2Value.nearMarket,
+
       // Surveyor
       surveyorId: step2Value.surveyorId,
 
@@ -460,27 +597,33 @@ export class AssessmentFormComponent implements OnInit {
       photoUrls: imageUrls,
 
       // Observations with sampleTransactions
-      // Filter hanya observasi yang terisi (ada tanggal dan minimal 5 samples)
+      // Filter hanya observasi yang terisi (ada tanggal)
       observations: step3Value.observations
         .filter((obs: any) => {
-          const samples = (obs.sampleTransactions || [])
-            .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0);
-          return obs.observationDate && samples.length >= 5;
+          return !!obs.observationDate;
         })
         .map((obs: any) => ({
           observationDate: this.formatObservationDate(obs.observationDate),
           dayType: obs.dayType,
           visitors: obs.visitors,
           durationHours: obs.durationHours,
-          sampleTransactions: (obs.sampleTransactions || [])
+          // Only include sample transactions if Sample Method is active
+          sampleTransactions: this.showSampleMethod ? (obs.sampleTransactions || [])
             .filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0)
             .map((tx: any) => ({
               amount: tx.amount,
               notes: tx.notes || ''
-            })),
+            })) : [],
           notes: obs.notes || ''
         }))
     };
+  }
+
+  /**
+   * Submit assessment data with image URLs
+   */
+  private submitAssessmentData(imageUrls: string[]): void {
+    const request = this.prepareRequest(imageUrls);
 
     const operation = this.isEditMode
       ? this.assessmentService.updateAssessment(this.assessmentId, request)

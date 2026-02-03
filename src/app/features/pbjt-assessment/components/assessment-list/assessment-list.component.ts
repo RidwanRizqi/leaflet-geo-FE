@@ -52,41 +52,38 @@ export class AssessmentListComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    // Load both assessments and realization data in parallel
-    forkJoin({
-      assessments: this.assessmentService.getAllAssessments(0, 1000),
-      realization: this.assessmentService.getAssessmentsWithRealization()
-    }).subscribe({
-      next: (result) => {
-        if (result.assessments.success && result.assessments.data) {
-          const assessmentsData = result.assessments.data;
-          const realizationData = result.realization || [];
+    // Load paginated assessments from backend
+    this.assessmentService.getAllAssessments(this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          // Map response data including realization from history
+          this.filteredAssessments = response.data.map(item => {
+            const history = item.realisasiHistory || [];
+            
+            // Helper to find amount by year
+            const getAmount = (year: number) => {
+              const record = history.find(h => h.tahun === year);
+              return record ? record.realisasiAmount : 0;
+            };
 
-          // Create a map of realization data by business_id
-          const realizationMap = new Map();
-          realizationData.forEach((real: any) => {
-            realizationMap.set(real.id, {
-              realisasi2021: real.realisasi2021 || 0,
-              realisasi2022: real.realisasi2022 || 0,
-              realisasi2023: real.realisasi2023 || 0,
-              realisasi2024: real.realisasi2024 || 0,
-              realisasi2025: real.realisasi2025 || 0,
-              totalRealisasi: real.totalRealisasi || 0
-            });
+            return {
+              ...item,
+              realisasi2021: getAmount(2021),
+              realisasi2022: getAmount(2022),
+              realisasi2023: getAmount(2023),
+              realisasi2024: getAmount(2024),
+              realisasi2025: getAmount(2025),
+              totalRealisasi: history.reduce((sum, h) => sum + (h.realisasiAmount || 0), 0)
+            };
           });
 
-          // Merge assessment with realization data
-          this.assessments = assessmentsData.map(assessment => ({
-            ...assessment,
-            realisasi2021: realizationMap.get(assessment.id)?.realisasi2021 || 0,
-            realisasi2022: realizationMap.get(assessment.id)?.realisasi2022 || 0,
-            realisasi2023: realizationMap.get(assessment.id)?.realisasi2023 || 0,
-            realisasi2024: realizationMap.get(assessment.id)?.realisasi2024 || 0,
-            realisasi2025: realizationMap.get(assessment.id)?.realisasi2025 || 0,
-            totalRealisasi: realizationMap.get(assessment.id)?.totalRealisasi || 0
-          }));
-
-          this.applySearchAndPagination();
+          // Update pagination info from backend response
+          if (response.pagination) {
+            this.totalElements = response.pagination.totalElements;
+            this.totalPages = response.pagination.totalPages;
+            this.hasNext = response.pagination.hasNext;
+            this.hasPrev = response.pagination.hasPrev;
+          }
         }
         this.loading = false;
       },
@@ -99,82 +96,54 @@ export class AssessmentListComponent implements OnInit {
   }
 
   /**
-   * Apply search filter and pagination
+   * Apply search filter - currently only client side on the current page
+   * TODO: Implement server-side search
    */
-  applySearchAndPagination(): void {
-    // Filter by search term
-    let filtered = this.assessments;
-
-    if (this.searchTerm.trim() !== '') {
-      const searchLower = this.searchTerm.toLowerCase();
-      filtered = this.assessments.filter(a =>
-        a.businessName?.toLowerCase().includes(searchLower) ||
-        a.location?.address?.toLowerCase().includes(searchLower) ||
-        a.location?.kecamatan?.toLowerCase().includes(searchLower) ||
-        a.location?.kelurahan?.toLowerCase().includes(searchLower) ||
-        a.businessId?.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Update pagination info
-    this.totalElements = filtered.length;
-    this.totalPages = Math.ceil(filtered.length / this.pageSize);
-
-    // Ensure current page is valid
-    if (this.currentPage >= this.totalPages && this.totalPages > 0) {
-      this.currentPage = this.totalPages - 1;
-    }
-    if (this.currentPage < 0) {
-      this.currentPage = 0;
-    }
-
-    this.hasNext = (this.currentPage + 1) < this.totalPages;
-    this.hasPrev = this.currentPage > 0;
-
-    // Slice data for current page
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.filteredAssessments = filtered.slice(startIndex, endIndex);
+  applySearch(): void {
+    // If we want real search, we need a backend endpoint that accepts a query param
+    // For now, this just filters the currently loaded page (which is just 10 items)
+    // This is temporary until BE search is implemented
   }
 
   /**
    * Handle search input change
    */
   onSearch(): void {
-    this.currentPage = 0; // Reset to first page when searching
-    this.applySearchAndPagination();
+    this.currentPage = 0; 
+    this.loadAssessments(); // Reload from server (will reset to page 0)
+    // Note: Search term is not sent to server yet as API doesn't support it
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
-    this.applySearchAndPagination();
+    this.loadAssessments();
   }
 
   onNextPage(): void {
     if (this.hasNext) {
       this.currentPage++;
-      this.applySearchAndPagination();
+      this.loadAssessments();
     }
   }
 
   onPrevPage(): void {
     if (this.hasPrev) {
       this.currentPage--;
-      this.applySearchAndPagination();
+      this.loadAssessments();
     }
   }
 
   onFirstPage(): void {
     if (this.hasPrev) {
       this.currentPage = 0;
-      this.applySearchAndPagination();
+      this.loadAssessments();
     }
   }
 
   onLastPage(): void {
     if (this.hasNext) {
       this.currentPage = this.totalPages - 1;
-      this.applySearchAndPagination();
+      this.loadAssessments();
     }
   }
 

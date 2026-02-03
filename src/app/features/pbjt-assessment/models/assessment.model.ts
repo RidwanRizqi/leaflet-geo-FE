@@ -1,3 +1,9 @@
+export interface MenuItem {
+  name: string;
+  price: number;
+  category: 'FOOD' | 'BEVERAGE';
+}
+
 export interface Assessment {
   id?: number;
   businessId: string;
@@ -10,6 +16,10 @@ export interface Assessment {
   businessType?: string;
   paymentMethods?: string[];
 
+  // Menu Based Method
+  menuItems?: MenuItem[];
+  openingDaysPerMonth?: number;
+
   // Calculation results
   dailyRevenueWeekday?: number;
   dailyRevenueWeekend?: number;
@@ -17,6 +27,11 @@ export interface Assessment {
   monthlyRevenueAdjusted?: number;
   monthlyPbjt?: number;
   annualPbjt?: number;
+  
+  // Menu Based Results
+  monthlyRevenueMenuBased?: number;
+  monthlyPbjtMenuBased?: number;
+  annualPbjtMenuBased?: number;
 
   // Adjustment factors
   adjustments?: AdjustmentDetails;
@@ -42,6 +57,9 @@ export interface Assessment {
   // Validation data
   validationData?: any;
 
+  // Realization History
+  realisasiHistory?: RealisasiHistoryItem[];
+
   // Tax configuration
   taxRate?: number;
   inflationRate?: number;
@@ -50,6 +68,12 @@ export interface Assessment {
   // Timestamps
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface RealisasiHistoryItem {
+  tahun: number;
+  realisasiAmount: number;
+  jumlahTransaksi: number;
 }
 
 // Sample Transaction with notes
@@ -97,6 +121,11 @@ export interface LocationDetails {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
+  // Advanced Factors
+  roadType?: string;
+  nearSchool?: boolean;
+  nearOffice?: boolean;
+  nearMarket?: boolean;
 }
 
 export interface AssessmentListResponse {
@@ -135,6 +164,14 @@ export interface AssessmentRequest {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
+  // Advanced Factors
+  roadType?: string;
+  nearSchool?: boolean;
+  nearOffice?: boolean;
+  nearMarket?: boolean;
+    // Menu Based Method
+  menuItems?: MenuItem[];
+  openingDaysPerMonth?: number;
   // Observations with sampleTransactions
   observations: ObservationRequest[];
   // Surveyor info (required by backend)

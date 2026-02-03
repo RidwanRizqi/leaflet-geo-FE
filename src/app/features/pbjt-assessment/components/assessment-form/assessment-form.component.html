@@ -256,6 +256,37 @@
               </div>
             </div>
 
+            <!-- New Location Factors -->
+            <div class="card bg-light border-0 mb-3">
+              <div class="card-body">
+                <h6 class="mb-3 text-primary"><i class="ri-map-pin-user-line me-1"></i> Karakteristik Lokasi (Advanced)</h6>
+                
+                <div class="mb-3">
+                  <label class="form-label">Tipe Jalan / Aksesibilitas</label>
+                  <select class="form-select" formControlName="roadType">
+                    <option value="">-- Pilih Tipe Jalan --</option>
+                    <option *ngFor="let type of roadTypes" [value]="type.value">{{ type.label }}</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label d-block mb-2">Pemicu Keramaian (Traffic Generators)</label>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="nearSchool" formControlName="nearSchool">
+                    <label class="form-check-label" for="nearSchool">Dekat Sekolah/Kampus (+10%)</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="nearOffice" formControlName="nearOffice">
+                    <label class="form-check-label" for="nearOffice">Dekat Perkantoran (+15%)</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="nearMarket" formControlName="nearMarket">
+                    <label class="form-check-label" for="nearMarket">Dekat Pasar/Pusat Belanja (+12%)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="mb-3">
               <label class="form-label">Surveyor ID <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="surveyorId"
@@ -287,24 +318,93 @@
       <form [formGroup]="step3Form">
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Step 3: Data Observasi (Min 2, Max 5)</h5>
-            <button type="button" class="btn btn-sm btn-primary" (click)="addObservation()"
-                    [disabled]="observations.length >= 5">
-              <i class="ri-add-line"></i> Tambah Observasi
-            </button>
+            <h5 class="card-title mb-0">Step 3: Metode Perhitungan & Observasi</h5>
+            <div class="btn-group" role="group">
+                 <input type="checkbox" class="btn-check" id="btnMethodSample" [checked]="showSampleMethod" (change)="toggleSampleMethod()">
+                 <label class="btn btn-outline-primary" for="btnMethodSample">Metode Sample/Struk</label>
+
+                 <input type="checkbox" class="btn-check" id="btnMethodMenu" [checked]="showMenuMethod" (change)="toggleMenuMethod()">
+                 <label class="btn btn-outline-success" for="btnMethodMenu">Metode Nilai Tengah/Menu</label>
+            </div>
           </div>
           <div class="card-body">
-            <div formArrayName="observations">
-              <div *ngFor="let observation of observations.controls; let i = index"
-                   [formGroupName]="i" class="border rounded p-3 mb-3 position-relative observation-card">
-                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                        (click)="removeObservation(i)" *ngIf="observations.length > 2">
-                  <i class="ri-delete-bin-line"></i>
-                </button>
+            
+            <!-- Section: Data Metode Menu -->
+            <div class="mb-5 border-bottom pb-4" *ngIf="showMenuMethod">
+                <h6 class="mb-3 text-success fw-bold"><i class="ri-restaurant-line me-1"></i> Data Metode Nilai Tengah (Menu)</h6>
+                <div class="alert alert-soft-success small mb-3">
+                    <i class="ri-information-line"></i> Masukkan rata-rata hari buka dan sampel daftar menu untuk estimasi nilai tengah.
+                </div>
 
-                <h6 class="mb-3 text-primary">
-                  <i class="ri-eye-line"></i> Observasi #{{ i + 1 }}
-                </h6>
+                <div class="row" [formGroup]="step1Form">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Jumlah Estimasi Hari Buka / Bulan</label>
+                        <input type="number" class="form-control" formControlName="openingDaysPerMonth" min="1" max="31">
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <label class="form-label d-flex justify-content-between align-items-center">
+                        Daftar Sampel Menu
+                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addMenuItem()">
+                            <i class="ri-add-line"></i> Tambah Menu
+                        </button>
+                    </label>
+                    <table class="table table-sm table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Items</th>
+                                <th width="25%">Harga (Rp)</th>
+                                <th width="25%">Kategori</th>
+                                <th width="50px"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of menuItems.controls; let i = index" [formGroup]="asFormGroup(item)">
+                                <td>
+                                    <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Nama Menu">
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" formControlName="price" placeholder="0">
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm" formControlName="category">
+                                        <option value="FOOD">Makanan</option>
+                                        <option value="BEVERAGE">Minuman</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeMenuItem(i)">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section: Data Metode Sample -->
+            <div *ngIf="showSampleMethod">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 text-primary fw-bold"><i class="ri-file-list-3-line me-1"></i> Data Metode Observasi / Sample Struk</h6>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="addObservation()"
+                            [disabled]="observations.length >= 5">
+                      <i class="ri-add-line"></i> Tambah Observasi
+                    </button>
+                </div>
+
+                <div formArrayName="observations">
+                  <div *ngFor="let observation of observations.controls; let i = index"
+                       [formGroupName]="i" class="border rounded p-3 mb-3 position-relative observation-card">
+                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                            (click)="removeObservation(i)">
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+
+                    <h6 class="mb-3 text-primary">
+                      <i class="ri-eye-line"></i> Observasi #{{ i + 1 }}
+                    </h6>
 
                 <div class="row">
                   <div class="col-md-4 mb-3">
@@ -345,7 +445,7 @@
                 <div class="sample-transactions-section mt-3">
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">
-                      <strong>Sample Transaksi (Min 5, Max 30)</strong> <span class="text-danger">*</span>
+                      <strong>Sample Transaksi (Min 5, Max 30)</strong> 
                     </label>
                     <div>
                       <span class="badge bg-info me-2" *ngIf="calculateAvgTransaction(i) > 0">
@@ -362,51 +462,137 @@
                     <div class="col-md-6 col-12 mb-3"
                          *ngFor="let tx of getSampleTransactions(i).controls; let j = index"
                          [formGroupName]="j">
-                      <div class="border rounded p-2 position-relative">
-                        <button type="button" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-1"
-                                (click)="removeSampleTransaction(i, j)"
+                      <div class="border rounded p-2 position-relative" style="padding-top: 2rem !important;">
+                        <button type="button" 
+                                class="btn btn-sm btn-outline-danger position-absolute" 
+                                style="top: 2px; right: 2px; z-index: 10; padding: 0.15rem 0.4rem;"
+                                (click)="removeSampleTransaction(i, j); $event.stopPropagation();"
                                 *ngIf="getSampleTransactions(i).length > 5"
-                                style="z-index: 10;">
+                                title="Hapus sample ini">
                           <i class="ri-close-line"></i>
                         </button>
-                        <label class="form-label mb-1" style="font-size: 0.875rem;">
-                          <strong>Sample #{{ j + 1 }}</strong>
-                        </label>
-                        <div class="input-group input-group-sm mb-2">
-                          <span class="input-group-text">Rp</span>
-                          <input type="number" class="form-control" formControlName="amount"
-                                 placeholder="25000" min="1000">
+                        <div class="row g-2">
+                          <div class="col-8">
+                            <label class="form-label small mb-1">Nominal (Rp)</label>
+                            <input type="number" class="form-control form-control-sm"
+                                   formControlName="amount" placeholder="0">
+                          </div>
+                          <div class="col-4">
+                            <label class="form-label small mb-1">Note</label>
+                            <input type="text" class="form-control form-control-sm"
+                                   formControlName="notes" placeholder="...">
+                          </div>
                         </div>
-                        <input type="text" class="form-control form-control-sm" formControlName="notes"
-                               placeholder="Catatan transaksi (opsional)">
                       </div>
                     </div>
                   </div>
-                  <small class="text-muted">
-                    Masukkan nilai transaksi yang diamati (minimal 5 sampel). Total: {{ getSampleTransactions(i).length }} sampel
-                  </small>
+                   <div *ngIf="getSampleTransactions(i).length === 0" class="text-center text-muted small p-2 border border-dashed rounded">
+                        Belum ada sample transaksi. Klik "Tambah" untuk input manual.
+                   </div>
                 </div>
+
               </div>
             </div>
+        </div> <!-- End Sample Section -->
 
-            <div *ngIf="observations.length === 0" class="alert alert-info">
-              <i class="ri-information-line"></i> Belum ada data observasi. Klik "Tambah Observasi" untuk menambah data.
-            </div>
           </div>
           <div class="card-footer">
             <div class="d-flex justify-content-between">
               <button type="button" class="btn btn-secondary" (click)="currentStep = 1">
                 <i class="ri-arrow-left-line"></i> Kembali
               </button>
-              <button type="button" class="btn btn-success" (click)="onSubmit()" [disabled]="loading">
-                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                <i class="ri-save-line" *ngIf="!loading"></i>
-                {{ isEditMode ? 'Update' : 'Simpan' }} Assessment
-              </button>
+              
+              <div>
+                <button type="button" class="btn btn-info me-2 text-white" (click)="calculateEstimates()" [disabled]="isCalculating">
+                  <span *ngIf="isCalculating" class="spinner-border spinner-border-sm me-2"></span>
+                  <i class="ri-calculator-fill" *ngIf="!isCalculating"></i>
+                   Hitung Estimasi
+                </button>
+
+                <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || isCalculating">
+                  <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                  <i class="ri-save-line" *ngIf="!loading"></i>
+                  {{ isEditMode ? 'Update' : 'Simpan' }} Assessment
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </form>
     </div>
   </div>
-</div>
+
+  <!-- Calculation Result Section -->
+            <div class="card bg-info bg-opacity-10 border-info mt-4 mb-3" *ngIf="calculationResult">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0 card-title text-white"><i class="ri-calculator-line me-2"></i>Hasil Estimasi Pajak</h5>
+              </div>
+              <div class="card-body">
+                <!-- Dual Result Layout -->
+                <div class="row">
+                   <!-- Metode A: Sample Based (Original) -->
+                   <div class="col-md-6 border-end">
+                      <h6 class="text-center text-primary fw-bold mb-3 border-bottom pb-2">Metode Observasi Struk/Sample</h6>
+                      <div class="text-center">
+                        <p class="mb-1 text-muted">Potensi Per Bulan</p>
+                        <h3 class="text-primary fw-bold">{{ calculationResult.monthlyPbjt | currency:'IDR':'symbol':'1.0-0' }}</h3>
+                        <p class="mb-1 text-muted">Potensi Per Tahun</p>
+                        <h4 class="text-secondary">{{ calculationResult.annualPbjt | currency:'IDR':'symbol':'1.0-0' }}</h4>
+                        
+                        <div class="mt-3 small bg-white p-2 rounded">
+                            <span class="d-block text-muted">Pendapatan Kotor/Bln</span>
+                            <strong>{{ calculationResult.monthlyRevenueRaw | currency:'IDR':'symbol':'1.0-0' }}</strong>
+                        </div>
+                      </div>
+                   </div>
+
+                   <!-- Metode B: Menu Based (New) -->
+                   <div class="col-md-6">
+                      <h6 class="text-center text-success fw-bold mb-3 border-bottom pb-2">Metode Nilai Tengah (Menu)</h6>
+                      <div class="text-center" *ngIf="calculationResult.monthlyPbjtMenuBased; else noMenuResult">
+                        <p class="mb-1 text-muted">Potensi Per Bulan</p>
+                        <h3 class="text-success fw-bold">{{ calculationResult.monthlyPbjtMenuBased | currency:'IDR':'symbol':'1.0-0' }}</h3>
+                        <p class="mb-1 text-muted">Potensi Per Tahun</p>
+                        <h4 class="text-secondary">{{ calculationResult.annualPbjtMenuBased | currency:'IDR':'symbol':'1.0-0' }}</h4>
+
+                        <div class="mt-3 small bg-white p-2 rounded d-flex justify-content-around">
+                            <div>
+                                <span class="d-block text-muted">Avg Makanan</span>
+                                <strong>{{ calculationResult.averageFoodPrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
+                            </div>
+                            <div>
+                                <span class="d-block text-muted">Avg Minuman</span>
+                                <strong>{{ calculationResult.averageBeveragePrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
+                            </div>
+                        </div>
+                      </div>
+                      <ng-template #noMenuResult>
+                          <div class="alert alert-warning text-center small m-3">
+                              <i class="ri-alert-line"></i> Data Menu belum diisi lengkap.
+                              <br>Isi menu di Step 1 untuk melihat hasil ini.
+                          </div>
+                      </ng-template>
+                   </div>
+                </div>
+
+                <hr>
+                <!-- Common Factors -->
+                <div class="row text-center small mt-3">
+                  <div class="col-md-4">
+                    <span class="d-block text-muted">Skor Lokasi</span>
+                    <strong>{{ calculationResult.locationScore | number:'1.2-2' }}</strong>
+                  </div>
+                  <div class="col-md-4">
+                    <span class="d-block text-muted">Koefisien Tipe</span>
+                    <strong>{{ calculationResult.businessTypeCoefficient }}</strong>
+                  </div>
+                  <div class="col-md-4">
+                    <span class="d-block text-muted">Confidence</span>
+                    <strong>{{ calculationResult.confidenceScore }}%</strong>
+                  </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0 py-2 small">
+                  <i class="ri-information-fill me-1"></i> {{ calculationResult.recommendation }}
+                </div>
+              </div>
+            </div>
