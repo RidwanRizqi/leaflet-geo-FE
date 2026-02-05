@@ -1,441 +1,308 @@
-<div class="row mb-10">
-  <div class="col-12">
-    <!-- Card dengan background hijau muda penuh seperti gambar -->
-    <div class="card border-0 h-100"
-      style="background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%); min-height: 80vh;">
+<!-- Main Container with Sidebar + Content Layout (like bidang-map) -->
+<div class="thematic-map-wrapper">
+  <!-- ========== LEFT SIDEBAR (like bidang-map) ========== -->
+  <div class="thematic-sidebar">
+    <div class="sidebar-scroll">
+      <!-- Search Tools Section -->
+      <div class="sidebar-section">
+        <!-- Persistent Title if Type Selected -->
+        <div class="sidebar-info-box mb-3" *ngIf="selectedTematikType"
+          style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white;">
+          <i class="ri-paint-brush-line me-2 text-warning"></i>
+          <span style="font-size: 13px; font-weight: bold; text-transform: uppercase;">
+            {{ getTematikTypeLabel() }}
+          </span>
+        </div>
 
-      <!-- Header: Judul kiri, tombol hijau tua kanan -->
-      <div class="card-header border-0 p-3" style="background: transparent;">
-        <div class="d-flex justify-content-between align-items-center w-100">
-          <h4 class="card-title mb-0 fw-bold text-dark">
-            <i class="ri-map-2-line me-2" style="color: #2d5016;"></i>
-            Thematic Map View
-          </h4>
-          <div class="d-flex align-items-center gap-2">
-            <!-- Badge total bidang (posisi seperti sebelumnya tapi lebih ringkas) -->
-            <span *ngIf="!isLoadingTotalCount" class="badge bg-success fs-6 px-3 py-2">
-              <i class="ri-map-pin-line me-1"></i>
-              {{ totalBidangCount | number }} Total bidang di Lumajang
-            </span>
-            <span *ngIf="isLoadingTotalCount" class="badge bg-secondary px-3 py-2">
-              <i class="ri-loader-4-line spin me-1"></i>Loading...
-            </span>
-            <!-- Tombol Setup Filter hijau tua -->
-            <button class="btn btn-sm py-2 px-4 fw-bold" (click)="openTematikModal()" type="button"
-              title="Buka Filter Tematik"
-              style="background-color: #2d5016; border-color: #2d5016; color: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(45,80,22,0.3);">
-              <i class="ri-settings-3-line me-1"></i>
-              Setup Filter
-            </button>
+        <button class="sidebar-btn" (click)="showCariNopModal = true">
+          <i class="ri-search-eye-line"></i>
+          <span>Cari NOP</span>
+        </button>
+        <button class="sidebar-btn" (click)="showKoordinatModal = true">
+          <i class="ri-map-pin-line"></i>
+          <span>Lokasi Koordinat</span>
+        </button>
+        <button class="sidebar-btn" (click)="showTematikModal = true">
+          <i class="ri-palette-line"></i>
+          <span>Filter Tematik</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Navigation / Kembali -->
+      <div class="sidebar-section">
+        <button class="sidebar-btn" routerLink="/dashboard-pajak">
+          <i class="ri-arrow-left-line"></i>
+          <span>Kembali</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Tematik Legend Section (with type title) -->
+      <div class="sidebar-section sidebar-legend" *ngIf="tematikLayersArray.length > 0">
+        <!-- Tematik Type as Title -->
+        <div class="sidebar-legend-title" *ngIf="selectedTematikType">
+          <i class="ri-paint-brush-line me-2"></i> {{ getTematikTypeLabel() }}
+        </div>
+        <div class="legend-items">
+          <div *ngFor="let layer of tematikLayersArray" class="legend-item-row">
+            <span class="legend-color" [style.background-color]="layer.color"></span>
+            <span class="legend-label">{{ layer.label }}</span>
+            <span class="legend-count">({{ layer.count ?? layer.data?.length ?? 0 }})</span>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
+  <!-- ========== MAIN CONTENT (like bidang-map) ========== -->
+  <div class="thematic-main-content">
+    <div class="card card-green-theme border-0 h-100">
+      <!-- Map Container (full height, no header) -->
       <div class="card-body p-0">
-        <!-- Navigation Breadcrumb (tetap ada, tapi lebih ringkas) -->
-        <div class="row mb-2 px-3" *ngIf="navigationStack.length > 0">
-          <!-- ... kode breadcrumb Anda tetap sama ... -->
+        <!-- Navigation Breadcrumb (floating on map) - only shows during drill-down -->
+        <div class="floating-breadcrumb" *ngIf="navigationStack.length > 0">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+              <li class="breadcrumb-item">
+                <a href="javascript:void(0)" (click)="goToLevel('kecamatan')">
+                  <i class="ri-home-line me-1"></i>Kecamatan
+                </a>
+              </li>
+              <li class="breadcrumb-item"
+                *ngIf="currentLevel === 'kelurahan' || currentLevel === 'blok' || currentLevel === 'bidang'">
+                <span>{{ selectedKecamatanForDrilldown?.nama }}</span>
+              </li>
+              <li class="breadcrumb-item" *ngIf="currentLevel === 'blok' || currentLevel === 'bidang'">
+                <span>{{ selectedKelurahanForDrilldown?.nama }}</span>
+              </li>
+              <li class="breadcrumb-item" *ngIf="currentLevel === 'bidang'">
+                <span>{{ selectedBlokForDrilldown?.nama }}</span>
+              </li>
+            </ol>
+          </nav>
+          <button *ngIf="currentLevel !== 'kecamatan'" class="btn btn-sm btn-light" (click)="goBack()">
+            <i class="ri-arrow-left-line"></i>
+          </button>
         </div>
 
-        <!-- Map Container penuh layar dengan floating elements -->
-        <div class="map-container position-relative w-100 h-100"
-          style="min-height: 70vh; background: #f8f9fa; position: relative;">
-          <div #mapContainer class="leaflet-container w-100 h-120"></div>
+        <!-- Floating Total Bidang Badge -->
+        <div class="floating-badge">
+          <span *ngIf="isLoadingTotalCount" class="badge bg-secondary">
+            <i class="ri-loader-4-line spin me-1"></i>Loading...
+          </span>
+          <span *ngIf="!isLoadingTotalCount" class="badge bg-success">
+            <i class="ri-map-pin-line me-1"></i>{{ totalBidangCount | number }} Total Bidang
+          </span>
+        </div>
 
-          <!-- Floating Title Top-Left -->
-          <div class="floating-title" *ngIf="isFullscreen">
-            <div class="floating-title-inner">
-              <i class="ri-map-2-line me-2"></i>
-              <span class="fw-bold">Thematic Map View</span>
-            </div>
-          </div>
+        <!-- Map Container -->
+        <div class="map-container position-relative">
+          <div #mapContainer class="leaflet-container"></div>
 
-          <!-- Floating Filter Button Top-Right -->
-          <button class="floating-filter-btn" *ngIf="isFullscreen" type="button" title="Buka Filter Tematik"
-            (click)="openTematikModal()">
-            <i class="ri-settings-3-line me-1"></i>
-            Setup Filter
-          </button>
-
-          <!-- Floating Fullscreen Button (posisi bottom-right seperti gambar) -->
-          <button class="floating-fullscreen-btn position-absolute"
-            style="bottom: 20px; right: 20px; z-index: 1050; background: #155034 !important; border: none; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(45,80,22,0.4); transition: all 0.3s ease;"
-            (click)="toggleSidebarAndNavbar()" type="button" [class.fullscreen-active]="isFullscreen"
-            title="Toggle Fullscreen Mode">
-            <i [class]="isFullscreen ? 'ri-fullscreen-exit-line text-white' : 'ri-fullscreen-line text-white'"
-              style="font-size: 20px;"></i>
-          </button>
-
-          <!-- Floating Legend on Map -->
-          <div *ngIf="hasTematikLayers" class="floating-legend">
+          <!-- Layer Legend Panel (with Opacity Sliders - like bidang-map) -->
+          <div class="layer-legend-panel" *ngIf="showLayerControl">
             <div class="legend-header">
-              <h6 class="mb-0 text-white">
-                <i class="ri-palette-line me-2"></i>
-                Legend Tematik
-              </h6>
-              <button class="btn-legend-close" (click)="toggleLegend()" title="Toggle Legend">
-                <i class="ri-{{ isLegendVisible ? 'eye-off' : 'eye' }}-line"></i>
+              <i class="ri-stack-line me-1"></i>
+              <span>Layer Control</span>
+              <button class="btn btn-sm btn-link p-0 ms-auto text-white" (click)="showLayerControl = false">
+                <i class="ri-close-line"></i>
               </button>
             </div>
-            <div class="legend-body" *ngIf="isLegendVisible">
-              <div *ngFor="let layer of tematikLayersArray" class="legend-item">
-                <div class="legend-color-box" [style.background-color]="layer.color">
+            <div class="legend-body">
+              <!-- Overlay Layers with Opacity -->
+              <div class="legend-section">
+                <small class="section-title">Overlay Layers</small>
+
+                <!-- Kecamatan -->
+                <div class="legend-item-advanced" *ngIf="kecamatanBoundariesLayer">
+                  <div class="layer-row">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.batasKecamatan"
+                      (change)="toggleLayerVisibility('batasKecamatan')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #22c55e, #16a34a);"></span>
+                    <span class="layer-name">Kecamatan</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.batasKecamatan">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.kecamatan"
+                      (input)="updateLayerOpacity('kecamatan')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.kecamatan }}%</span>
+                  </div>
                 </div>
-                <span class="legend-label">{{ layer.label }}</span>
-                <span class="legend-count">({{ layer.count ?? layer.data?.length ?? 0 }})</span>
+
+                <!-- Tematik -->
+                <div class="legend-item-advanced" *ngIf="tematikLayer">
+                  <div class="layer-row">
+                    <input type="checkbox" [(ngModel)]="layerVisibility.tematik"
+                      (change)="toggleLayerVisibility('tematik')" class="form-check-input">
+                    <span class="layer-color" style="background: linear-gradient(135deg, #667eea, #764ba2);"></span>
+                    <span class="layer-name">Tematik</span>
+                  </div>
+                  <div class="opacity-row" *ngIf="layerVisibility.tematik">
+                    <input type="range" min="0" max="100" [(ngModel)]="layerOpacity.tematik"
+                      (input)="updateLayerOpacity('tematik')" class="opacity-slider">
+                    <span class="opacity-value">{{ layerOpacity.tematik }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <hr class="legend-divider">
+
+              <!-- Base Map Selection -->
+              <div class="legend-section">
+                <small class="section-title">Base Map</small>
+                <div class="base-map-options">
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'satellite'">
+                    <input type="radio" name="baseLayer" value="satellite" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('satellite')">
+                    <i class="ri-earth-fill"></i>
+                    <span>Satellite</span>
+                  </label>
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'streets'">
+                    <input type="radio" name="baseLayer" value="streets" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('streets')">
+                    <i class="ri-road-map-line"></i>
+                    <span>Streets</span>
+                  </label>
+                  <label class="base-map-option" [class.active]="selectedBaseLayer === 'osm'">
+                    <input type="radio" name="baseLayer" value="osm" [(ngModel)]="selectedBaseLayer"
+                      (change)="changeBaseLayer('osm')">
+                    <i class="ri-map-2-line"></i>
+                    <span>OSM</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Layer Toggle Button (when panel is hidden) -->
+          <button *ngIf="!showLayerControl" class="layer-toggle-btn" (click)="showLayerControl = true"
+            title="Toggle Layer Control">
+            <i class="ri-stack-line"></i>
+          </button>
         </div>
 
-        <!-- Loading, Error, Data Info, Pagination (pindah ke footer card, lebih ringkas) -->
-        <div class="card-footer border-0 p-3 bg-transparent">
-          <!-- Loading State, Error State, Data Info, Pagination controls Anda tetap sama -->
-          <!-- ... seluruh kode dari isLoadingBidang sampai pagination ... -->
+        <!-- Loading/Error States -->
+        <div *ngIf="isLoadingTematik" class="loading-overlay">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2 mb-0">Loading tematik data...</p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
-<!-- Objek Pajak Modal -->
-<div *ngIf="showObjekPajakModal" class="modal fade show d-block" tabindex="-1" role="dialog"
+<!-- Cari NOP Modal -->
+<div class="modal fade" [class.show]="showCariNopModal" [style.display]="showCariNopModal ? 'block' : 'none'"
   style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-xl" role="document">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
-          <i class="ri-file-list-line me-2"></i>
-          Data Objek Pajak
+          <i class="ri-search-eye-line me-2"></i>Cari NOP / Nama
         </h5>
-        <button type="button" class="btn-close" (click)="closeObjekPajakModal()" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCariNopModal()"></button>
       </div>
-
-
       <div class="modal-body">
-        <!-- Loading State -->
-        <div *ngIf="isLoadingObjekPajak" class="text-center py-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-2">Loading data objek pajak...</p>
+        <div class="mb-3">
+          <label class="form-label">NOP</label>
+          <input type="text" class="form-control" [(ngModel)]="nopSearch" placeholder="Masukkan NOP">
         </div>
-
-
-        <!-- Data List -->
-        <div *ngIf="!isLoadingObjekPajak && objekPajakData.length > 0" class="row">
-          <!-- Single Data Display (Optimized for 1 record) -->
-          <div *ngIf="objekPajakData.length === 1" class="col-12">
-            <div class="card border-0 shadow-sm">
-              <div class="card-header bg-primary text-white">
-                <div class="d-flex justify-content-between align-items-center">
-                  <h5 class="mb-0">
-                    <i class="ri-building-line me-2"></i>
-                    Detail Objek Pajak
-                  </h5>
-                  <span class="badge bg-light text-dark fs-6">{{ objekPajakData[0].kdJnsOp }}</span>
-                </div>
-              </div>
-
-
-              <div class="card-body p-4">
-                <!-- Objek Pajak Information -->
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h6 class="text-primary mb-3">
-                      <i class="ri-home-line me-2"></i>
-                      Informasi Properti
-                    </h6>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Blok</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].kdBlok }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Jenis OP</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].kdJnsOp }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">No Formulir</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].noFormulirSpop || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">No Persil</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].noPersil || 'N/A' }}</p>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Luas Bumi</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].totalLuasBumi || 0 }} m²</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Luas Bangunan</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].totalLuasBng || 0 }} m²</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">NJOP Bumi</label>
-                      <p class="mb-0 fs-6 text-success fw-bold">Rp {{ (objekPajakData[0].njopBumi || 0) | number }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">NJOP Bangunan</label>
-                      <p class="mb-0 fs-6 text-success fw-bold">Rp {{ (objekPajakData[0].njopBng || 0) | number }}</p>
-                    </div>
-                  </div>
-                </div>
-
-
-                <!-- Location Information -->
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <h6 class="text-primary mb-3">
-                      <i class="ri-map-pin-line me-2"></i>
-                      Informasi Lokasi
-                    </h6>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Alamat</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].jalanOp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">RT/RW</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].rtOp || 'N/A' }}/{{ objekPajakData[0].rwOp || 'N/A' }}
-                      </p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Koordinat</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].latitude || 'N/A' }}, {{ objekPajakData[0].longitude ||
-                        'N/A' }}</p>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Provinsi</label>
-                      <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].nmPropinsi || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Kabupaten/Kota</label>
-                      <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].nmDati2 || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Kecamatan</label>
-                      <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].nmKecamatan || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Kelurahan</label>
-                      <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].nmKelurahan || 'N/A' }}</p>
-                    </div>
-                  </div>
-                </div>
-
-
-                <!-- Subjek Pajak Information -->
-                <div *ngIf="objekPajakData[0].subjekPajak" class="row">
-                  <div class="col-12">
-                    <hr class="my-4">
-                    <h6 class="text-primary mb-3">
-                      <i class="ri-user-line me-2"></i>
-                      Data Subjek Pajak
-                    </h6>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Nama WP</label>
-                      <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmWp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">NPWP</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.npwp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">NPWPD</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.npwpd || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Status Pekerjaan</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.statusPekerjaanWp || 'N/A' }}</p>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Alamat WP</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.jalanWp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">RT/RW WP</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.rtWp || 'N/A' }}/{{
-                        objekPajakData[0].subjekPajak.rwWp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Kelurahan</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.kelurahanWp || 'N/A' }}</p>
-                    </div>
-                    <div class="info-item mb-3">
-                      <label class="form-label fw-bold text-muted small">Kota</label>
-                      <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.kotaWp || 'N/A' }}</p>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Provinsi WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmPropinsi || 'N/A' }}
-                          </p>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Kabupaten/Kota WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmDati2 || 'N/A' }}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Kecamatan WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKecamatan || 'N/A'
-                            }}</p>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Kelurahan WP</label>
-                          <p class="mb-0 fs-6 fw-bold text-dark">{{ objekPajakData[0].subjekPajak.nmKelurahan || 'N/A'
-                            }}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-12">
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Telepon</label>
-                          <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.telpWp || 'N/A' }}</p>
-                        </div>
-                      </div>
-                      <div class="col-md-6">
-                        <div class="info-item mb-3">
-                          <label class="form-label fw-bold text-muted small">Email</label>
-                          <p class="mb-0 fs-6">{{ objekPajakData[0].subjekPajak.email || 'N/A' }}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          <!-- Multiple Data Display (Fallback for multiple records) -->
-          <div *ngIf="objekPajakData.length > 1" class="col-12">
-            <div class="alert alert-info">
-              <i class="ri-information-line me-2"></i>
-              <strong>{{ objekPajakData.length }}</strong> data objek pajak ditemukan
-            </div>
-
-
-            <div class="row">
-              <div *ngFor="let objek of objekPajakData; let i = index" class="col-md-6 mb-3">
-                <div class="card h-100" [class.border-primary]="selectedObjekPajak === objek"
-                  (click)="selectObjekPajak(objek)" style="cursor: pointer;">
-                  <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">
-                      <i class="ri-building-line me-1"></i>
-                      Objek Pajak #{{ i + 1 }}
-                    </h6>
-                    <span class="badge bg-primary">{{ objek.kdJnsOp }}</span>
-                  </div>
-                  <div class="card-body">
-                    <div class="row">
-                      <div class="col-6">
-                        <p class="mb-1"><strong>Blok:</strong> {{ objek.kdBlok }}</p>
-                        <p class="mb-1"><strong>Jenis OP:</strong> {{ objek.kdJnsOp }}</p>
-                        <p class="mb-1"><strong>No Formulir:</strong> {{ objek.noFormulirSpop || 'N/A' }}</p>
-                        <p class="mb-1"><strong>No Persil:</strong> {{ objek.noPersil || 'N/A' }}</p>
-                      </div>
-                      <div class="col-6">
-                        <p class="mb-1"><strong>Luas Bumi:</strong> {{ objek.totalLuasBumi || 0 }} m²</p>
-                        <p class="mb-1"><strong>Luas Bangunan:</strong> {{ objek.totalLuasBng || 0 }} m²</p>
-                        <p class="mb-1"><strong>NJOP Bumi:</strong> Rp {{ (objek.njopBumi || 0) | number }}</p>
-                        <p class="mb-1"><strong>NJOP Bangunan:</strong> Rp {{ (objek.njopBng || 0) | number }}</p>
-                      </div>
-                    </div>
-                    <div class="row mt-2">
-                      <div class="col-12">
-                        <p class="mb-1"><strong>Alamat:</strong> {{ objek.jalanOp || 'N/A' }}</p>
-                        <p class="mb-1"><strong>RT/RW:</strong> {{ objek.rtOp || 'N/A' }}/{{ objek.rwOp || 'N/A' }}</p>
-                        <p class="mb-1"><strong>Koordinat:</strong> {{ objek.latitude || 'N/A' }}, {{ objek.longitude ||
-                          'N/A' }}</p>
-                      </div>
-                    </div>
-
-
-                    <!-- Subjek Pajak Information -->
-                    <div *ngIf="objek.subjekPajak" class="row mt-3">
-                      <div class="col-12">
-                        <hr class="my-2">
-                        <h6 class="text-primary mb-2">
-                          <i class="ri-user-line me-1"></i>
-                          Data Subjek Pajak
-                        </h6>
-                        <div class="row">
-                          <div class="col-6">
-                            <p class="mb-1"><strong>Nama WP:</strong> {{ objek.subjekPajak.nmWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>NPWP:</strong> {{ objek.subjekPajak.npwp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>NPWPD:</strong> {{ objek.subjekPajak.npwpd || 'N/A' }}</p>
-                            <p class="mb-1"><strong>Status Pekerjaan:</strong> {{ objek.subjekPajak.statusPekerjaanWp ||
-                              'N/A' }}</p>
-                          </div>
-                          <div class="col-6">
-                            <p class="mb-1"><strong>Alamat WP:</strong> {{ objek.subjekPajak.jalanWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>RT/RW WP:</strong> {{ objek.subjekPajak.rtWp || 'N/A' }}/{{
-                              objek.subjekPajak.rwWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>Kelurahan:</strong> {{ objek.subjekPajak.kelurahanWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>Kota:</strong> {{ objek.subjekPajak.kotaWp || 'N/A' }}</p>
-                          </div>
-                        </div>
-                        <div class="row mt-2">
-                          <div class="col-12">
-                            <p class="mb-1"><strong>Telepon:</strong> {{ objek.subjekPajak.telpWp || 'N/A' }}</p>
-                            <p class="mb-1"><strong>Email:</strong> {{ objek.subjekPajak.email || 'N/A' }}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- No Data State -->
-        <div *ngIf="!isLoadingObjekPajak && objekPajakData.length === 0" class="text-center py-4">
-          <i class="ri-file-list-line" style="font-size: 3rem; color: #6c757d;"></i>
-          <p class="mt-2 text-muted">Tidak ada data objek pajak ditemukan</p>
+        <div class="mb-3">
+          <label class="form-label">Nama WP</label>
+          <input type="text" class="form-control" [(ngModel)]="namaSearch" placeholder="Masukkan nama">
         </div>
       </div>
-
-
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeObjekPajakModal()">
-          <i class="ri-close-line me-1"></i>
-          Tutup
+        <button class="btn btn-secondary" (click)="closeCariNopModal()">Batal</button>
+        <button class="btn btn-primary" (click)="searchNop()">Cari</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Koordinat Modal -->
+<div class="modal fade" [class.show]="showKoordinatModal" [style.display]="showKoordinatModal ? 'block' : 'none'"
+  style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">
+          <i class="ri-map-pin-line me-2"></i>Set Koordinat
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeKoordinatModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Latitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="latitude" placeholder="-8.12345">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Longitude</label>
+          <input type="number" step="any" class="form-control" [(ngModel)]="longitude" placeholder="113.12345">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeKoordinatModal()">Batal</button>
+        <button class="btn btn-info" (click)="setKoordinat()" [disabled]="!latitude || !longitude">
+          Set Lokasi
         </button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Filter Tematik Modal (Compact) -->
+<div class="filter-modal-overlay" *ngIf="showTematikModal" (click)="closeTematikModal()">
+  <div class="filter-modal-content" (click)="$event.stopPropagation()">
+    <div class="filter-modal-header">
+      <i class="ri-palette-line"></i>
+      <span>Filter Tematik</span>
+      <button class="filter-close-btn" (click)="closeTematikModal()">
+        <i class="ri-close-line"></i>
+      </button>
+    </div>
+    <div class="filter-modal-body">
+      <!-- Tematik Type Display -->
+      <div class="filter-info-box" *ngIf="selectedTematikType">
+        <i class="ri-paint-brush-line me-1"></i>
+        <strong>Jenis:</strong> {{ getTematikTypeLabel() }}
+      </div>
+
+      <div class="filter-field">
+        <label>Kecamatan</label>
+        <select [(ngModel)]="selectedTematikKecamatan" (ngModelChange)="onTematikKecamatanChange()"
+          [disabled]="isLoadingKecamatan">
+          <option value="">-- Pilih --</option>
+          <option *ngFor="let kecamatan of kecamatanList" [value]="kecamatan.kdKecamatan">
+            {{ kecamatan.nmKecamatan }} ({{ kecamatan.jumlahBidang || 0 }})
+          </option>
+        </select>
+        <i class="ri-arrow-down-s-line select-arrow"></i>
+      </div>
+      <div class="filter-field">
+        <label>Kelurahan</label>
+        <select [(ngModel)]="selectedTematikKelurahan" [disabled]="isLoadingKelurahan || !selectedTematikKecamatan">
+          <option value="">-- Pilih --</option>
+          <option *ngFor="let kelurahan of kelurahanList" [value]="kelurahan.kdKelurahan">
+            {{ kelurahan.nmKelurahan }} ({{ kelurahan.jumlahBidang || 0 }})
+          </option>
+        </select>
+        <i class="ri-arrow-down-s-line select-arrow"></i>
+      </div>
+    </div>
+    <div class="filter-modal-footer">
+      <button class="filter-btn-cancel" (click)="clearTematikData()">Reset</button>
+      <button class="filter-btn-apply" (click)="loadTematikData()"
+        [disabled]="!selectedTematikKecamatan || !selectedTematikKelurahan || isLoadingTematik">
+        <i class="ri-palette-line" *ngIf="!isLoadingTematik"></i>
+        <i class="ri-loader-4-line spin" *ngIf="isLoadingTematik"></i>
+        <span>Tampilkan</span>
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Bidang Detail Modal -->
 <div class="modal fade" [class.show]="showBidangModal" [style.display]="showBidangModal ? 'block' : 'none'"
@@ -451,7 +318,6 @@
           aria-label="Close"></button>
       </div>
 
-
       <div class="modal-body">
         <!-- Loading State -->
         <div *ngIf="isLoadingBidangDetail" class="text-center py-4">
@@ -460,7 +326,6 @@
           </div>
           <p class="mt-2">Memuat detail bidang...</p>
         </div>
-
 
         <!-- Bidang Detail Content -->
         <div *ngIf="!isLoadingBidangDetail && selectedBidangDetail" class="bidang-detail-content">
@@ -474,7 +339,6 @@
               <strong>Tahun Pajak:</strong> {{ selectedBidangDetail.pbbTahun }}
             </p>
           </div>
-
 
           <!-- Data Objek Pajak -->
           <div class="row mb-3">
@@ -499,7 +363,6 @@
             </div>
           </div>
 
-
           <!-- Data Wajib Pajak -->
           <div class="row mb-3">
             <div class="col-12">
@@ -518,7 +381,6 @@
               <p class="mb-2"><strong>Alamat WP:</strong> {{ selectedBidangDetail.alamatWP }}</p>
             </div>
           </div>
-
 
           <!-- Data NJOP dan PBB -->
           <div class="row mb-3">
@@ -543,7 +405,6 @@
           </div>
         </div>
 
-
         <!-- Error State -->
         <div *ngIf="!isLoadingBidangDetail && !selectedBidangDetail" class="text-center py-4">
           <i class="ri-error-warning-line" style="font-size: 3rem; color: #dc3545;"></i>
@@ -551,93 +412,10 @@
         </div>
       </div>
 
-
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="closeBidangDetailModal()">
           <i class="ri-close-line me-1"></i>
           Tutup
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Tematik Filter Modal -->
-<div class="modal fade" [class.show]="showTematikModal" [style.display]="showTematikModal ? 'block' : 'none'"
-  tabindex="-1" role="dialog" aria-labelledby="tematikModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header bg-info text-white">
-        <h5 class="modal-title" id="tematikModalLabel">
-          <i class="ri-palette-line me-2"></i>
-          Filter Tematik - {{ getTematikTypeLabel() }}
-        </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeTematikModal()"
-          aria-label="Close"></button>
-      </div>
-
-
-      <div class="modal-body">
-        <form>
-          <!-- Tematik Type Display -->
-          <div class="mb-3">
-            <div class="alert alert-info">
-              <i class="ri-paint-brush-line me-1"></i>
-              <strong>Jenis Tematik:</strong> {{ getTematikTypeLabel() }}
-            </div>
-          </div>
-
-
-          <!-- Kecamatan -->
-          <div class="mb-3">
-            <label for="modalTematikKecamatanSelect" class="form-label">
-              <i class="ri-map-pin-line me-1"></i>
-              Kecamatan <span class="text-danger">*</span>
-            </label>
-            <select id="modalTematikKecamatanSelect" class="form-select" [(ngModel)]="selectedTematikKecamatan"
-              name="tematikKecamatan" (ngModelChange)="onTematikKecamatanChange()">
-              <option value="">-- Pilih Kecamatan --</option>
-              <option *ngFor="let kecamatan of kecamatanList" [value]="kecamatan.kdKecamatan">
-                {{ kecamatan.nmKecamatan }} - {{ kecamatan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-          </div>
-
-
-          <!-- Kelurahan -->
-          <div class="mb-3">
-            <label for="modalTematikKelurahanSelect" class="form-label">
-              <i class="ri-home-line me-1"></i>
-              Kelurahan <span class="text-danger">*</span>
-            </label>
-            <select id="modalTematikKelurahanSelect" class="form-select" [(ngModel)]="selectedTematikKelurahan"
-              name="tematikKelurahan" [disabled]="!selectedTematikKecamatan || isLoadingKelurahan">
-              <option value="">-- Pilih Kelurahan --</option>
-              <option *ngFor="let kelurahan of kelurahanList" [value]="kelurahan.kdKelurahan">
-                {{ kelurahan.nmKelurahan }} - {{ kelurahan.jumlahBidang || 0 }} bidang
-              </option>
-            </select>
-            <div *ngIf="isLoadingKelurahan" class="form-text">
-              <i class="ri-loader-4-line spin me-1"></i>
-              Loading kelurahan...
-            </div>
-          </div>
-        </form>
-      </div>
-
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeTematikModal()">
-          <i class="ri-close-line me-1"></i>
-          Batal
-        </button>
-        <button type="button" class="btn btn-info" (click)="loadTematikData()"
-          [disabled]="!selectedTematikKecamatan || !selectedTematikKelurahan || isLoadingTematik">
-          <i class="ri-palette-line me-1" *ngIf="!isLoadingTematik"></i>
-          <i class="ri-loader-4-line spin me-1" *ngIf="isLoadingTematik"></i>
-          <span *ngIf="!isLoadingTematik">Load Tematik</span>
-          <span *ngIf="isLoadingTematik">Loading...</span>
         </button>
       </div>
     </div>
