@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
-import { AssessmentRequest } from '../../models/assessment.model';
+import { AssessmentRequest, MenuItem } from '../../models/assessment.model';
 import { BprdApiService } from '../../../../core/services/bprd-api.service';
 import { RestApiService } from '../../../../core/services/rest-api.service';
 
@@ -27,7 +27,8 @@ export class AssessmentFormComponent implements OnInit {
   // Separate form groups for each step
   step1Form!: FormGroup; // Business Profile
   step2Form!: FormGroup; // Location
-  step3Form!: FormGroup; // Observations
+  menuForm!: FormGroup;  // Menu Items (Step 3)
+  step3Form!: FormGroup; // Observations (Step 4)
 
   submitted = false;
   loading = false;
@@ -44,7 +45,7 @@ export class AssessmentFormComponent implements OnInit {
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
-  maxImages = 4;
+  maxImages = 10;
   isDragOver = false;
   allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -62,6 +63,20 @@ export class AssessmentFormComponent implements OnInit {
     { value: 'WEEKEND_PEAK', label: 'Akhir Pekan - Ramai' }
   ];
 
+  menuCategories = [
+    { value: 'FOOD', label: 'Makanan' },
+    { value: 'BEVERAGE', label: 'Minuman' }
+  ];
+
+  // Dummy user list for observation assignment
+  userList = [
+    { value: 'USR001', label: 'Ahmad Fauzi' },
+    { value: 'USR002', label: 'Budi Santoso' },
+    { value: 'USR003', label: 'Citra Dewi' },
+    { value: 'USR004', label: 'Dian Pratama' },
+    { value: 'USR005', label: 'Eko Wijaya' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -69,7 +84,7 @@ export class AssessmentFormComponent implements OnInit {
     private assessmentService: PbjtAssessmentService,
     private bprdApiService: BprdApiService,
     private restApiService: RestApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('🔄 Assessment form ngOnInit called');
@@ -123,10 +138,37 @@ export class AssessmentFormComponent implements OnInit {
       surveyorId: ['', Validators.required]  // Required by backend
     });
 
-    // Step 3: Observations
+    // Step 3: Menu Items
+    this.menuForm = this.fb.group({
+      menuItems: this.fb.array([])
+    });
+
+    // Step 4: Observations
     this.step3Form = this.fb.group({
       observations: this.fb.array([], [Validators.required, Validators.minLength(2)])
     });
+  }
+
+  // ============ MENU ITEM METHODS ============
+
+  get menuItems(): FormArray {
+    return this.menuForm.get('menuItems') as FormArray;
+  }
+
+  createMenuItemFormGroup(): FormGroup {
+    return this.fb.group({
+      name: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(1000)]],
+      category: ['FOOD', Validators.required]
+    });
+  }
+
+  addMenuItem(): void {
+    this.menuItems.push(this.createMenuItemFormGroup());
+  }
+
+  removeMenuItem(index: number): void {
+    this.menuItems.removeAt(index);
   }
 
   get observations(): FormArray {
@@ -140,6 +182,7 @@ export class AssessmentFormComponent implements OnInit {
       visitors: [10, [Validators.required, Validators.min(1), Validators.max(1000)]],
       durationHours: [2, [Validators.required, Validators.min(0.5), Validators.max(24)]],
       sampleTransactions: this.fb.array([], [Validators.required, Validators.minLength(5)]),  // 5-30 sample values
+      assignedUserId: [''],
       notes: ['']
     });
   }
@@ -262,7 +305,20 @@ export class AssessmentFormComponent implements OnInit {
             surveyorId: assessment.surveyorId || ''
           });
 
-          // Patch Step 3 - Observations
+          // Patch Menu Items
+          if (assessment.menuItems && assessment.menuItems.length > 0) {
+            assessment.menuItems.forEach((item: any) => {
+              const itemGroup = this.createMenuItemFormGroup();
+              itemGroup.patchValue({
+                name: item.name || '',
+                price: item.price || null,
+                category: item.category || 'FOOD'
+              });
+              this.menuItems.push(itemGroup);
+            });
+          }
+
+          // Patch Step 4 - Observations
           if (assessment.observations && assessment.observations.length > 0) {
             assessment.observations.forEach(obs => {
               const obsGroup = this.createObservationFormGroup();
@@ -279,6 +335,7 @@ export class AssessmentFormComponent implements OnInit {
                 dayType: obs.dayType,
                 visitors: obs.visitors,
                 durationHours: obs.durationHours,
+                assignedUserId: obs.assignedUserId || '',
                 notes: obs.notes || ''
               });
 
@@ -459,6 +516,15 @@ export class AssessmentFormComponent implements OnInit {
       // Image URLs
       photoUrls: imageUrls,
 
+      // Menu items
+      menuItems: this.menuForm.value.menuItems
+        .filter((item: any) => item.name && item.price)
+        .map((item: any) => ({
+          name: item.name,
+          price: item.price,
+          category: item.category || 'FOOD'
+        })),
+
       // Observations with sampleTransactions
       // Filter hanya observasi yang terisi (ada tanggal dan minimal 5 samples)
       observations: step3Value.observations
@@ -478,6 +544,7 @@ export class AssessmentFormComponent implements OnInit {
               amount: tx.amount,
               notes: tx.notes || ''
             })),
+          assignedUserId: obs.assignedUserId || '',
           notes: obs.notes || ''
         }))
     };

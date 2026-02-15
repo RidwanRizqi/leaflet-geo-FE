@@ -27,7 +27,8 @@ export class AssessmentFormComponent implements OnInit {
   // Separate form groups for each step
   step1Form!: FormGroup; // Business Profile
   step2Form!: FormGroup; // Location
-  step3Form!: FormGroup; // Observations
+  menuForm!: FormGroup;  // Menu Items (Step 3)
+  step3Form!: FormGroup; // Observations (Step 4)
 
   submitted = false;
   loading = false;
@@ -48,7 +49,7 @@ export class AssessmentFormComponent implements OnInit {
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
-  maxImages = 4;
+  maxImages = 10;
   isDragOver = false;
   allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -78,6 +79,79 @@ export class AssessmentFormComponent implements OnInit {
   showSampleMethod = true;
   showMenuMethod = true;
 
+  // User list for observation assignment
+  userList = [
+    { id: 'USR001', name: 'Ahmad Fauzi' },
+    { id: 'USR002', name: 'Budi Santoso' },
+    { id: 'USR003', name: 'Citra Dewi' },
+    { id: 'USR004', name: 'Dian Pratama' },
+    { id: 'USR005', name: 'Eko Wijaya' }
+  ];
+
+  menuCategories = [
+    { value: 'FOOD', label: 'Makanan' },
+    { value: 'BEVERAGE', label: 'Minuman' }
+  ];
+
+  // Metode Nilai Tengah - calculation inputs
+  visitorsDuringMonitoring: number = 70;
+  taxRate: number = 10; // percentage
+  inflationRate: number = 3; // percentage
+  currentYear: number = new Date().getFullYear();
+  openingDaysInput: number = 25; // synced with menuForm
+
+  /** Get price range {min, max} for FOOD items */
+  getFoodPriceRange(): { min: number; max: number } {
+    const prices = this.menuItems.controls
+      .filter(c => c.get('category')?.value === 'FOOD' && c.get('price')?.value > 0)
+      .map(c => c.get('price')?.value as number);
+    if (prices.length === 0) return { min: 0, max: 0 };
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }
+
+  /** Get price range {min, max} for BEVERAGE items */
+  getBeveragePriceRange(): { min: number; max: number } {
+    const prices = this.menuItems.controls
+      .filter(c => c.get('category')?.value === 'BEVERAGE' && c.get('price')?.value > 0)
+      .map(c => c.get('price')?.value as number);
+    if (prices.length === 0) return { min: 0, max: 0 };
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  }
+
+  /** Harga Menu sebagai Dasar Penghitungan = avg food price + avg beverage price */
+  getMenuBasedPrice(): number {
+    const foodPrices = this.menuItems.controls
+      .filter(c => c.get('category')?.value === 'FOOD' && c.get('price')?.value > 0)
+      .map(c => c.get('price')?.value as number);
+    const bevPrices = this.menuItems.controls
+      .filter(c => c.get('category')?.value === 'BEVERAGE' && c.get('price')?.value > 0)
+      .map(c => c.get('price')?.value as number);
+
+    const avgFood = foodPrices.length > 0 ? foodPrices.reduce((a, b) => a + b, 0) / foodPrices.length : 0;
+    const avgBev = bevPrices.length > 0 ? bevPrices.reduce((a, b) => a + b, 0) / bevPrices.length : 0;
+    return Math.round(avgFood + avgBev);
+  }
+
+  /** Estimasi Omzet Perbulan = Harga Menu × Pengunjung × Hari Buka */
+  getEstimasiOmzet(): number {
+    return this.getMenuBasedPrice() * this.visitorsDuringMonitoring * this.openingDaysInput;
+  }
+
+  /** Estimasi PBJT per Bulan = Omzet × Tarif% × (1 - Inflasi%) */
+  getEstimasiPbjtBulan(): number {
+    return this.getEstimasiOmzet() * (this.taxRate / 100) * (1 - this.inflationRate / 100);
+  }
+
+  /** Estimasi PBJT per Tahun = PBJT/Bulan × 12 */
+  getEstimasiPbjtTahun(): number {
+    return this.getEstimasiPbjtBulan() * 12;
+  }
+
+  /** Sync openingDaysInput to menuForm for backend submission */
+  onOpeningDaysChange(): void {
+    this.menuForm?.get('openingDaysPerMonth')?.setValue(this.openingDaysInput);
+  }
+
   constructor(
     private fb: FormBuilder,
     private router: Router,
@@ -85,7 +159,7 @@ export class AssessmentFormComponent implements OnInit {
     private assessmentService: PbjtAssessmentService,
     private bprdApiService: BprdApiService,
     private restApiService: RestApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     console.log('🔄 Assessment form ngOnInit called');
@@ -118,20 +192,15 @@ export class AssessmentFormComponent implements OnInit {
 
     // Step 1: Business Profile
     this.step1Form = this.fb.group({
-      businessId: ['', [Validators.required, Validators.maxLength(50)]],
+      businessId: [{ value: '', disabled: true }, [Validators.maxLength(50)]],
       businessName: ['', Validators.required],
       businessType: ['RESTAURANT', Validators.required],
       seatingCapacity: [10, [Validators.required, Validators.min(5), Validators.max(500)]],
       buildingArea: [null],
       operatingHoursStart: ['09:00', Validators.required],
       operatingHoursEnd: ['22:00', Validators.required],
-      assessmentDate: [todayStr, Validators.required],
-      // Menu Method Inputs
-      openingDaysPerMonth: [25, [Validators.min(1), Validators.max(31)]],
-      menuItems: this.fb.array([])
+      assessmentDate: [todayStr, Validators.required]
     });
-
-    this.addMenuItem(); // Add initial menu item row
 
     // Initially toggle both methods to true (or as needed)
     this.showSampleMethod = true;
@@ -153,7 +222,16 @@ export class AssessmentFormComponent implements OnInit {
       surveyorId: ['', Validators.required]  // Required by backend
     });
 
-    // Step 3: Observations
+    // Step 3: Menu Items (new separate tab)
+    this.menuForm = this.fb.group({
+      openingDaysPerMonth: [25, [Validators.min(1), Validators.max(31)]],
+      menuItems: this.fb.array([])
+    });
+
+    this.addFoodItem(); // Add initial food item
+    this.addBeverageItem(); // Add initial beverage item
+
+    // Step 4: Observations
     // Made optional to support Menu-Only Method
     this.step3Form = this.fb.group({
       observations: this.fb.array([])
@@ -165,10 +243,10 @@ export class AssessmentFormComponent implements OnInit {
   }
 
   get menuItems(): FormArray {
-    return this.step1Form.get('menuItems') as FormArray;
+    return this.menuForm.get('menuItems') as FormArray;
   }
 
-  addMenuItem(): void {
+  addFoodItem(): void {
     const itemGroup = this.fb.group({
       name: ['', Validators.required],
       price: [null, [Validators.required, Validators.min(1)]],
@@ -177,25 +255,59 @@ export class AssessmentFormComponent implements OnInit {
     this.menuItems.push(itemGroup);
   }
 
-  removeMenuItem(index: number): void {
-    if (this.menuItems.length > 1) {
-      this.menuItems.removeAt(index);
-    } else {
-        // Reset if only one
-        this.menuItems.at(0).reset({category: 'FOOD'});
+  addBeverageItem(): void {
+    const itemGroup = this.fb.group({
+      name: ['', Validators.required],
+      price: [null, [Validators.required, Validators.min(1)]],
+      category: ['BEVERAGE', Validators.required]
+    });
+    this.menuItems.push(itemGroup);
+  }
+
+  /** Get indices of FOOD items in the menuItems FormArray */
+  get foodItemIndices(): number[] {
+    return this.menuItems.controls
+      .map((ctrl, i) => ({ ctrl, i }))
+      .filter(x => x.ctrl.get('category')?.value === 'FOOD')
+      .map(x => x.i);
+  }
+
+  /** Get indices of BEVERAGE items in the menuItems FormArray */
+  get beverageItemIndices(): number[] {
+    return this.menuItems.controls
+      .map((ctrl, i) => ({ ctrl, i }))
+      .filter(x => x.ctrl.get('category')?.value === 'BEVERAGE')
+      .map(x => x.i);
+  }
+
+  removeFoodItem(localIndex: number): void {
+    const globalIndex = this.foodItemIndices[localIndex];
+    if (globalIndex !== undefined && this.foodItemIndices.length > 1) {
+      this.menuItems.removeAt(globalIndex);
+    } else if (this.foodItemIndices.length === 1) {
+      this.menuItems.at(globalIndex).patchValue({ name: '', price: null });
+    }
+  }
+
+  removeBeverageItem(localIndex: number): void {
+    const globalIndex = this.beverageItemIndices[localIndex];
+    if (globalIndex !== undefined && this.beverageItemIndices.length > 1) {
+      this.menuItems.removeAt(globalIndex);
+    } else if (this.beverageItemIndices.length === 1) {
+      this.menuItems.at(globalIndex).patchValue({ name: '', price: null });
     }
   }
 
   toggleSampleMethod() {
-      this.showSampleMethod = !this.showSampleMethod;
+    this.showSampleMethod = !this.showSampleMethod;
   }
 
   toggleMenuMethod() {
-      this.showMenuMethod = !this.showMenuMethod;
+    this.showMenuMethod = !this.showMenuMethod;
   }
 
   asFormGroup(control: any): FormGroup {
-      return control as FormGroup;
+    return control as FormGroup;
   }
 
   createObservationFormGroup(): FormGroup {
@@ -206,7 +318,8 @@ export class AssessmentFormComponent implements OnInit {
       durationHours: [2, [Validators.required, Validators.min(0.5), Validators.max(24)]],
       // Samples are optional if using Menu Method
       sampleTransactions: this.fb.array([]),
-      notes: ['']
+      notes: [''],
+      assignedUserId: ['']
     });
   }
 
@@ -298,22 +411,23 @@ export class AssessmentFormComponent implements OnInit {
 
           // Patch Menu Items for Menu Based Method
           if (assessment.menuItems && assessment.menuItems.length > 0) {
-             this.menuItems.clear(); // Clear default initialized item
+            this.menuItems.clear(); // Clear default initialized item
 
-             assessment.menuItems.forEach((item: any) => {
-                 const itemGroup = this.fb.group({
-                    name: [item.name, Validators.required],
-                    price: [item.price, [Validators.required, Validators.min(1)]],
-                    category: [item.category, Validators.required]
-                 });
-                 this.menuItems.push(itemGroup);
-             });
+            assessment.menuItems.forEach((item: any) => {
+              const itemGroup = this.fb.group({
+                name: [item.name, Validators.required],
+                price: [item.price, [Validators.required, Validators.min(1)]],
+                category: [item.category, Validators.required]
+              });
+              this.menuItems.push(itemGroup);
+            });
           }
 
           if (assessment.openingDaysPerMonth) {
-              this.step1Form.patchValue({
-                  openingDaysPerMonth: assessment.openingDaysPerMonth
-              });
+            this.menuForm.patchValue({
+              openingDaysPerMonth: assessment.openingDaysPerMonth
+            });
+            this.openingDaysInput = assessment.openingDaysPerMonth;
           }
 
           // Load existing images if any
@@ -413,49 +527,49 @@ export class AssessmentFormComponent implements OnInit {
     // Check Step 3 errors (observations)
     // Validate if user has provided EITHER Observations OR Menu Items
     const validObservations = this.observations.controls.filter(obs => {
-        return !!obs.get('observationDate')?.value;
+      return !!obs.get('observationDate')?.value;
     });
 
     // Check valid Menu Items
     let hasMenuItems = false;
     if (this.showMenuMethod) {
-        hasMenuItems = this.menuItems.controls.some(item => {
-            const val = item.value;
-            return val.name && val.price > 0 && val.category;
-        });
+      hasMenuItems = this.menuItems.controls.some(item => {
+        const val = item.value;
+        return val.name && val.price > 0 && val.category;
+      });
     }
 
     if (this.showSampleMethod && validObservations.length === 0) {
-        errors.push('Metode Sample aktif: Minimal 1 Observasi lengkap diperlukan');
+      errors.push('Metode Sample aktif: Minimal 1 Observasi lengkap diperlukan');
     }
 
     if (this.showMenuMethod && !hasMenuItems) {
-        errors.push('Metode Menu aktif: Minimal 1 Menu lengkap diperlukan');
+      errors.push('Metode Menu aktif: Minimal 1 Menu lengkap diperlukan');
     }
 
     if (!this.showSampleMethod && !this.showMenuMethod) {
-       errors.push('Wajib memilih minimal satu metode perhitungan (Sample atau Menu)');
+      errors.push('Wajib memilih minimal satu metode perhitungan (Sample atau Menu)');
     }
 
     // Validate only filled observations details IF method is active
     if (this.showSampleMethod) {
-        this.observations.controls.forEach((obs, i) => {
-          const obsGroup = obs as FormGroup;
-          const date = obsGroup.get('observationDate')?.value;
+      this.observations.controls.forEach((obs, i) => {
+        const obsGroup = obs as FormGroup;
+        const date = obsGroup.get('observationDate')?.value;
 
-          // Only validate if observation has a date (user started filling it)
-          if (date) {
-            if (!obsGroup.get('dayType')?.value) {
-              errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
-            }
-            if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
-              errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
-            }
-            if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
-              errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
-            }
+        // Only validate if observation has a date (user started filling it)
+        if (date) {
+          if (!obsGroup.get('dayType')?.value) {
+            errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
           }
-        });
+          if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
+            errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
+          }
+          if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
+            errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
+          }
+        }
+      });
     }
 
     if (errors.length > 0) {
@@ -530,7 +644,7 @@ export class AssessmentFormComponent implements OnInit {
     console.log('🔍 [DEBUG] Calculate Request:', JSON.stringify(request, null, 2));
     console.log('🔍 [DEBUG] showMenuMethod:', this.showMenuMethod);
     console.log('🔍 [DEBUG] showSampleMethod:', this.showSampleMethod);
-    console.log('🔍 [DEBUG] menuItems from step1Form:', this.step1Form.get('menuItems')?.value);
+    console.log('🔍 [DEBUG] menuItems from menuForm:', this.menuForm.get('menuItems')?.value);
 
     this.assessmentService.calculateAssessment(request).subscribe({
       next: (response) => {
@@ -551,6 +665,7 @@ export class AssessmentFormComponent implements OnInit {
     // Merge all step forms
     const step1Value = this.step1Form.value;
     const step2Value = this.step2Form.value;
+    const menuValue = this.menuForm.value;
     const step3Value = this.step3Form.getRawValue();
 
     // Build request matching backend AssessmentRequestDTO (flat structure)
@@ -565,15 +680,15 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
 
-      // Menu Items & Opening Days (New Mappings)
+      // Menu Items & Opening Days (from menuForm)
       // Only include if Menu Method is active
-      openingDaysPerMonth: this.showMenuMethod ? step1Value.openingDaysPerMonth : null,
-      menuItems: this.showMenuMethod ? (step1Value.menuItems || [])
+      openingDaysPerMonth: this.showMenuMethod ? menuValue.openingDaysPerMonth : null,
+      menuItems: this.showMenuMethod ? (menuValue.menuItems || [])
         .filter((item: any) => item.name && item.price > 0 && item.category) // Basic filtering
         .map((item: any) => ({
-            name: item.name,
-            price: item.price,
-            category: item.category
+          name: item.name,
+          price: item.price,
+          category: item.category
         })) : [],
 
       // Location - FLAT (not nested)
@@ -614,7 +729,8 @@ export class AssessmentFormComponent implements OnInit {
               amount: tx.amount,
               notes: tx.notes || ''
             })) : [],
-          notes: obs.notes || ''
+          notes: obs.notes || '',
+          assignedUserId: obs.assignedUserId || null
         }))
     };
   }

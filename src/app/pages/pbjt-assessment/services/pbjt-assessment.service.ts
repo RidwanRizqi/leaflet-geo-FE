@@ -73,7 +73,7 @@ export class PbjtAssessmentService {
   }
 
   /**
-   * Upload business images (max 4 images)
+   * Upload business images (max 10 images)
    */
   uploadImages(files: File[]): Observable<any> {
     const formData = new FormData();

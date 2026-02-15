@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { Assessment } from '../../models/assessment.model';
 import { forkJoin } from 'rxjs';
+import * as XLSX from 'xlsx';
 
 // Extended interface with realization data
 export interface AssessmentWithRealization extends Assessment {
@@ -244,5 +245,62 @@ export class AssessmentListComponent implements OnInit {
 
   getBusinessTypeDisplay(type: string | undefined): string {
     return this.assessmentService.getBusinessTypeDisplayName(type || '');
+  }
+
+  /**
+   * Export all assessments to Excel file
+   */
+  exportToExcel(): void {
+    if (this.assessments.length === 0) {
+      alert('Tidak ada data untuk di-export.');
+      return;
+    }
+
+    // Build rows for Excel
+    const excelData = this.assessments.map((a, index) => ({
+      'No': index + 1,
+      'Business ID': a.businessId || '',
+      'Nama Usaha': a.businessName || '',
+      'Tipe Usaha': this.getBusinessTypeDisplay(a.businessType),
+      'Alamat': a.location?.address || '',
+      'Kelurahan': a.location?.kelurahan || '',
+      'Kecamatan': a.location?.kecamatan || '',
+      'Kabupaten': a.location?.kabupaten || '',
+      'Kapasitas': a.seatingCapacity || 0,
+      'Luas Bangunan (m²)': a.buildingArea || '',
+      'Jam Buka': a.operatingHoursStart || '',
+      'Jam Tutup': a.operatingHoursEnd || '',
+      'Tanggal Assessment': a.assessmentDate || '',
+      'Monthly PBJT': a.monthlyPbjt || 0,
+      'Annual PBJT': a.annualPbjt || 0,
+      'Realisasi 2021': a.realisasi2021 || 0,
+      'Realisasi 2022': a.realisasi2022 || 0,
+      'Realisasi 2023': a.realisasi2023 || 0,
+      'Realisasi 2024': a.realisasi2024 || 0,
+      'Realisasi 2025': a.realisasi2025 || 0,
+      'Latitude': a.location?.latitude || '',
+      'Longitude': a.location?.longitude || '',
+      'Surveyor ID': a.surveyorId || ''
+    }));
+
+    // Create worksheet and workbook
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(excelData);
+
+    // Auto-size columns
+    const columnWidths = Object.keys(excelData[0] || {}).map(key => ({
+      wch: Math.max(key.length + 2, 15)
+    }));
+    worksheet['!cols'] = columnWidths;
+
+    const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Assessment PBJT');
+
+    // Generate filename with date
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+    const filename = `PBJT_Assessment_${dateStr}.xlsx`;
+
+    // Download
+    XLSX.writeFile(workbook, filename);
   }
 }

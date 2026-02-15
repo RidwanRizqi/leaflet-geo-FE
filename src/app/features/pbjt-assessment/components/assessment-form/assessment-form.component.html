@@ -26,6 +26,11 @@
             <div class="step-line" [class.active]="currentStep >= 2"></div>
             <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
               <div class="step-number">3</div>
+              <div class="step-label">Menu</div>
+            </div>
+            <div class="step-line" [class.active]="currentStep >= 3"></div>
+            <div class="step" [class.active]="currentStep === 3" [class.completed]="currentStep > 3">
+              <div class="step-number">4</div>
               <div class="step-label">Observasi</div>
             </div>
           </div>
@@ -44,18 +49,16 @@
           </div>
           <div class="card-body">
             <div class="mb-3">
-              <label class="form-label">Business ID <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="businessId"
-                     [class.is-invalid]="submitted && f1['businessId'].errors">
-              <div *ngIf="submitted && f1['businessId'].errors" class="invalid-feedback">
-                Business ID wajib diisi
-              </div>
+              <label class="form-label">Nomor Objek Pajak <span
+                  class="badge bg-light text-primary border border-primary">Auto Generated</span></label>
+              <input type="text" class="form-control bg-light" formControlName="businessId"
+                placeholder="Akan di-generate otomatis oleh sistem saat disimpan" readonly>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Nama Usaha <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="businessName"
-                     [class.is-invalid]="submitted && f1['businessName'].errors">
+                [class.is-invalid]="submitted && f1['businessName'].errors">
               <div *ngIf="submitted && f1['businessName'].errors" class="invalid-feedback">
                 Nama usaha wajib diisi
               </div>
@@ -73,9 +76,8 @@
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label class="form-label">Kapasitas Tempat Duduk <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" formControlName="seatingCapacity"
-                       min="5" max="500"
-                       [class.is-invalid]="submitted && f1['seatingCapacity'].errors">
+                <input type="number" class="form-control" formControlName="seatingCapacity" min="5" max="500"
+                  [class.is-invalid]="submitted && f1['seatingCapacity'].errors">
                 <small class="text-muted">Min: 5, Max: 500</small>
                 <div *ngIf="submitted && f1['seatingCapacity'].errors" class="invalid-feedback">
                   Kapasitas harus 5-500
@@ -84,8 +86,7 @@
 
               <div class="col-md-6 mb-3">
                 <label class="form-label">Luas Bangunan (m²)</label>
-                <input type="number" class="form-control" formControlName="buildingArea"
-                       min="10">
+                <input type="number" class="form-control" formControlName="buildingArea" min="10">
                 <small class="text-muted">Opsional (Min: 10 m²)</small>
               </div>
             </div>
@@ -94,20 +95,20 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Jam Buka <span class="text-danger">*</span></label>
                 <input type="time" class="form-control" formControlName="operatingHoursStart"
-                       [class.is-invalid]="submitted && f1['operatingHoursStart'].errors">
+                  [class.is-invalid]="submitted && f1['operatingHoursStart'].errors">
               </div>
 
               <div class="col-md-6 mb-3">
                 <label class="form-label">Jam Tutup <span class="text-danger">*</span></label>
                 <input type="time" class="form-control" formControlName="operatingHoursEnd"
-                       [class.is-invalid]="submitted && f1['operatingHoursEnd'].errors">
+                  [class.is-invalid]="submitted && f1['operatingHoursEnd'].errors">
               </div>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Tanggal Assessment <span class="text-danger">*</span></label>
               <input type="date" class="form-control" formControlName="assessmentDate"
-                     [class.is-invalid]="submitted && f1['assessmentDate'].errors">
+                [class.is-invalid]="submitted && f1['assessmentDate'].errors">
             </div>
 
             <!-- Image Upload Section -->
@@ -121,18 +122,11 @@
               </small>
 
               <!-- Drop Zone -->
-              <div class="image-drop-zone"
-                   [class.drag-over]="isDragOver"
-                   [class.has-images]="uploadedImages.length > 0"
-                   (dragover)="onDragOver($event)"
-                   (dragleave)="onDragLeave($event)"
-                   (drop)="onDrop($event)"
-                   (click)="fileInput.click()">
-                <input #fileInput type="file"
-                       accept="image/jpeg,image/png,image/gif,image/webp"
-                       multiple
-                       (change)="onFileSelect($event)"
-                       style="display: none;">
+              <div class="image-drop-zone" [class.drag-over]="isDragOver" [class.has-images]="uploadedImages.length > 0"
+                (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+                (click)="fileInput.click()">
+                <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple
+                  (change)="onFileSelect($event)" style="display: none;">
 
                 <div class="drop-zone-content" *ngIf="uploadedImages.length === 0">
                   <i class="ri-upload-cloud-2-line drop-icon"></i>
@@ -161,7 +155,8 @@
                   </div>
                 </div>
                 <small class="text-muted mt-2 d-block">
-                  <i class="ri-information-line"></i> {{ uploadedImages.length }}/{{ maxImages }} gambar. Gambar belum disimpan ke database.
+                  <i class="ri-information-line"></i> {{ uploadedImages.length }}/{{ maxImages }} gambar. Gambar belum
+                  disimpan ke database.
                 </small>
               </div>
             </div>
@@ -191,7 +186,7 @@
             <div class="mb-3">
               <label class="form-label">Alamat <span class="text-danger">*</span></label>
               <textarea class="form-control" formControlName="address" rows="3"
-                        [class.is-invalid]="submitted && f2['address'].errors"></textarea>
+                [class.is-invalid]="submitted && f2['address'].errors"></textarea>
               <div *ngIf="submitted && f2['address'].errors" class="invalid-feedback">
                 Alamat wajib diisi
               </div>
@@ -199,17 +194,15 @@
 
             <div class="mb-3">
               <label class="form-label">Kabupaten</label>
-              <input type="text" class="form-control" formControlName="kabupaten"
-                     readonly style="background-color: #f8f9fa;">
+              <input type="text" class="form-control" formControlName="kabupaten" readonly
+                style="background-color: #f8f9fa;">
               <small class="text-muted">Kabupaten sudah diset ke Lumajang</small>
             </div>
 
             <div class="mb-3">
               <label class="form-label">Kecamatan <span class="text-danger">*</span></label>
-              <select class="form-select" formControlName="kecamatan"
-                      (change)="onKecamatanChange()"
-                      [class.is-invalid]="submitted && f2['kecamatan'].errors"
-                      [disabled]="isLoadingKecamatan">
+              <select class="form-select" formControlName="kecamatan" (change)="onKecamatanChange()"
+                [class.is-invalid]="submitted && f2['kecamatan'].errors" [disabled]="isLoadingKecamatan">
                 <option value="">-- Pilih Kecamatan --</option>
                 <option *ngFor="let kec of kecamatanList" [value]="kec.value">{{ kec.label }}</option>
               </select>
@@ -224,8 +217,8 @@
             <div class="mb-3">
               <label class="form-label">Kelurahan <span class="text-danger">*</span></label>
               <select class="form-select" formControlName="kelurahan"
-                      [class.is-invalid]="submitted && f2['kelurahan'].errors"
-                      [disabled]="isLoadingKelurahan || kelurahanList.length === 0">
+                [class.is-invalid]="submitted && f2['kelurahan'].errors"
+                [disabled]="isLoadingKelurahan || kelurahanList.length === 0">
                 <option value="">-- Pilih Kelurahan --</option>
                 <option *ngFor="let kel of kelurahanList" [value]="kel.value">{{ kel.label }}</option>
               </select>
@@ -244,14 +237,14 @@
               <div class="col-md-6 mb-3">
                 <label class="form-label">Latitude <span class="text-danger">*</span></label>
                 <input type="number" step="0.000001" class="form-control" formControlName="latitude"
-                       [class.is-invalid]="submitted && f2['latitude'].errors">
+                  [class.is-invalid]="submitted && f2['latitude'].errors">
                 <small class="text-muted">Contoh: -8.6705</small>
               </div>
 
               <div class="col-md-6 mb-3">
                 <label class="form-label">Longitude <span class="text-danger">*</span></label>
                 <input type="number" step="0.000001" class="form-control" formControlName="longitude"
-                       [class.is-invalid]="submitted && f2['longitude'].errors">
+                  [class.is-invalid]="submitted && f2['longitude'].errors">
                 <small class="text-muted">Contoh: 115.2126</small>
               </div>
             </div>
@@ -259,7 +252,8 @@
             <!-- New Location Factors -->
             <div class="card bg-light border-0 mb-3">
               <div class="card-body">
-                <h6 class="mb-3 text-primary"><i class="ri-map-pin-user-line me-1"></i> Karakteristik Lokasi (Advanced)</h6>
+                <h6 class="mb-3 text-primary"><i class="ri-map-pin-user-line me-1"></i> Karakteristik Lokasi (Advanced)
+                </h6>
 
                 <div class="mb-3">
                   <label class="form-label">Tipe Jalan / Aksesibilitas</label>
@@ -289,9 +283,8 @@
 
             <div class="mb-3">
               <label class="form-label">Surveyor ID <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" formControlName="surveyorId"
-                     placeholder="ID Petugas Survey"
-                     [class.is-invalid]="submitted && f2['surveyorId'].errors">
+              <input type="text" class="form-control" formControlName="surveyorId" placeholder="ID Petugas Survey"
+                [class.is-invalid]="submitted && f2['surveyorId'].errors">
               <div *ngIf="submitted && f2['surveyorId'].errors" class="invalid-feedback">
                 Surveyor ID wajib diisi
               </div>
@@ -312,204 +305,372 @@
     </div>
   </div>
 
-  <!-- Step 3: Observations -->
+  <!-- Step 3: Menu Items -->
   <div class="row" *ngIf="currentStep === 2">
     <div class="col-12">
-      <form [formGroup]="step3Form">
+      <form [formGroup]="menuForm">
         <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="card-title mb-0">Step 3: Metode Perhitungan & Observasi</h5>
-            <div class="btn-group" role="group">
-                 <input type="checkbox" class="btn-check" id="btnMethodSample" [checked]="showSampleMethod" (change)="toggleSampleMethod()">
-                 <label class="btn btn-outline-primary" for="btnMethodSample">Metode Sample/Struk</label>
-
-                 <input type="checkbox" class="btn-check" id="btnMethodMenu" [checked]="showMenuMethod" (change)="toggleMenuMethod()">
-                 <label class="btn btn-outline-success" for="btnMethodMenu">Metode Nilai Tengah/Menu</label>
-            </div>
+          <div class="card-header">
+            <h5 class="card-title mb-0">Step 3: Menu Items</h5>
           </div>
           <div class="card-body">
 
-            <!-- Section: Data Metode Menu -->
-            <div class="mb-5 border-bottom pb-4" *ngIf="showMenuMethod">
-                <h6 class="mb-3 text-success fw-bold"><i class="ri-restaurant-line me-1"></i> Data Metode Nilai Tengah (Menu)</h6>
-                <div class="alert alert-soft-success small mb-3">
-                    <i class="ri-information-line"></i> Masukkan rata-rata hari buka dan sampel daftar menu untuk estimasi nilai tengah.
-                </div>
-
-                <div class="row" [formGroup]="step1Form">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Jumlah Estimasi Hari Buka / Bulan</label>
-                        <input type="number" class="form-control" formControlName="openingDaysPerMonth" min="1" max="31">
-                    </div>
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label d-flex justify-content-between align-items-center">
-                        Daftar Sampel Menu
-                        <button type="button" class="btn btn-sm btn-outline-success" (click)="addMenuItem()">
-                            <i class="ri-add-line"></i> Tambah Menu
+            <!-- Makanan (Food) Section -->
+            <div class="card bg-light border-warning mb-3">
+              <div class="card-header bg-warning bg-opacity-25 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-warning">
+                  <i class="ri-restaurant-2-line me-1"></i> Makanan ({{ foodItemIndices.length }} item)
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-warning" (click)="addFoodItem()">
+                  <i class="ri-add-line"></i> Tambah Makanan
+                </button>
+              </div>
+              <div class="card-body p-2">
+                <table class="table table-sm table-bordered mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Nama Makanan</th>
+                      <th width="30%">Harga (Rp)</th>
+                      <th width="50px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let idx of foodItemIndices; let localI = index"
+                      [formGroup]="asFormGroup(menuItems.at(idx))">
+                      <td>
+                        <input type="text" class="form-control form-control-sm" formControlName="name"
+                          placeholder="Contoh: Nasi Goreng">
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="price"
+                          placeholder="0">
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFoodItem(localI)">
+                          <i class="ri-delete-bin-line"></i>
                         </button>
-                    </label>
-                    <table class="table table-sm table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nama Items</th>
-                                <th width="25%">Harga (Rp)</th>
-                                <th width="25%">Kategori</th>
-                                <th width="50px"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of menuItems.controls; let i = index" [formGroup]="asFormGroup(item)">
-                                <td>
-                                    <input type="text" class="form-control form-control-sm" formControlName="name" placeholder="Nama Menu">
-                                </td>
-                                <td>
-                                    <input type="number" class="form-control form-control-sm" formControlName="price" placeholder="0">
-                                </td>
-                                <td>
-                                    <select class="form-select form-select-sm" formControlName="category">
-                                        <option value="FOOD">Makanan</option>
-                                        <option value="BEVERAGE">Minuman</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeMenuItem(i)">
-                                        <i class="ri-delete-bin-line"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Section: Data Metode Sample -->
-            <div *ngIf="showSampleMethod">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0 text-primary fw-bold"><i class="ri-file-list-3-line me-1"></i> Data Metode Observasi / Sample Struk</h6>
-                    <button type="button" class="btn btn-sm btn-primary" (click)="addObservation()"
-                            [disabled]="observations.length >= 5">
-                      <i class="ri-add-line"></i> Tambah Observasi
-                    </button>
-                </div>
-
-                <div formArrayName="observations">
-                  <div *ngFor="let observation of observations.controls; let i = index"
-                       [formGroupName]="i" class="border rounded p-3 mb-3 position-relative observation-card">
-                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
-                            (click)="removeObservation(i)">
-                      <i class="ri-delete-bin-line"></i>
-                    </button>
-
-                    <h6 class="mb-3 text-primary">
-                      <i class="ri-eye-line"></i> Observasi #{{ i + 1 }}
-                    </h6>
-
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">Tanggal Observasi <span class="text-danger">*</span></label>
-                    <input type="datetime-local" class="form-control" formControlName="observationDate">
-                  </div>
-
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">Tipe Hari <span class="text-danger">*</span></label>
-                    <select class="form-select" formControlName="dayType">
-                      <option *ngFor="let type of dayTypes" [value]="type.value">
-                        {{ type.label }}
-                      </option>
-                    </select>
-                  </div>
-
-                  <div class="col-md-4 mb-3">
-                    <label class="form-label">Durasi (Jam) <span class="text-danger">*</span></label>
-                    <input type="number" step="0.5" min="0.5" max="24" class="form-control" formControlName="durationHours">
-                    <small class="text-muted">Min: 0.5, Max: 24 jam</small>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Jumlah Pengunjung <span class="text-danger">*</span></label>
-                    <input type="number" min="1" max="1000" class="form-control" formControlName="visitors">
-                    <small class="text-muted">Min: 1, Max: 1000</small>
-                  </div>
-
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Catatan</label>
-                    <input type="text" class="form-control" formControlName="notes" placeholder="Catatan observasi (opsional)">
-                  </div>
-                </div>
-
-                <!-- Sample Transactions Section -->
-                <div class="sample-transactions-section mt-3">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label mb-0">
-                      <strong>Sample Transaksi (Min 5, Max 30)</strong>
-                    </label>
-                    <div>
-                      <span class="badge bg-info me-2" *ngIf="calculateAvgTransaction(i) > 0">
-                        Rata-rata: Rp {{ calculateAvgTransaction(i) | number }}
-                      </span>
-                      <button type="button" class="btn btn-sm btn-outline-primary"
-                              (click)="addSampleTransaction(i)"
-                              [disabled]="getSampleTransactions(i).length >= 30">
-                        <i class="ri-add-line"></i> Tambah
-                      </button>
-                    </div>
-                  </div>
-                  <div class="row" formArrayName="sampleTransactions">
-                    <div class="col-md-6 col-12 mb-3"
-                         *ngFor="let tx of getSampleTransactions(i).controls; let j = index"
-                         [formGroupName]="j">
-                      <div class="border rounded p-2 position-relative" style="padding-top: 2rem !important;">
-                        <button type="button"
-                                class="btn btn-sm btn-outline-danger position-absolute"
-                                style="top: 2px; right: 2px; z-index: 10; padding: 0.15rem 0.4rem;"
-                                (click)="removeSampleTransaction(i, j); $event.stopPropagation();"
-                                *ngIf="getSampleTransactions(i).length > 5"
-                                title="Hapus sample ini">
-                          <i class="ri-close-line"></i>
-                        </button>
-                        <div class="row g-2">
-                          <div class="col-8">
-                            <label class="form-label small mb-1">Nominal (Rp)</label>
-                            <input type="number" class="form-control form-control-sm"
-                                   formControlName="amount" placeholder="0">
-                          </div>
-                          <div class="col-4">
-                            <label class="form-label small mb-1">Note</label>
-                            <input type="text" class="form-control form-control-sm"
-                                   formControlName="notes" placeholder="...">
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                   <div *ngIf="getSampleTransactions(i).length === 0" class="text-center text-muted small p-2 border border-dashed rounded">
-                        Belum ada sample transaksi. Klik "Tambah" untuk input manual.
-                   </div>
-                </div>
-
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-        </div> <!-- End Sample Section -->
 
+            <!-- Minuman (Beverage) Section -->
+            <div class="card bg-light border-info mb-3">
+              <div class="card-header bg-info bg-opacity-25 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 fw-bold text-info">
+                  <i class="ri-cup-line me-1"></i> Minuman ({{ beverageItemIndices.length }} item)
+                </h6>
+                <button type="button" class="btn btn-sm btn-outline-info" (click)="addBeverageItem()">
+                  <i class="ri-add-line"></i> Tambah Minuman
+                </button>
+              </div>
+              <div class="card-body p-2">
+                <table class="table table-sm table-bordered mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Nama Minuman</th>
+                      <th width="30%">Harga (Rp)</th>
+                      <th width="50px"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let idx of beverageItemIndices; let localI = index"
+                      [formGroup]="asFormGroup(menuItems.at(idx))">
+                      <td>
+                        <input type="text" class="form-control form-control-sm" formControlName="name"
+                          placeholder="Contoh: Es Teh Manis">
+                      </td>
+                      <td>
+                        <input type="number" class="form-control form-control-sm" formControlName="price"
+                          placeholder="0">
+                      </td>
+                      <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                          (click)="removeBeverageItem(localI)">
+                          <i class="ri-delete-bin-line"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
           <div class="card-footer">
             <div class="d-flex justify-content-between">
               <button type="button" class="btn btn-secondary" (click)="currentStep = 1">
                 <i class="ri-arrow-left-line"></i> Kembali
               </button>
+              <button type="button" class="btn btn-primary" (click)="currentStep = 3">
+                Selanjutnya <i class="ri-arrow-right-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Step 4: Observations -->
+  <div class="row" *ngIf="currentStep === 3">
+    <div class="col-12">
+      <form [formGroup]="step3Form">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Step 4: Metode Perhitungan & Observasi</h5>
+            <div class="btn-group" role="group">
+              <input type="checkbox" class="btn-check" id="btnMethodSample" [checked]="showSampleMethod"
+                (change)="toggleSampleMethod()">
+              <label class="btn btn-outline-primary" for="btnMethodSample">Metode Sample/Struk</label>
+
+              <input type="checkbox" class="btn-check" id="btnMethodMenu" [checked]="showMenuMethod"
+                (change)="toggleMenuMethod()">
+              <label class="btn btn-outline-success" for="btnMethodMenu">Metode Nilai Tengah/Menu</label>
+            </div>
+          </div>
+          <div class="card-body">
+
+            <!-- Section: Metode Nilai Tengah / Menu -->
+            <div class="mb-4 border-bottom pb-4" *ngIf="showMenuMethod">
+              <h6 class="mb-3 text-success fw-bold">
+                <i class="ri-restaurant-line me-1"></i> Potensi PBJT Makanan Minuman (Metode Nilai Tengah)
+              </h6>
+              <table class="table table-bordered table-sm mb-0">
+                <tbody>
+                  <!-- Auto-calculated rows -->
+                  <tr class="table-light">
+                    <td class="fw-semibold" style="width:55%">Kisaran Harga Menu Makanan</td>
+                    <td class="text-center" style="width:5%">:</td>
+                    <td class="text-end fw-semibold">
+                      <span *ngIf="getFoodPriceRange().max > 0">
+                        Rp {{ getFoodPriceRange().min | number }} - Rp {{ getFoodPriceRange().max | number }}
+                      </span>
+                      <span *ngIf="getFoodPriceRange().max === 0" class="text-muted">Belum diisi</span>
+                    </td>
+                  </tr>
+                  <tr class="table-light">
+                    <td class="fw-semibold">Kisaran Harga Menu Minuman</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end fw-semibold">
+                      <span *ngIf="getBeveragePriceRange().max > 0">
+                        Rp {{ getBeveragePriceRange().min | number }} - Rp {{ getBeveragePriceRange().max | number }}
+                      </span>
+                      <span *ngIf="getBeveragePriceRange().max === 0" class="text-muted">Belum diisi</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Harga Menu sebagai Dasar Penghitungan</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end fw-bold text-success">
+                      Rp {{ getMenuBasedPrice() | number }}
+                    </td>
+                  </tr>
+
+                  <!-- Input rows -->
+                  <tr>
+                    <td class="fw-semibold">Jumlah Pengunjung Saat Pemantauan</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end">
+                      <input type="number" class="form-control form-control-sm text-end d-inline-block"
+                        style="width: 120px; float: right;" [(ngModel)]="visitorsDuringMonitoring"
+                        [ngModelOptions]="{standalone: true}" min="1" max="9999">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Jumlah Estimasi Hari Restoran Buka</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end">
+                      <input type="number" class="form-control form-control-sm text-end d-inline-block"
+                        style="width: 120px; float: right;" [(ngModel)]="openingDaysInput"
+                        [ngModelOptions]="{standalone: true}" (ngModelChange)="onOpeningDaysChange()" min="1" max="31">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Tarif</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end">
+                      <div class="input-group input-group-sm justify-content-end" style="width: 120px; float: right;">
+                        <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="taxRate"
+                          [ngModelOptions]="{standalone: true}" min="0" max="100">
+                        <span class="input-group-text">%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-semibold">Tingkat Inflasi Tahun {{ currentYear }}</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end">
+                      <div class="input-group input-group-sm justify-content-end" style="width: 120px; float: right;">
+                        <input type="number" class="form-control form-control-sm text-end" [(ngModel)]="inflationRate"
+                          [ngModelOptions]="{standalone: true}" min="0" max="100">
+                        <span class="input-group-text">%</span>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Result rows -->
+                  <tr class="table-light">
+                    <td class="fw-semibold">Estimasi Omzet Perbulan</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end fw-bold">Rp {{ getEstimasiOmzet() | number }}</td>
+                  </tr>
+                  <tr class="table-success">
+                    <td class="fw-bold">Estimasi PBJT Makanan Minuman per Bulan</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end fw-bold text-success fs-6">
+                      Rp {{ getEstimasiPbjtBulan() | number }}
+                    </td>
+                  </tr>
+                  <tr class="table-light">
+                    <td class="fw-bold">Estimasi PBJT Makanan Minuman per Tahun</td>
+                    <td class="text-center">:</td>
+                    <td class="text-end fw-bold">Rp {{ getEstimasiPbjtTahun() | number }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Section: Data Metode Sample -->
+            <div *ngIf="showSampleMethod">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 text-primary fw-bold"><i class="ri-file-list-3-line me-1"></i> Data Metode Observasi /
+                  Sample Struk</h6>
+                <button type="button" class="btn btn-sm btn-primary" (click)="addObservation()"
+                  [disabled]="observations.length >= 5">
+                  <i class="ri-add-line"></i> Tambah Observasi
+                </button>
+              </div>
+
+              <div formArrayName="observations">
+                <div *ngFor="let observation of observations.controls; let i = index" [formGroupName]="i"
+                  class="border rounded p-3 mb-3 position-relative observation-card">
+                  <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                    (click)="removeObservation(i)">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+
+                  <h6 class="mb-3 text-primary">
+                    <i class="ri-eye-line"></i> Observasi #{{ i + 1 }}
+                  </h6>
+
+                  <!-- User/Petugas Dropdown -->
+                  <div class="row mb-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Petugas Observasi</label>
+                      <select class="form-select" formControlName="assignedUserId">
+                        <option value="">-- Pilih Petugas --</option>
+                        <option *ngFor="let user of userList" [value]="user.id">{{ user.name }}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Tanggal Observasi <span class="text-danger">*</span></label>
+                      <input type="datetime-local" class="form-control" formControlName="observationDate">
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Tipe Hari <span class="text-danger">*</span></label>
+                      <select class="form-select" formControlName="dayType">
+                        <option *ngFor="let type of dayTypes" [value]="type.value">
+                          {{ type.label }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                      <label class="form-label">Durasi (Jam) <span class="text-danger">*</span></label>
+                      <input type="number" step="0.5" min="0.5" max="24" class="form-control"
+                        formControlName="durationHours">
+                      <small class="text-muted">Min: 0.5, Max: 24 jam</small>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Jumlah Pengunjung <span class="text-danger">*</span></label>
+                      <input type="number" min="1" max="1000" class="form-control" formControlName="visitors">
+                      <small class="text-muted">Min: 1, Max: 1000</small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Catatan</label>
+                      <input type="text" class="form-control" formControlName="notes"
+                        placeholder="Catatan observasi (opsional)">
+                    </div>
+                  </div>
+
+                  <!-- Sample Transactions Section -->
+                  <div class="sample-transactions-section mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <label class="form-label mb-0">
+                        <strong>Sample Transaksi (Min 5, Max 30)</strong>
+                      </label>
+                      <div>
+                        <span class="badge bg-info me-2" *ngIf="calculateAvgTransaction(i) > 0">
+                          Rata-rata: Rp {{ calculateAvgTransaction(i) | number }}
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-primary" (click)="addSampleTransaction(i)"
+                          [disabled]="getSampleTransactions(i).length >= 30">
+                          <i class="ri-add-line"></i> Tambah
+                        </button>
+                      </div>
+                    </div>
+                    <div class="row" formArrayName="sampleTransactions">
+                      <div class="col-md-6 col-12 mb-3"
+                        *ngFor="let tx of getSampleTransactions(i).controls; let j = index" [formGroupName]="j">
+                        <div class="border rounded p-2 position-relative" style="padding-top: 2rem !important;">
+                          <button type="button" class="btn btn-sm btn-outline-danger position-absolute"
+                            style="top: 2px; right: 2px; z-index: 10; padding: 0.15rem 0.4rem;"
+                            (click)="removeSampleTransaction(i, j); $event.stopPropagation();"
+                            *ngIf="getSampleTransactions(i).length > 5" title="Hapus sample ini">
+                            <i class="ri-close-line"></i>
+                          </button>
+                          <div class="row g-2">
+                            <div class="col-8">
+                              <label class="form-label small mb-1">Nominal (Rp)</label>
+                              <input type="number" class="form-control form-control-sm" formControlName="amount"
+                                placeholder="0">
+                            </div>
+                            <div class="col-4">
+                              <label class="form-label small mb-1">Note</label>
+                              <input type="text" class="form-control form-control-sm" formControlName="notes"
+                                placeholder="...">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="getSampleTransactions(i).length === 0"
+                      class="text-center text-muted small p-2 border border-dashed rounded">
+                      Belum ada sample transaksi. Klik "Tambah" untuk input manual.
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div> <!-- End Sample Section -->
+
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" (click)="currentStep = 2">
+                <i class="ri-arrow-left-line"></i> Kembali
+              </button>
 
               <div>
-                <button type="button" class="btn btn-info me-2 text-white" (click)="calculateEstimates()" [disabled]="isCalculating">
+                <button type="button" class="btn btn-info me-2 text-white" (click)="calculateEstimates()"
+                  [disabled]="isCalculating">
                   <span *ngIf="isCalculating" class="spinner-border spinner-border-sm me-2"></span>
                   <i class="ri-calculator-fill" *ngIf="!isCalculating"></i>
-                   Hitung Estimasi
+                  Hitung Estimasi
                 </button>
 
-                <button type="button" class="btn btn-primary" (click)="onSubmit()" [disabled]="loading || isCalculating">
+                <button type="button" class="btn btn-primary" (click)="onSubmit()"
+                  [disabled]="loading || isCalculating">
                   <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
                   <i class="ri-save-line" *ngIf="!loading"></i>
                   {{ isEditMode ? 'Update' : 'Simpan' }} Assessment
@@ -523,76 +684,78 @@
   </div>
 
   <!-- Calculation Result Section -->
-            <div class="card bg-info bg-opacity-10 border-info mt-4 mb-3" *ngIf="calculationResult">
-              <div class="card-header bg-info text-white">
-                <h5 class="mb-0 card-title text-white"><i class="ri-calculator-line me-2"></i>Hasil Estimasi Pajak</h5>
+  <div class="card bg-info bg-opacity-10 border-info mt-4 mb-3" *ngIf="calculationResult">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0 card-title text-white"><i class="ri-calculator-line me-2"></i>Hasil Estimasi Pajak</h5>
+    </div>
+    <div class="card-body">
+      <!-- Dual Result Layout -->
+      <div class="row">
+        <!-- Metode A: Sample Based (Original) -->
+        <div class="col-md-6 border-end">
+          <h6 class="text-center text-primary fw-bold mb-3 border-bottom pb-2">Metode Observasi Struk/Sample</h6>
+          <div class="text-center">
+            <p class="mb-1 text-muted">Potensi Per Bulan</p>
+            <h3 class="text-primary fw-bold">{{ calculationResult.monthlyPbjt | currency:'IDR':'symbol':'1.0-0' }}</h3>
+            <p class="mb-1 text-muted">Potensi Per Tahun</p>
+            <h4 class="text-secondary">{{ calculationResult.annualPbjt | currency:'IDR':'symbol':'1.0-0' }}</h4>
+
+            <div class="mt-3 small bg-white p-2 rounded">
+              <span class="d-block text-muted">Pendapatan Kotor/Bln</span>
+              <strong>{{ calculationResult.monthlyRevenueRaw | currency:'IDR':'symbol':'1.0-0' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metode B: Menu Based (New) -->
+        <div class="col-md-6">
+          <h6 class="text-center text-success fw-bold mb-3 border-bottom pb-2">Metode Nilai Tengah (Menu)</h6>
+          <div class="text-center" *ngIf="calculationResult.monthlyPbjtMenuBased; else noMenuResult">
+            <p class="mb-1 text-muted">Potensi Per Bulan</p>
+            <h3 class="text-success fw-bold">{{ calculationResult.monthlyPbjtMenuBased | currency:'IDR':'symbol':'1.0-0'
+              }}</h3>
+            <p class="mb-1 text-muted">Potensi Per Tahun</p>
+            <h4 class="text-secondary">{{ calculationResult.annualPbjtMenuBased | currency:'IDR':'symbol':'1.0-0' }}
+            </h4>
+
+            <div class="mt-3 small bg-white p-2 rounded d-flex justify-content-around">
+              <div>
+                <span class="d-block text-muted">Avg Makanan</span>
+                <strong>{{ calculationResult.averageFoodPrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
               </div>
-              <div class="card-body">
-                <!-- Dual Result Layout -->
-                <div class="row">
-                   <!-- Metode A: Sample Based (Original) -->
-                   <div class="col-md-6 border-end">
-                      <h6 class="text-center text-primary fw-bold mb-3 border-bottom pb-2">Metode Observasi Struk/Sample</h6>
-                      <div class="text-center">
-                        <p class="mb-1 text-muted">Potensi Per Bulan</p>
-                        <h3 class="text-primary fw-bold">{{ calculationResult.monthlyPbjt | currency:'IDR':'symbol':'1.0-0' }}</h3>
-                        <p class="mb-1 text-muted">Potensi Per Tahun</p>
-                        <h4 class="text-secondary">{{ calculationResult.annualPbjt | currency:'IDR':'symbol':'1.0-0' }}</h4>
-
-                        <div class="mt-3 small bg-white p-2 rounded">
-                            <span class="d-block text-muted">Pendapatan Kotor/Bln</span>
-                            <strong>{{ calculationResult.monthlyRevenueRaw | currency:'IDR':'symbol':'1.0-0' }}</strong>
-                        </div>
-                      </div>
-                   </div>
-
-                   <!-- Metode B: Menu Based (New) -->
-                   <div class="col-md-6">
-                      <h6 class="text-center text-success fw-bold mb-3 border-bottom pb-2">Metode Nilai Tengah (Menu)</h6>
-                      <div class="text-center" *ngIf="calculationResult.monthlyPbjtMenuBased; else noMenuResult">
-                        <p class="mb-1 text-muted">Potensi Per Bulan</p>
-                        <h3 class="text-success fw-bold">{{ calculationResult.monthlyPbjtMenuBased | currency:'IDR':'symbol':'1.0-0' }}</h3>
-                        <p class="mb-1 text-muted">Potensi Per Tahun</p>
-                        <h4 class="text-secondary">{{ calculationResult.annualPbjtMenuBased | currency:'IDR':'symbol':'1.0-0' }}</h4>
-
-                        <div class="mt-3 small bg-white p-2 rounded d-flex justify-content-around">
-                            <div>
-                                <span class="d-block text-muted">Avg Makanan</span>
-                                <strong>{{ calculationResult.averageFoodPrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
-                            </div>
-                            <div>
-                                <span class="d-block text-muted">Avg Minuman</span>
-                                <strong>{{ calculationResult.averageBeveragePrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
-                            </div>
-                        </div>
-                      </div>
-                      <ng-template #noMenuResult>
-                          <div class="alert alert-warning text-center small m-3">
-                              <i class="ri-alert-line"></i> Data Menu belum diisi lengkap.
-                              <br>Isi menu di Step 1 untuk melihat hasil ini.
-                          </div>
-                      </ng-template>
-                   </div>
-                </div>
-
-                <hr>
-                <!-- Common Factors -->
-                <div class="row text-center small mt-3">
-                  <div class="col-md-4">
-                    <span class="d-block text-muted">Skor Lokasi</span>
-                    <strong>{{ calculationResult.locationScore | number:'1.2-2' }}</strong>
-                  </div>
-                  <div class="col-md-4">
-                    <span class="d-block text-muted">Koefisien Tipe</span>
-                    <strong>{{ calculationResult.businessTypeCoefficient }}</strong>
-                  </div>
-                  <div class="col-md-4">
-                    <span class="d-block text-muted">Confidence</span>
-                    <strong>{{ calculationResult.confidenceScore }}%</strong>
-                  </div>
-                </div>
-                <div class="alert alert-info mt-3 mb-0 py-2 small">
-                  <i class="ri-information-fill me-1"></i> {{ calculationResult.recommendation }}
-                </div>
+              <div>
+                <span class="d-block text-muted">Avg Minuman</span>
+                <strong>{{ calculationResult.averageBeveragePrice | currency:'IDR':'symbol':'1.0-0' }}</strong>
               </div>
             </div>
+          </div>
+          <ng-template #noMenuResult>
+            <div class="alert alert-warning text-center small m-3">
+              <i class="ri-alert-line"></i> Data Menu belum diisi lengkap.
+              <br>Isi menu di Step 1 untuk melihat hasil ini.
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <hr>
+      <!-- Common Factors -->
+      <div class="row text-center small mt-3">
+        <div class="col-md-4">
+          <span class="d-block text-muted">Skor Lokasi</span>
+          <strong>{{ calculationResult.locationScore | number:'1.2-2' }}</strong>
+        </div>
+        <div class="col-md-4">
+          <span class="d-block text-muted">Koefisien Tipe</span>
+          <strong>{{ calculationResult.businessTypeCoefficient }}</strong>
+        </div>
+        <div class="col-md-4">
+          <span class="d-block text-muted">Confidence</span>
+          <strong>{{ calculationResult.confidenceScore }}%</strong>
+        </div>
+      </div>
+      <div class="alert alert-info mt-3 mb-0 py-2 small">
+        <i class="ri-information-fill me-1"></i> {{ calculationResult.recommendation }}
+      </div>
+    </div>
+  </div>

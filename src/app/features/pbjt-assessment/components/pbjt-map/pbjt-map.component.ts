@@ -621,7 +621,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
             <small style="color: #666;">${this.getBusinessTypeLabel(assessment.businessType)}</small>
             <hr style="margin: 8px 0;">
             <div><strong>NOP:</strong> ${assessment.taxObjectNumber || '-'}</div>
-            <div><strong>Business ID:</strong> ${assessment.businessId}</div>
+            <div><strong>Nomor Objek Pajak:</strong> ${assessment.businessId}</div>
             <div><strong>Address:</strong> ${assessment.address || '-'}</div>
             <div><strong>Location:</strong> ${assessment.kelurahan}, ${assessment.kecamatan}</div>
             <hr style="margin: 8px 0;">
@@ -828,7 +828,7 @@ export class PbjtMapComponent implements OnInit, AfterViewInit, OnDestroy {
             <small style="color: #666;">${this.getBusinessTypeLabel(assessment.businessType)}</small>
             <hr style="margin: 8px 0;">
             <div><strong>NOP:</strong> ${assessment.taxObjectNumber || '-'}</div>
-            <div><strong>Business ID:</strong> ${assessment.businessId}</div>
+            <div><strong>Nomor Objek Pajak:</strong> ${assessment.businessId}</div>
             <div><strong>Address:</strong> ${assessment.address || '-'}</div>
             <div><strong>Location:</strong> ${assessment.kelurahan}, ${assessment.kecamatan}</div>
             <hr style="margin: 8px 0;">

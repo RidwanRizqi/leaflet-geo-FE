@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { Assessment } from '../../models/assessment.model';
 import { forkJoin } from 'rxjs';
+import * as XLSX from 'xlsx';
 
 // Extended interface with realization data
 export interface AssessmentWithRealization extends Assessment {
@@ -213,5 +214,75 @@ export class AssessmentListComponent implements OnInit {
 
   getBusinessTypeDisplay(type: string | undefined): string {
     return this.assessmentService.getBusinessTypeDisplayName(type || '');
+  }
+
+  /**
+   * Export all assessments to Excel file
+   */
+  exportToExcel(): void {
+    // Load ALL data for export (not just current page)
+    this.assessmentService.getAllAssessments(0, 1000).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          const allData = response.data.map((a: any, index: number) => {
+            const history = a.realisasiHistory || [];
+            const getAmount = (year: number) => {
+              const record = history.find((h: any) => h.tahun === year);
+              return record ? record.realisasiAmount : 0;
+            };
+
+            return {
+              'No': index + 1,
+              'Business ID': a.businessId || '',
+              'Nama Usaha': a.businessName || '',
+              'Tipe Usaha': this.getBusinessTypeDisplay(a.businessType),
+              'Alamat': a.location?.address || '',
+              'Kelurahan': a.location?.kelurahan || '',
+              'Kecamatan': a.location?.kecamatan || '',
+              'Kabupaten': a.location?.kabupaten || '',
+              'Kapasitas': a.seatingCapacity || 0,
+              'Luas Bangunan (m²)': a.buildingArea || '',
+              'Jam Buka': a.operatingHoursStart || '',
+              'Jam Tutup': a.operatingHoursEnd || '',
+              'Tanggal Assessment': a.assessmentDate || '',
+              'Monthly PBJT': a.monthlyPbjt || 0,
+              'Annual PBJT': a.annualPbjt || 0,
+              'Realisasi 2021': getAmount(2021),
+              'Realisasi 2022': getAmount(2022),
+              'Realisasi 2023': getAmount(2023),
+              'Realisasi 2024': getAmount(2024),
+              'Realisasi 2025': getAmount(2025),
+              'Latitude': a.location?.latitude || '',
+              'Longitude': a.location?.longitude || '',
+              'Surveyor ID': a.surveyorId || ''
+            };
+          });
+
+          if (allData.length === 0) {
+            alert('Tidak ada data untuk di-export.');
+            return;
+          }
+
+          const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(allData);
+          const columnWidths = Object.keys(allData[0] || {}).map(key => ({
+            wch: Math.max(key.length + 2, 15)
+          }));
+          worksheet['!cols'] = columnWidths;
+
+          const workbook: XLSX.WorkBook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Assessment PBJT');
+
+          const today = new Date();
+          const dateStr = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+          const filename = `PBJT_Assessment_${dateStr}.xlsx`;
+
+          XLSX.writeFile(workbook, filename);
+        }
+      },
+      error: (error) => {
+        console.error('Error exporting:', error);
+        alert('Gagal export data!');
+      }
+    });
   }
 }

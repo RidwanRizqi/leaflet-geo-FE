@@ -35,6 +35,9 @@ export interface Assessment {
   verifiedBy?: string;
   taxpayerSigned?: boolean;
 
+  // Menu items
+  menuItems?: MenuItem[];
+
   // Supporting documents
   photoUrls?: string[];
   supportingDocUrl?: string;
@@ -52,6 +55,13 @@ export interface Assessment {
   updatedAt?: string;
 }
 
+// Menu Item
+export interface MenuItem {
+  name: string;
+  price: number;
+  category: string; // 'FOOD' | 'BEVERAGE'
+}
+
 // Sample Transaction with notes
 export interface SampleTransaction {
   amount: number;
@@ -65,6 +75,7 @@ export interface Observation {
   visitors: number;
   durationHours: number;
   sampleTransactions: SampleTransaction[];
+  assignedUserId?: string;
   notes?: string;
   visitorsPerHour?: number;
   avgTransaction?: number;
@@ -135,6 +146,8 @@ export interface AssessmentRequest {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
+  // Menu items
+  menuItems?: MenuItem[];
   // Observations with sampleTransactions
   observations: ObservationRequest[];
   // Surveyor info (required by backend)
@@ -158,6 +171,7 @@ export interface ObservationRequest {
   visitors: number;
   durationHours: number;
   sampleTransactions: SampleTransaction[];  // Required: 5-30 transaction objects
+  assignedUserId?: string;
   notes?: string;
 }
 
