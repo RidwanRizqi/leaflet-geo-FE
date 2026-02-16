@@ -53,8 +53,8 @@ export class AssessmentListComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    // Load paginated assessments from backend
-    this.assessmentService.getAllAssessments(this.currentPage, this.pageSize).subscribe({
+    // Load paginated assessments from backend with optional search
+    this.assessmentService.getAllAssessments(this.currentPage, this.pageSize, this.searchTerm).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           // Map response data including realization from history
@@ -97,22 +97,23 @@ export class AssessmentListComponent implements OnInit {
   }
 
   /**
-   * Apply search filter - currently only client side on the current page
-   * TODO: Implement server-side search
+   * Apply search filter - server-side search
    */
   applySearch(): void {
-    // If we want real search, we need a backend endpoint that accepts a query param
-    // For now, this just filters the currently loaded page (which is just 10 items)
-    // This is temporary until BE search is implemented
+    this.currentPage = 0;
+    this.loadAssessments();
   }
 
+  private searchTimeout: any;
+
   /**
-   * Handle search input change
+   * Handle search input change with debounce
    */
   onSearch(): void {
-    this.currentPage = 0;
-    this.loadAssessments(); // Reload from server (will reset to page 0)
-    // Note: Search term is not sent to server yet as API doesn't support it
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.applySearch();
+    }, 400);
   }
 
   onPageChange(page: number): void {

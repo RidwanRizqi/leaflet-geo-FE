@@ -663,15 +663,18 @@ export class AssessmentFormComponent implements OnInit {
 
   private prepareRequest(imageUrls: string[] = []): AssessmentRequest {
     // Merge all step forms
-    const step1Value = this.step1Form.value;
+    const step1Value = this.step1Form.getRawValue(); // getRawValue() includes disabled fields like businessId
     const step2Value = this.step2Form.value;
     const menuValue = this.menuForm.value;
     const step3Value = this.step3Form.getRawValue();
 
+    // Auto-generate businessId if empty (new assessment)
+    const businessId = step1Value.businessId || ('PBJT-' + Date.now());
+
     // Build request matching backend AssessmentRequestDTO (flat structure)
     return {
       // Business info
-      businessId: step1Value.businessId,
+      businessId: businessId,
       businessName: step1Value.businessName,
       businessType: step1Value.businessType,
       seatingCapacity: step1Value.seatingCapacity,

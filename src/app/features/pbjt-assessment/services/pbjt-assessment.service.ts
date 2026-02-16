@@ -13,12 +13,16 @@ export class PbjtAssessmentService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Get all assessments with pagination
+   * Get all assessments with pagination and optional search
    */
-  getAllAssessments(page: number = 0, size: number = 10): Observable<AssessmentListResponse> {
-    const params = new HttpParams()
+  getAllAssessments(page: number = 0, size: number = 10, search: string = ''): Observable<AssessmentListResponse> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
 
     return this.http.get<AssessmentListResponse>(this.apiUrl, { params });
   }
