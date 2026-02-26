@@ -60,6 +60,18 @@ const routes: Routes = [
     path: 'tematik',
     loadChildren: () => import('./tematik/tematik.module').then(m => m.TematikModule),
   },
+  {
+    path: 'pbjt-assessment',
+    loadChildren: () => import('./pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule),
+  },
+  {
+    path: 'pbjt-hotel',
+    loadChildren: () => import('./pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule),
+  },
+  {
+    path: 'pbjt-makanan',
+    loadChildren: () => import('./pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule),
+  },
 ];
 
 @NgModule({

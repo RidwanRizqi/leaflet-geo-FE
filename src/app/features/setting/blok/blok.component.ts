@@ -6,6 +6,7 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { ModalService } from 'src/app/shared/services/modal.service';
 import { SettingService, BlokData } from 'src/app/services/setting.service';
+import { RestApiService } from 'src/app/services/rest-api.service';
 import * as L from 'leaflet';
 
 // Interfaces
@@ -82,6 +83,7 @@ export class BlokComponent implements OnInit, OnDestroy {
     editId: string = '';
     currentLabel: string = '';
     private currentGeomWkb: string | null = null;
+    private uploadedGeojson: any = null;  // Stores uploaded GeoJSON geometry for new blok
 
     // Map
     private map: L.Map | null = null;
@@ -96,7 +98,8 @@ export class BlokComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         private spinner: NgxSpinnerService,
         private customModalService: ModalService,
-        private settingService: SettingService
+        private settingService: SettingService,
+        private restApiService: RestApiService
     ) { }
 
     ngOnInit(): void {
@@ -150,7 +153,23 @@ export class BlokComponent implements OnInit, OnDestroy {
     }
 
     loadDropdownData(): void {
-        this.kecamatanList = [];
+        // Load Kecamatan list - API returns {value, label} format where value=kd_kec, label="kd_kec - nama"
+        this.restApiService.getKecamatanList('true').subscribe({
+            next: (response: any[]) => {
+                // Filter out placeholder (empty value) and map to our interface
+                this.kecamatanList = response
+                    .filter(item => item.value && item.value !== '')
+                    .map(item => ({
+                        id: item.value,
+                        kd_kec: item.value,
+                        nama: item.label ? item.label.replace(`${item.value} - `, '') : item.value
+                    }));
+                console.log('Loaded kecamatan list:', this.kecamatanList);
+            },
+            error: (err) => console.error('Error loading kecamatan:', err)
+        });
+
+        // Kelurahan will be loaded on-demand when kecamatan is selected in the form
         this.allKelurahanList = [];
         this.kelurahanList = [];
     }
@@ -199,11 +218,27 @@ export class BlokComponent implements OnInit, OnDestroy {
         this.performSearch();
     }
 
-    // Cascading filter: Kecamatan changes -> filter Kelurahan list
+    // Cascading filter: Kecamatan changes -> load Kelurahan from API
     onKecamatanFilterChange(): void {
         this.filterKdKel = '';
         if (this.filterKdKec) {
-            this.kelurahanList = this.allKelurahanList.filter(k => k.kd_kec === this.filterKdKec);
+            // Load kelurahan for selected kecamatan from API
+            this.restApiService.getKelurahanListByKec(this.filterKdKec, 'true').subscribe({
+                next: (response: any[]) => {
+                    this.kelurahanList = response
+                        .filter(item => item.value && item.value !== '')
+                        .map(item => ({
+                            id: item.id_kelurahan || item.value,
+                            kd_kec: item.kd_kec || this.filterKdKec,
+                            kd_kel: item.value,
+                            nama: item.label ? item.label.replace(`${item.value} - `, '') : item.value
+                        }));
+                },
+                error: (err) => {
+                    console.error('Error loading kelurahan for filter:', err);
+                    this.kelurahanList = [];
+                }
+            });
         } else {
             this.kelurahanList = [];
         }
@@ -231,13 +266,31 @@ export class BlokComponent implements OnInit, OnDestroy {
         this.loadData();
     }
 
-    // Cascading dropdown in form: Kecamatan changes -> filter Kelurahan list
+    // Cascading dropdown in form: Kecamatan changes -> load Kelurahan from API
     onFormKecamatanChange(): void {
         const kdKec = this.fg.get('kd_kec')?.value;
         this.fg.patchValue({ kd_kel: '' });
 
         if (kdKec) {
-            this.formKelurahanList = this.allKelurahanList.filter(k => k.kd_kec === kdKec);
+            // Load kelurahan for selected kecamatan from API
+            this.restApiService.getKelurahanListByKec(kdKec, 'true').subscribe({
+                next: (response: any[]) => {
+                    // Filter out placeholder and map to our interface
+                    this.formKelurahanList = response
+                        .filter(item => item.value && item.value !== '')
+                        .map(item => ({
+                            id: item.id_kelurahan || item.value,
+                            kd_kec: item.kd_kec || kdKec,
+                            kd_kel: item.value,
+                            nama: item.label ? item.label.replace(`${item.value} - `, '') : item.value
+                        }));
+                    console.log('Loaded kelurahan for kec', kdKec, ':', this.formKelurahanList);
+                },
+                error: (err) => {
+                    console.error('Error loading kelurahan:', err);
+                    this.formKelurahanList = [];
+                }
+            });
         } else {
             this.formKelurahanList = [];
         }
@@ -248,6 +301,7 @@ export class BlokComponent implements OnInit, OnDestroy {
         this.isEdit = false;
         this.editId = '';
         this.currentGeomWkb = null;
+        this.uploadedGeojson = null;  // Reset uploaded geometry
         this.fg.reset();
         this.formKelurahanList = [];
         this.submitted = false;
@@ -260,10 +314,12 @@ export class BlokComponent implements OnInit, OnDestroy {
             this.destroyMap();
             this.currentLabel = '';
             this.currentGeomWkb = null;
+            this.uploadedGeojson = null;
         }, () => {
             this.destroyMap();
             this.currentLabel = '';
             this.currentGeomWkb = null;
+            this.uploadedGeojson = null;
         });
 
         setTimeout(() => this.initMap(), 300);
@@ -273,9 +329,31 @@ export class BlokComponent implements OnInit, OnDestroy {
         this.isEdit = true;
         this.editId = item.id;
         this.currentGeomWkb = item.geom;
+        this.uploadedGeojson = null;  // Reset - will use existing geom unless new file uploaded
         this.currentLabel = item.kd_blok;
 
-        this.formKelurahanList = this.allKelurahanList.filter(k => k.kd_kec === item.kd_kec);
+        // Load kelurahan for this blok's kecamatan from API
+        if (item.kd_kec) {
+            this.restApiService.getKelurahanListByKec(item.kd_kec, 'true').subscribe({
+                next: (response: any[]) => {
+                    this.formKelurahanList = response
+                        .filter(kel => kel.value && kel.value !== '')
+                        .map(kel => ({
+                            id: kel.id_kelurahan || kel.value,
+                            kd_kec: kel.kd_kec || item.kd_kec,
+                            kd_kel: kel.value,
+                            nama: kel.label ? kel.label.replace(`${kel.value} - `, '') : kel.value
+                        }));
+                    console.log('Loaded kelurahan for edit modal:', this.formKelurahanList);
+                },
+                error: (err) => {
+                    console.error('Error loading kelurahan for edit:', err);
+                    this.formKelurahanList = [];
+                }
+            });
+        } else {
+            this.formKelurahanList = [];
+        }
 
         this.fg.patchValue({
             kd_kec: item.kd_kec,
@@ -299,7 +377,34 @@ export class BlokComponent implements OnInit, OnDestroy {
 
         setTimeout(() => {
             this.initMap();
+            // Display existing geometry if available
+            if (this.currentGeomWkb) {
+                setTimeout(() => this.displayExistingGeometry(), 200);
+            }
         }, 300);
+    }
+
+    /**
+     * Display existing geometry by fetching GeoJSON from backend
+     */
+    private displayExistingGeometry(): void {
+        if (!this.map || !this.editId) return;
+
+        // Call backend to get geometry converted to GeoJSON
+        this.settingService.getBlokGeoJson(this.editId).subscribe({
+            next: (data: any) => {
+                if (data.geojson) {
+                    // Display the GeoJSON geometry on the map
+                    this.displayGeometry(JSON.stringify(data.geojson));
+                    console.log('Displayed geometry for blok:', data.kd_blok);
+                } else {
+                    console.log('No geometry available for this blok');
+                }
+            },
+            error: (err) => {
+                console.error('Error fetching blok geometry:', err);
+            }
+        });
     }
 
     // Map functions
@@ -337,10 +442,15 @@ export class BlokComponent implements OnInit, OnDestroy {
     }
 
     private displayGeometry(geomJson: string): void {
-        if (!this.map) return;
+        console.log('displayGeometry called, map exists:', !!this.map);
+        if (!this.map) {
+            console.warn('Map not initialized, cannot display geometry');
+            return;
+        }
 
         try {
             const geom = JSON.parse(geomJson);
+            console.log('Parsed geometry type:', geom.type, 'coordinates:', geom.coordinates?.length || 'N/A');
 
             if (this.geoJsonLayer) {
                 this.map.removeLayer(this.geoJsonLayer);
@@ -356,9 +466,16 @@ export class BlokComponent implements OnInit, OnDestroy {
                 }
             }).addTo(this.map);
 
+            console.log('GeoJSON layer added to map');
+
+            // Force map to recalculate size and fit bounds
+            this.map.invalidateSize();
+
             const bounds = this.geoJsonLayer.getBounds();
+            console.log('Bounds valid:', bounds.isValid());
             if (bounds.isValid()) {
                 this.map.fitBounds(bounds, { padding: [20, 20] });
+                console.log('Map fitted to bounds:', bounds.toBBoxString());
             }
         } catch (e) {
             console.error('Error parsing geometry:', e);
@@ -372,17 +489,26 @@ export class BlokComponent implements OnInit, OnDestroy {
             reader.onload = (e: any) => {
                 try {
                     const geojson = JSON.parse(e.target.result);
+                    let geometry: any = null;
 
                     if (geojson.type === 'FeatureCollection' && geojson.features?.length > 0) {
-                        this.displayGeometry(JSON.stringify(geojson.features[0].geometry));
+                        geometry = geojson.features[0].geometry;
                     } else if (geojson.type === 'Feature') {
-                        this.displayGeometry(JSON.stringify(geojson.geometry));
+                        geometry = geojson.geometry;
                     } else {
-                        this.displayGeometry(JSON.stringify(geojson));
+                        geometry = geojson;
                     }
+
+                    // Store the geometry for saving
+                    this.uploadedGeojson = geometry;
+                    console.log('Uploaded GeoJSON geometry:', this.uploadedGeojson);
+
+                    // Display on map preview
+                    this.displayGeometry(JSON.stringify(geometry));
                 } catch (error) {
                     console.error('Invalid GeoJSON file:', error);
                     this.customModalService.open('error', 'File GeoJSON tidak valid');
+                    this.uploadedGeojson = null;
                 }
             };
             reader.readAsText(file);
@@ -396,12 +522,21 @@ export class BlokComponent implements OnInit, OnDestroy {
         this.spinner.show();
         const formData = this.fg.value;
 
-        const data: BlokData = {
+        // Prepare data - include geojson for new uploads, or geom for existing
+        const data: any = {
             kd_kec: formData.kd_kec,
             kd_kel: formData.kd_kel,
-            kd_blok: formData.kd_blok,
-            geom: this.currentGeomWkb || undefined
+            kd_blok: formData.kd_blok
         };
+
+        // If user uploaded a new GeoJSON file, send that
+        if (this.uploadedGeojson) {
+            data.geojson = this.uploadedGeojson;
+            console.log('Sending uploaded GeoJSON to backend');
+        } else if (this.currentGeomWkb) {
+            // Otherwise use existing WKB if editing
+            data.geom = this.currentGeomWkb;
+        }
 
         if (this.isEdit) {
             this.settingService.updateBlok(this.editId, data).subscribe({
@@ -427,7 +562,9 @@ export class BlokComponent implements OnInit, OnDestroy {
                 },
                 error: (error) => {
                     console.error('Error creating blok:', error);
-                    this.customModalService.open('error', 'Gagal menambah blok');
+                    // Extract error message from backend response
+                    const errorMsg = error?.error?.error || error?.error?.message || 'Gagal menambah blok';
+                    this.customModalService.open('error', errorMsg);
                     this.spinner.hide();
                 }
             });

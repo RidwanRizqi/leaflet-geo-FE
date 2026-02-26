@@ -819,6 +819,9 @@
       "MAP": {
         "TEXT": "Peta Tematik"
       }
+    },
+    "PBJT_ASSESSMENT": {
+      "TEXT": "PBJT Assessment"
     }
   },
   "TOUR": {

@@ -716,6 +716,9 @@
         "TEXT": "Status Pembayaran"
       }
     },
+    "PBJT_ASSESSMENT": {
+      "TEXT": "PBJT Assessment"
+    },
     "SETTING": {
       "TEXT": "Setting",
       "KECAMATAN": {

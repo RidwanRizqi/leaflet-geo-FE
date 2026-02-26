@@ -47,8 +47,11 @@ interface BidangDetailResponse {
 export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
+  @ViewChild('bidangDetailMapContainer') bidangDetailMapContainer!: ElementRef;
   private map: L.Map | null = null;
+  private bidangDetailMap: L.Map | null = null; // Preview map for bidang detail modal
   geoJsonLayer: L.GeoJSON | null = null;
+  currentMouseCoordinates: string | null = null; // Coordinates display
 
   // Data properties
   geoJsonData: any[] = [];
@@ -110,8 +113,13 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Bidang Detail Modal data
   selectedBidangDetail: BidangDetailResponse | null = null;
+  selectedBidangGeometry: any = null; // Store clicked bidang's geometry for map preview
   isLoadingBidangDetail = false;
   showBidangModal = false;
+
+  // Collapsible sections state
+  isObjekPajakCollapsed = true;
+  isWajibPajakCollapsed = true;
 
   // Tematik properties
   showTematikSection = false;
@@ -254,6 +262,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           center: [-8.1335, 113.2246], // Koordinat Lumajang
           zoom: 11,
           doubleClickZoom: false // Disable double-click zoom to allow click navigation
+        });
+
+        // Add mouse move handler for coordinates display
+        this.map.on('mousemove', (e: L.LeafletMouseEvent) => {
+          this.currentMouseCoordinates = `${e.latlng.lng},${e.latlng.lat}`;
         });
 
         // Define base layers and store references for custom layer control
@@ -2007,7 +2020,18 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                     return;
                   }
 
-                  this.showBidangDetailModal(id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp);
+                  // Extract geometry from the clicked layer for map preview
+                  let clickedGeometry: any = null;
+                  try {
+                    if ((layer as any).toGeoJSON) {
+                      clickedGeometry = (layer as any).toGeoJSON().geometry;
+                      console.log('📍 Extracted geometry from clicked layer:', clickedGeometry?.type);
+                    }
+                  } catch (err) {
+                    console.warn('⚠️ Could not extract geometry from layer:', err);
+                  }
+
+                  this.showBidangDetailModal(id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp, clickedGeometry);
                 }
               });
             }
@@ -2372,7 +2396,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * Show bidang detail modal with data from BPRD API
    */
-  showBidangDetailModal(id: string, kdProp: string, kdDati2: string, kdKec: string, kdKel: string, kdBlok: string, noUrut: string, kdJnsOp: string): void {
+  showBidangDetailModal(id: string, kdProp: string, kdDati2: string, kdKec: string, kdKel: string, kdBlok: string, noUrut: string, kdJnsOp: string, clickedGeometry?: any): void {
     console.log(`🏠 Loading bidang detail for NOP parameters:`, {
       id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp
     });
@@ -2380,6 +2404,9 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoadingBidangDetail = true;
     this.showBidangModal = true;
     this.selectedBidangDetail = null;
+    this.isObjekPajakCollapsed = true;
+    this.isWajibPajakCollapsed = true;
+    this.selectedBidangGeometry = clickedGeometry || null; // Store clicked geometry for map preview
 
     // Call BPRD API for bidang detail
     this.bprdApiService.getBidangDetail(id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp).subscribe({
@@ -2387,6 +2414,11 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log('✅ Received bidang detail:', bidangDetail);
         this.selectedBidangDetail = bidangDetail;
         this.isLoadingBidangDetail = false;
+
+        // Initialize preview map after Angular renders the container
+        setTimeout(() => {
+          this.initBidangDetailMap();
+        }, 100);
       },
       error: (error: any) => {
         console.error('❌ Error loading bidang detail:', error);
@@ -2397,15 +2429,180 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
+   * Initialize the preview map in the bidang detail modal
+   */
+  private initBidangDetailMap(): void {
+    // Cleanup existing map if any
+    if (this.bidangDetailMap) {
+      this.bidangDetailMap.remove();
+      this.bidangDetailMap = null;
+    }
+
+    // Check if container exists
+    if (!this.bidangDetailMapContainer?.nativeElement) {
+      console.warn('⚠️ Bidang detail map container not found');
+      return;
+    }
+
+    try {
+      // Create the map
+      this.bidangDetailMap = L.map(this.bidangDetailMapContainer.nativeElement, {
+        zoomControl: true,
+        attributionControl: false,
+        scrollWheelZoom: true
+      });
+
+      // Add base layer (OSM for simplicity)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 21,
+        attribution: ''
+      }).addTo(this.bidangDetailMap);
+
+      // Add the bidang geometry if available
+      if (this.selectedBidangDetail?.geom) {
+        this.addBidangGeometryToPreviewMap();
+      } else {
+        // Fallback: Set default view to Lumajang area if no geometry
+        this.bidangDetailMap.setView([-8.13, 113.23], 13);
+        console.log('ℹ️ No geometry available for this bidang');
+      }
+    } catch (error) {
+      console.error('❌ Error initializing bidang detail map:', error);
+    }
+  }
+
+  /**
+   * Add bidang geometry (GeoJSON) to the preview map
+   */
+  private addBidangGeometryToPreviewMap(): void {
+    if (!this.bidangDetailMap) {
+      return;
+    }
+
+    // Prioritize using geometry from clicked layer (selectedBidangGeometry)
+    // Fall back to geom from API response if clicked geometry is not available
+    let geojsonData: any = null;
+
+    if (this.selectedBidangGeometry) {
+      // Use geometry from clicked layer (already GeoJSON format)
+      console.log('📍 Using clicked layer geometry for preview');
+      geojsonData = {
+        type: 'Feature',
+        geometry: this.selectedBidangGeometry,
+        properties: {}
+      };
+    } else if (this.selectedBidangDetail?.geom) {
+      // Try to use geom from API response (always a string)
+      const geomData = this.selectedBidangDetail.geom;
+
+      if (typeof geomData === 'string') {
+        try {
+          const parsed = JSON.parse(geomData);
+          // Wrap in Feature if it's just a geometry
+          if (parsed && parsed.type && !['Feature', 'FeatureCollection'].includes(parsed.type)) {
+            geojsonData = {
+              type: 'Feature',
+              geometry: parsed,
+              properties: {}
+            };
+          } else if (parsed) {
+            geojsonData = parsed;
+          }
+        } catch {
+          console.warn('⚠️ Could not parse geom as JSON string');
+        }
+      }
+    }
+
+    if (!geojsonData) {
+      console.warn('⚠️ No geometry available for bidang preview');
+      this.bidangDetailMap.setView([-8.13, 113.23], 13);
+      return;
+    }
+
+    try {
+      // Create the GeoJSON layer with green styling (matching theme)
+      const bidangLayer = L.geoJSON(geojsonData, {
+        style: {
+          color: '#155034',      // Dark Green border
+          weight: 3,
+          opacity: 1,
+          fillColor: '#4ade80', // Light Green fill
+          fillOpacity: 0.5
+        }
+      }).addTo(this.bidangDetailMap);
+
+      // Fit the map to the bidang bounds
+      const bounds = bidangLayer.getBounds();
+      if (bounds.isValid()) {
+        this.bidangDetailMap.fitBounds(bounds, {
+          padding: [30, 30],
+          maxZoom: 18
+        });
+      }
+
+      // Add a popup with bidang info
+      const nop = this.selectedBidangDetail?.nop;
+      const popupContent = `
+        <div style="text-align: center; font-size: 12px;">
+          <strong>NOP:</strong> ${nop || 'N/A'}<br>
+          <strong>Blok:</strong> ${nop?.substring(12, 15) || 'N/A'}<br>
+          <strong>No. Urut:</strong> ${nop?.substring(15, 19) || 'N/A'}
+        </div>
+      `;
+
+      // Bind popup and open it at center
+      bidangLayer.bindPopup(popupContent, {
+        className: 'bidang-detail-popup',
+        closeButton: true,
+        autoClose: false
+      });
+
+      // Open popup after a short delay
+      setTimeout(() => {
+        if (bounds.isValid()) {
+          const center = bounds.getCenter();
+          bidangLayer.openPopup(center);
+        }
+      }, 300);
+
+      console.log('✅ Added bidang geometry to preview map');
+    } catch (error) {
+      console.error('❌ Error adding bidang geometry to preview map:', error);
+      // Fallback view
+      this.bidangDetailMap?.setView([-8.13, 113.23], 13);
+    }
+  }
+
+  /**
    * Close bidang detail modal
    */
   closeBidangDetailModal(): void {
     this.showBidangModal = false;
     this.selectedBidangDetail = null;
+    this.selectedBidangGeometry = null; // Cleanup stored geometry
     this.isLoadingBidangDetail = false;
+
+    // Cleanup preview map
+    if (this.bidangDetailMap) {
+      this.bidangDetailMap.remove();
+      this.bidangDetailMap = null;
+    }
   }
 
   // ====================== TEMATIK METHODS ======================
+
+  /**
+   * Toggle info sections in bidang detail modal
+   */
+  toggleSection(section: 'objek' | 'subjek'): void {
+    if (section === 'objek') {
+      this.isObjekPajakCollapsed = !this.isObjekPajakCollapsed;
+    } else {
+      this.isWajibPajakCollapsed = !this.isWajibPajakCollapsed;
+    }
+  }
+
 
   /**
    * Check if tematik layers exist
@@ -2476,7 +2673,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handle tematik kecamatan change - use existing kelurahan data
    */
   onTematikKecamatanChange(): void {
-    console.log(`🏠 Tematik kecamatan changed to: ${this.selectedTematikKecamatan}`);
+    console.log(`🏠 Tematik kecamatan changed to: ${this.selectedTematikKecamatan} `);
 
     // Reset kelurahan selection
     this.selectedTematikKelurahan = '';
@@ -2561,8 +2758,8 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             const r = parseInt(rgbMatch[1]);
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
-            cssColor = `rgb(${r},${g},${b})`;
-            console.log(`🎨 Converted layer ${key} color ${layer.color} to ${cssColor}`);
+            cssColor = `rgb(${r}, ${g}, ${b})`;
+            console.log(`🎨 Converted layer ${key} color ${layer.color} to ${cssColor} `);
           } else {
             // If it's already in a valid CSS format, use as is
             cssColor = layer.color;
@@ -2573,7 +2770,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
           key: key,
           ...layer,
           color: cssColor, // Use converted CSS color
-          label: layer.label || `Layer ${key}` // Add default label
+          label: layer.label || `Layer ${key} ` // Add default label
         });
       }
 
@@ -2603,13 +2800,13 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
     const allFeatures: any[] = [];
 
     this.tematikLayersArray.forEach((layer: any) => {
-      console.log(`🔍 Processing layer ${layer.key} with color: ${layer.color}, data count: ${layer.data?.length || 0}`);
+      console.log(`🔍 Processing layer ${layer.key} with color: ${layer.color}, data count: ${layer.data?.length || 0} `);
 
       if (layer.data && Array.isArray(layer.data)) {
         layer.data.forEach((bidang: any) => {
           if (bidang.geojson) {
             // Debug: Check bidang structure
-            console.log(`🔍 Processing bidang:`, {
+            console.log(`🔍 Processing bidang: `, {
               nop: bidang.nop,
               hasGeojson: !!bidang.geojson,
               geojsonType: bidang.geojson?.type,
@@ -2643,16 +2840,16 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
                 ...bidang,
                 // Finally add layer metadata (these will override any conflicts)
                 layerKey: layer.key,
-                layerLabel: layer.label || `Layer ${layer.key}`,
+                layerLabel: layer.label || `Layer ${layer.key} `,
                 layerColor: layer.color,
                 // Ensure essential properties are always available
                 nop: bidang.nop || 'N/A',
-                id: bidang.id || `${layer.key}_${bidang.nop || Math.random()}`
+                id: bidang.id || `${layer.key}_${bidang.nop || Math.random()} `
               }
             };
 
-            console.log(`✅ Added bidang ${bidang.nop} with color ${layer.color} to layer ${layer.key}`);
-            console.log(`🔧 Feature properties:`, feature.properties);
+            console.log(`✅ Added bidang ${bidang.nop} with color ${layer.color} to layer ${layer.key} `);
+            console.log(`🔧 Feature properties: `, feature.properties);
             allFeatures.push(feature);
           } else {
             console.warn(`⚠️ Bidang ${bidang.nop} has no geojson data`);
@@ -2673,7 +2870,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       style: (feature: any) => {
         // Debug: Check feature structure
         if (!feature.properties) {
-          console.error(`❌ Feature has no properties:`, feature);
+          console.error(`❌ Feature has no properties: `, feature);
           return {
             fillColor: '#ff0000', // Red for error
             weight: 2,
@@ -2689,7 +2886,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
         // Only log if properties are missing (to reduce console spam)
         if (!feature.properties.layerColor || !feature.properties.nop || !feature.properties.layerKey) {
-          console.warn(`⚠️ Missing properties for feature:`, {
+          console.warn(`⚠️ Missing properties for feature: `, {
             layerKey: layerKey,
             layerColor: layerColor,
             nop: nop,
@@ -2699,7 +2896,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             allProperties: Object.keys(feature.properties)
           });
         } else {
-          console.log(`🎨 Applying style to bidang ${nop}: color=${layerColor}, layer=${layerKey}`);
+          console.log(`🎨 Applying style to bidang ${nop}: color = ${layerColor}, layer = ${layerKey} `);
         }
 
         return {
@@ -2738,8 +2935,19 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
             return;
           }
 
+          // Extract geometry from the clicked layer for map preview
+          let clickedGeometry: any = null;
+          try {
+            if ((layer as any).toGeoJSON) {
+              clickedGeometry = (layer as any).toGeoJSON().geometry;
+              console.log('📍 Extracted geometry from tematik layer:', clickedGeometry?.type);
+            }
+          } catch (err) {
+            console.warn('⚠️ Could not extract geometry from tematik layer:', err);
+          }
+
           // Call the same method used for normal bidang
-          this.showBidangDetailModal(id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp);
+          this.showBidangDetailModal(id, kdProp, kdDati2, kdKec, kdKel, kdBlok, noUrut, kdJnsOp, clickedGeometry);
 
           // Stop event propagation to prevent map events
           e.originalEvent.stopPropagation();
@@ -2907,7 +3115,7 @@ export class BidangMapComponent implements OnInit, AfterViewInit, OnDestroy {
       // Add a temporary marker at the location
       const marker = L.marker([this.coordLatitude, this.coordLongitude])
         .addTo(this.map)
-        .bindPopup(`<b>Koordinat</b><br>Lat: ${this.coordLatitude}<br>Lng: ${this.coordLongitude}`)
+        .bindPopup(`< b > Koordinat </b><br>Lat: ${this.coordLatitude}<br>Lng: ${this.coordLongitude}`)
         .openPopup();
 
       // Remove marker after 10 seconds

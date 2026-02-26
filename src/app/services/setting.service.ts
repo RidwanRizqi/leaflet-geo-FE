@@ -229,6 +229,13 @@ export class SettingService {
     }
 
     /**
+     * Get blok with geometry converted to GeoJSON for map display
+     */
+    getBlokGeoJson(id: string): Observable<any> {
+        return this.http.get<any>(`${this.apiUrl}/api/blok/${id}/geojson`);
+    }
+
+    /**
      * Create new blok
      */
     createBlok(data: BlokData): Observable<any> {

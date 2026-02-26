@@ -1,0 +1,39 @@
+.pbjt-popup {
+  min-width: 200px;
+
+  h6 {
+    margin-bottom: 4px;
+    color: #333;
+  }
+
+  hr {
+    border-top: 1px solid #ddd;
+  }
+
+  div {
+    font-size: 13px;
+    margin-bottom: 4px;
+
+    strong {
+      font-weight: 600;
+      margin-right: 4px;
+    }
+  }
+}
+
+.pbjt-marker {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+::ng-deep .leaflet-popup-content {
+  margin: 12px;
+}
