@@ -1,0 +1,19 @@
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table-sm td, .table-sm th {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+code.text-dark {
+  font-size: 0.75rem;
+}
+
+.card-animate {
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+  }
+}

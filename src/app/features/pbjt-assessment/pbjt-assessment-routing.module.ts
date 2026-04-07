@@ -25,6 +25,46 @@ const routes: Routes = [
     {
         path: 'detail/:id',
         component: AssessmentDetailComponent
+    },
+    {
+        path: 'dashboard',
+        loadComponent: () => import('./components/hotel/dashboard/dashboard.component').then(m => m.HotelDashboardComponent)
+    },
+    {
+        path: 'properties',
+        loadComponent: () => import('./components/hotel/properties/property-list.component').then(m => m.HotelPropertyListComponent)
+    },
+    {
+        path: 'projections',
+        loadComponent: () => import('./components/hotel/projections/projection-dashboard.component').then(m => m.HotelProjectionDashboardComponent)
+    },
+    {
+        path: 'formalization',
+        loadComponent: () => import('./components/hotel/formalization/formalization-dashboard.component').then(m => m.HotelFormalizationDashboardComponent)
+    },
+    {
+        path: 'reports',
+        loadComponent: () => import('./components/hotel/reports/report-generator.component').then(m => m.HotelReportGeneratorComponent)
+    },
+    {
+        path: 'assessment-list',
+        loadComponent: () => import('./components/hotel/assessment-list/hotel-assessment-list.component').then(m => m.HotelAssessmentListComponent)
+    },
+    {
+        path: 'hotel-create',
+        loadComponent: () => import('./components/hotel/assessment-form/hotel-assessment-form.component').then(m => m.HotelAssessmentFormComponent)
+    },
+    {
+        path: 'hotel-edit/:id',
+        loadComponent: () => import('./components/hotel/assessment-form/hotel-assessment-form.component').then(m => m.HotelAssessmentFormComponent)
+    },
+    {
+        path: 'hotel-map',
+        loadComponent: () => import('./components/hotel/map-view/hotel-map-view.component').then(m => m.HotelMapViewComponent)
+    },
+    {
+        path: 'hotel-detail/:id',
+        loadComponent: () => import('./components/hotel/assessment-detail/hotel-assessment-detail.component').then(m => m.HotelAssessmentDetailComponent)
     }
 ];
 
