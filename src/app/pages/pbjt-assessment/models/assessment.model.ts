@@ -27,6 +27,12 @@ export interface Assessment {
   // Location
   location?: LocationDetails;
 
+  // Location factors (juga di root level untuk edit mode)
+  roadType?: string;
+  nearSchool?: boolean;
+  nearOffice?: boolean;
+  nearMarket?: boolean;
+
   // Observations
   observations: Observation[];
 
@@ -139,6 +145,7 @@ export interface AssessmentRequest {
   operatingHoursStart: string;
   operatingHoursEnd: string;
   assessmentDate: string;
+  openingDaysPerMonth?: number;
   // Location - flat structure (not nested)
   latitude: number;
   longitude: number;
@@ -146,6 +153,11 @@ export interface AssessmentRequest {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
+  // Location factors
+  roadType?: string;
+  nearSchool?: boolean;
+  nearOffice?: boolean;
+  nearMarket?: boolean;
   // Menu items
   menuItems?: MenuItem[];
   // Observations with sampleTransactions

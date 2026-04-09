@@ -3,10 +3,7 @@
     <div class="col-12">
       <div class="page-title-box d-sm-flex align-items-center justify-content-between">
         <h4 class="mb-sm-0">PBJT Assessment</h4>
-        <div class="page-title-right d-flex gap-2">
-          <button class="btn btn-success" (click)="exportToExcel()">
-            <i class="ri-file-excel-2-line align-middle"></i> Export Excel
-          </button>
+        <div class="page-title-right">
           <button class="btn btn-primary" (click)="createNew()">
             <i class="ri-add-line align-middle"></i> Buat Assessment Baru
           </button>
@@ -25,8 +22,12 @@
             </div>
             <div class="col-md-6">
               <div class="d-flex justify-content-end gap-2">
-                <input type="text" class="form-control form-control-sm"
-                  placeholder="Cari business name, owner, alamat..." [(ngModel)]="searchTerm" (input)="onSearch()"
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  placeholder="Cari business name, owner, alamat..."
+                  [(ngModel)]="searchTerm"
+                  (input)="onSearch()"
                   style="max-width: 350px;">
               </div>
             </div>
@@ -104,26 +105,22 @@
                     {{ assessment.seatingCapacity }} seats
                   </td>
                   <td class="text-end">
-                    <span class="fw-bold" [class.text-primary]="(assessment.monthlyPbjt || 0) > 0"
-                      [class.text-muted]="!(assessment.monthlyPbjt || 0)">
+                    <span class="fw-bold" [class.text-primary]="(assessment.monthlyPbjt || 0) > 0" [class.text-muted]="!(assessment.monthlyPbjt || 0)">
                       {{ formatCurrency(assessment.monthlyPbjt || 0) }}
                     </span>
                   </td>
                   <td class="text-end">
-                    <span class="fw-bold" [class.text-success]="(assessment.monthlyPbjtMenuBased || 0) > 0"
-                      [class.text-muted]="!(assessment.monthlyPbjtMenuBased || 0)">
+                    <span class="fw-bold" [class.text-success]="(assessment.monthlyPbjtMenuBased || 0) > 0" [class.text-muted]="!(assessment.monthlyPbjtMenuBased || 0)">
                       {{ formatCurrency(assessment.monthlyPbjtMenuBased || 0) }}
                     </span>
                   </td>
                   <td class="text-end">
-                    <strong [class.text-primary]="(assessment.annualPbjt || 0) > 0"
-                      [class.text-muted]="!(assessment.annualPbjt || 0)">
+                    <strong [class.text-primary]="(assessment.annualPbjt || 0) > 0" [class.text-muted]="!(assessment.annualPbjt || 0)">
                       {{ formatCurrency(assessment.annualPbjt || 0) }}
                     </strong>
                   </td>
                   <td class="text-end">
-                    <strong [class.text-success]="(assessment.annualPbjtMenuBased || 0) > 0"
-                      [class.text-muted]="!(assessment.annualPbjtMenuBased || 0)">
+                    <strong [class.text-success]="(assessment.annualPbjtMenuBased || 0) > 0" [class.text-muted]="!(assessment.annualPbjtMenuBased || 0)">
                       {{ formatCurrency(assessment.annualPbjtMenuBased || 0) }}
                     </strong>
                   </td>
@@ -157,20 +154,34 @@
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm" role="group">
-                      <button class="btn btn-outline-primary" (click)="viewDetail(assessment)" title="View Detail">
+                      <button
+                        class="btn btn-outline-primary"
+                        (click)="viewDetail(assessment)"
+                        title="View Detail">
                         <i class="ri-eye-line"></i>
                       </button>
-                      <button class="btn btn-outline-success" (click)="viewOnMap(assessment)" title="View on Map">
+                      <button
+                        class="btn btn-outline-success"
+                        (click)="viewOnMap(assessment)"
+                        title="View on Map">
                         <i class="ri-map-pin-line"></i>
                       </button>
-                      <button class="btn btn-outline-info" (click)="viewOnGoogleMaps(assessment)"
+                      <button
+                        class="btn btn-outline-info"
+                        (click)="viewOnGoogleMaps(assessment)"
                         title="Open in Google Maps">
                         <i class="ri-map-2-line"></i>
                       </button>
-                      <button class="btn btn-outline-warning" (click)="editAssessment(assessment)" title="Edit">
+                      <button
+                        class="btn btn-outline-warning"
+                        (click)="editAssessment(assessment)"
+                        title="Edit">
                         <i class="ri-edit-line"></i>
                       </button>
-                      <button class="btn btn-outline-danger" (click)="deleteAssessment(assessment)" title="Delete">
+                      <button
+                        class="btn btn-outline-danger"
+                        (click)="deleteAssessment(assessment)"
+                        title="Delete">
                         <i class="ri-delete-bin-line"></i>
                       </button>
                     </div>

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "spf-discovery": {
+    "bprd-app": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/spf-discovery",
+            "outputPath": "dist/bprd-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -93,8 +93,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "20kb"
+                  "maximumWarning": "10kb",
+                  "maximumError": "50kb"
                 }
               ],
               "fileReplacements": [
@@ -133,10 +133,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "spf-discovery:build:production"
+              "buildTarget": "bprd-app:build:production"
             },
             "development": {
-              "buildTarget": "spf-discovery:build:development"
+              "buildTarget": "bprd-app:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -148,7 +148,7 @@
         "extract-i18n": {
           "builder": "ngx-build-plus:extract-i18n",
           "options": {
-            "buildTarget": "spf-discovery:build",
+            "buildTarget": "bprd-app:build",
             "extraWebpackConfig": "webpack.config.js"
           }
         },

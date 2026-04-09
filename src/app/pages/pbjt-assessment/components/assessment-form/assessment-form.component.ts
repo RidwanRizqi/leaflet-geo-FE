@@ -135,7 +135,11 @@ export class AssessmentFormComponent implements OnInit {
       kabupaten: ['Lumajang', Validators.required],
       latitude: [null, [Validators.required, Validators.min(-90), Validators.max(90)]],
       longitude: [null, [Validators.required, Validators.min(-180), Validators.max(180)]],
-      surveyorId: ['', Validators.required]  // Required by backend
+      surveyorId: ['', Validators.required],  // Required by backend
+      roadType: ['LOKAL'],        // Default road type
+      nearSchool: [false],
+      nearOffice: [false],
+      nearMarket: [false]
     });
 
     // Step 3: Menu Items
@@ -299,6 +303,14 @@ export class AssessmentFormComponent implements OnInit {
               longitude: assessment.location.longitude
             });
           }
+
+          // Patch location factors
+          this.step2Form.patchValue({
+            roadType: assessment.roadType || 'LOKAL',
+            nearSchool: assessment.nearSchool || false,
+            nearOffice: assessment.nearOffice || false,
+            nearMarket: assessment.nearMarket || false
+          });
 
           // Patch surveyor ID - surveyorId ada di root level assessment object
           this.step2Form.patchValue({
@@ -509,6 +521,10 @@ export class AssessmentFormComponent implements OnInit {
       kabupaten: step2Value.kabupaten,
       latitude: step2Value.latitude,
       longitude: step2Value.longitude,
+      roadType: step2Value.roadType || 'LOKAL',
+      nearSchool: step2Value.nearSchool || false,
+      nearOffice: step2Value.nearOffice || false,
+      nearMarket: step2Value.nearMarket || false,
 
       // Surveyor
       surveyorId: step2Value.surveyorId,

@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://kjyappsvr.aio.co.id/production-kjy-superapp-api/',
+  apiUrl: 'https://bprd.lumajangkab.go.id:1171/',
   manifestApiKey: 'supersecretapikey'
 };
