@@ -472,7 +472,7 @@ export class AssessmentFormComponent implements OnInit {
             if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
               errors.push(`Observasi #${i + 1}: Durasi harus diisi.`);
             }
-            
+
             // Validate minimum 5 samples
             const samples = obsGroup.get('sampleTransactions')?.value || [];
             const validSamples = samples.filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0);
