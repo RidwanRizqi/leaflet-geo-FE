@@ -18,6 +18,8 @@ interface ImagePreview {
   name: string;
 }
 
+import { environment } from '../../../../../environments/environment';
+
 @Component({
   selector: 'app-assessment-form',
   templateUrl: './assessment-form.component.html',
@@ -283,7 +285,8 @@ export class AssessmentFormComponent implements OnInit {
           if (assessment.photoUrls && assessment.photoUrls.length > 0) {
             assessment.photoUrls.forEach(url => {
               // Create preview for existing images
-              const fullUrl = url.startsWith('http') ? url : `http://localhost:8080${url}`;
+              const backendUrl = environment.apiUrl.endsWith('/') ? environment.apiUrl.slice(0, -1) : environment.apiUrl;
+              const fullUrl = url.startsWith('http') ? url : `${backendUrl}${url}`;
               this.uploadedImages.push({
                 file: new File([], 'existing-image'), // Dummy file for existing images
                 url: fullUrl,
@@ -300,17 +303,13 @@ export class AssessmentFormComponent implements OnInit {
               kecamatan: assessment.location.kecamatan,
               kabupaten: assessment.location.kabupaten,
               latitude: assessment.location.latitude,
-              longitude: assessment.location.longitude
+              longitude: assessment.location.longitude,
+              roadType: assessment.location.roadType || 'LOKAL',
+              nearSchool: assessment.location.nearSchool || false,
+              nearOffice: assessment.location.nearOffice || false,
+              nearMarket: assessment.location.nearMarket || false
             });
           }
-
-          // Patch location factors
-          this.step2Form.patchValue({
-            roadType: assessment.roadType || 'LOKAL',
-            nearSchool: assessment.nearSchool || false,
-            nearOffice: assessment.nearOffice || false,
-            nearMarket: assessment.nearMarket || false
-          });
 
           // Patch surveyor ID - surveyorId ada di root level assessment object
           this.step2Form.patchValue({
@@ -498,8 +497,8 @@ export class AssessmentFormComponent implements OnInit {
    */
   private submitAssessmentData(imageUrls: string[]): void {
     // Merge all step forms
-    const step1Value = this.step1Form.value;
-    const step2Value = this.step2Form.value;
+    const step1Value = this.step1Form.getRawValue();
+    const step2Value = this.step2Form.getRawValue();
     const step3Value = this.step3Form.getRawValue();
 
     // Build request matching backend AssessmentRequestDTO (flat structure)

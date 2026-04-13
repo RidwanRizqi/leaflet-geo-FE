@@ -40,13 +40,10 @@ export class ErrorInterceptor implements HttpInterceptor {
                             break;
                         case 403:
                             // Forbidden access
-                            // this.authenticationService.handleTokenExpiry();
                             errorObj.status = 403;
                             // -03 means not post, put, patch, delete method
                             if (error.error.code !== '-03') {
-
-                                // errorObj.message = 'Forbidden - You do not have permission to access this resource.';
-                                this.router.navigate(['/pages/error'], { queryParams: { q: '403' } });
+                                this.authenticationService.handleTokenExpiry();
                             }
                             break;
                         case 404:

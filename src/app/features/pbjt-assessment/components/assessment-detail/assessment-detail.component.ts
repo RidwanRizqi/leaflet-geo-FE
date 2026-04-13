@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { Assessment } from '../../models/assessment.model';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-assessment-detail',
@@ -14,7 +15,7 @@ export class AssessmentDetailComponent implements OnInit {
   error: string = '';
   assessmentId: number = 0;
   selectedImage: string | null = null;
-  baseUrl = 'http://localhost:8080'; // Same as environment.apiUrl
+  baseUrl = environment.apiUrl.endsWith('/') ? environment.apiUrl.slice(0, -1) : environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,

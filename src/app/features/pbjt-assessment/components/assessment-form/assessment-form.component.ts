@@ -18,6 +18,8 @@ interface ImagePreview {
   name: string;
 }
 
+import { environment } from '../../../../../environments/environment';
+
 @Component({
   selector: 'app-assessment-form',
   templateUrl: './assessment-form.component.html',
@@ -323,7 +325,8 @@ export class AssessmentFormComponent implements OnInit {
           if (assessment.photoUrls && assessment.photoUrls.length > 0) {
             assessment.photoUrls.forEach(url => {
               // Create preview for existing images
-              const fullUrl = url.startsWith('http') ? url : `http://localhost:8080${url}`;
+              const backendUrl = environment.apiUrl.endsWith('/') ? environment.apiUrl.slice(0, -1) : environment.apiUrl;
+              const fullUrl = url.startsWith('http') ? url : `${backendUrl}${url}`;
               this.uploadedImages.push({
                 file: new File([], 'existing-image'), // Dummy file for existing images
                 url: fullUrl,
@@ -340,7 +343,11 @@ export class AssessmentFormComponent implements OnInit {
               kecamatan: assessment.location.kecamatan,
               kabupaten: assessment.location.kabupaten || 'Lumajang',
               latitude: assessment.location.latitude,
-              longitude: assessment.location.longitude
+              longitude: assessment.location.longitude,
+              roadType: assessment.location.roadType || '',
+              nearSchool: assessment.location.nearSchool || false,
+              nearOffice: assessment.location.nearOffice || false,
+              nearMarket: assessment.location.nearMarket || false
             });
 
             // Load kelurahan list based on the loaded kecamatan
@@ -457,13 +464,20 @@ export class AssessmentFormComponent implements OnInit {
           // Only validate if observation has a date (user started filling it)
           if (date) {
             if (!obsGroup.get('dayType')?.value) {
-              errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih`);
+              errors.push(`Observasi #${i + 1}: Tipe hari belum dipilih.`);
             }
             if (!obsGroup.get('visitors')?.value || obsGroup.get('visitors')?.value < 1) {
-              errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi`);
+              errors.push(`Observasi #${i + 1}: Jumlah pengunjung harus diisi.`);
             }
             if (!obsGroup.get('durationHours')?.value || obsGroup.get('durationHours')?.value < 0.5) {
-              errors.push(`Observasi #${i + 1}: Durasi harus diisi`);
+              errors.push(`Observasi #${i + 1}: Durasi harus diisi.`);
+            }
+            
+            // Validate minimum 5 samples
+            const samples = obsGroup.get('sampleTransactions')?.value || [];
+            const validSamples = samples.filter((tx: any) => tx.amount !== null && tx.amount !== undefined && tx.amount > 0);
+            if (validSamples.length < 5) {
+              errors.push(`Observasi #${i + 1}: Minimal 5 transaksi sampel (dengan Amount > 0) harus diisi.`);
             }
           }
         });
@@ -560,8 +574,8 @@ export class AssessmentFormComponent implements OnInit {
 
   private prepareRequest(imageUrls: string[] = []): AssessmentRequest {
     // Merge all step forms
-    const step1Value = this.step1Form.value;
-    const step2Value = this.step2Form.value;
+    const step1Value = this.step1Form.getRawValue();
+    const step2Value = this.step2Form.getRawValue();
     const step3Value = this.step3Form.getRawValue();
 
     // Build request matching backend AssessmentRequestDTO (flat structure)
