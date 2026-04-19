@@ -211,7 +211,7 @@ export class AssessmentFormComponent implements OnInit {
             surveyorId: assessment.surveyorId || ''
           });
 
-          
+
         }
         this.loading = false;
       },
@@ -268,7 +268,7 @@ export class AssessmentFormComponent implements OnInit {
       alert('Field yang belum lengkap:\n\n' + errors.join('\n'));
       this.markFormGroupTouched(this.step1Form);
       this.markFormGroupTouched(this.step2Form);
-      
+
       return;
     }
 
@@ -318,7 +318,7 @@ export class AssessmentFormComponent implements OnInit {
     }
   }
 
-  
+
   private prepareRequest(imageUrls: string[] = []): AssessmentRequest {
     // Merge all step forms
     const step1Value = this.step1Form.getRawValue();

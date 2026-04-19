@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexStroke, ApexYAxis, ApexGrid, ApexLegend, ChartComponent } from 'ng-apexcharts';
 
+import { environment } from '../../../environments/environment';
+
 export type ChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
@@ -60,15 +62,19 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   loadPajakData(): void {
-    // Load data from assets
-    fetch('assets/master-pajak.json')
+    // Load data from live API instead of static JSON
+    const url = `${environment.apiUrl}api/pendapatan/pajak-bulanan?tahun=${this.selectedYear}`;
+    console.log('Fetching live pajak data dari:', url);
+
+    fetch(url)
       .then(response => response.json())
-      .then((data: PajakData[]) => {
-        this.pajakData = data;
+      .then((res: any) => {
+        // Handle wrapper api response format (res.data) vs raw array
+        this.pajakData = Array.isArray(res) ? res : (res.data || []);
         this.processData();
       })
       .catch(error => {
-        console.error('Error loading pajak data:', error);
+        console.error('Error loading live pajak data, fallback..:', error);
       });
   }
 
@@ -82,8 +88,8 @@ export class DashboardPajakComponent implements OnInit {
 
   onYearChange(): void {
     console.log('Year changed to:', this.selectedYear);
-    // Recreate charts with new year filter
-    this.updateCharts();
+    // Recreate charts with new year filter by calling the new API endpoint
+    this.loadPajakData();
   }
 
   updateCharts(): void {
