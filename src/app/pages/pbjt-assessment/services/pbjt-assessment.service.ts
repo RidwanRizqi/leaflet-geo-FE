@@ -38,6 +38,14 @@ export class PbjtAssessmentService {
   }
 
   /**
+   * Lookup SIMATDA NPWPD/Wajib Pajak profile by NOP
+   */
+  lookupSimatdaByNop(nop: string): Observable<any> {
+    const queryStr = `SELECT t_npwpdwp as npwpd, t_namawp as nama_wp, t_alamat_lengkapwp as alamat_wp FROM view_wpobjek WHERE t_nop = '${nop}' OR t_nop_tanpa_titik = '${nop}' LIMIT 1`;
+    return this.http.post<any>(`${environment.apiUrl}api/simatda/query`, { query: queryStr });
+  }
+
+  /**
    * Get assessments by kabupaten
    */
   getAssessmentsByKabupaten(kabupaten: string): Observable<AssessmentListResponse> {
@@ -73,7 +81,7 @@ export class PbjtAssessmentService {
   }
 
   /**
-   * Upload business images (max 10 images)
+   * Upload business images (max 4 images)
    */
   uploadImages(files: File[]): Observable<any> {
     const formData = new FormData();

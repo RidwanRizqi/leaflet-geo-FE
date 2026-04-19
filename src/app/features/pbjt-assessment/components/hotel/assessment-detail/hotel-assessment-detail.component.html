@@ -1,0 +1,149 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Detail Assessment</h4>
+        <div class="page-title-right d-flex gap-2">
+          <button class="btn btn-light" (click)="goBack()"><i class="ri-arrow-left-line me-1"></i> Kembali</button>
+          <button class="btn btn-success" (click)="editAssessment()" *ngIf="assessment"><i class="ri-pencil-line me-1"></i> Edit</button>
+          <button class="btn btn-danger" (click)="deleteAssessment()" *ngIf="assessment"><i class="ri-delete-bin-line me-1"></i> Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary"></div>
+    <p class="mt-2">Memuat detail...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !loading" class="text-center py-5">
+    <i class="ri-error-warning-line text-danger" style="font-size: 3rem;"></i>
+    <p class="mt-3">{{ error }}</p>
+    <button class="btn btn-primary" (click)="goBack()">Kembali ke Daftar</button>
+  </div>
+
+  <!-- Detail Content -->
+  <div *ngIf="assessment && !loading" class="row">
+    <!-- Left Column -->
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header d-flex align-items-center gap-2">
+          <div class="avatar-sm">
+            <span class="avatar-title rounded-circle fs-4"
+                  [style.background-color]="getTypeColor(assessment.accommodationType) + '20'"
+                  [style.color]="getTypeColor(assessment.accommodationType)">
+              <i [class]="getTypeRiIcon(assessment.accommodationType)"></i>
+            </span>
+          </div>
+          <div>
+            <h5 class="card-title mb-0">{{ assessment.propertyName }}</h5>
+            <span class="badge" [style.background-color]="getTypeColor(assessment.accommodationType)">
+              {{ getTypeLabel(assessment.accommodationType) }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <h6 class="text-muted mb-1">Pemilik</h6>
+              <p class="mb-0 fw-semibold">{{ assessment.ownerName }}</p>
+              <small class="text-muted">{{ assessment.ownerPhone }}</small>
+            </div>
+            <div class="col-md-6">
+              <h6 class="text-muted mb-1">Alamat</h6>
+              <p class="mb-0">{{ assessment.address }}</p>
+              <small class="text-muted">{{ assessment.kelurahan }}, {{ assessment.kecamatan }}, {{ assessment.kabupaten }}</small>
+            </div>
+            <div class="col-md-3">
+              <h6 class="text-muted mb-1">Jumlah Kamar</h6>
+              <h4 class="text-primary">{{ assessment.totalRooms }}</h4>
+            </div>
+            <div class="col-md-3">
+              <h6 class="text-muted mb-1">Luas Bangunan</h6>
+              <p class="mb-0">{{ assessment.buildingArea || '-' }} m²</p>
+            </div>
+            <div class="col-md-3">
+              <h6 class="text-muted mb-1">Luas Tanah</h6>
+              <p class="mb-0">{{ assessment.landArea || '-' }} m²</p>
+            </div>
+            <div class="col-md-3">
+              <h6 class="text-muted mb-1">Status</h6>
+              <span class="badge {{ getFormalizationBadge().class }}">{{ getFormalizationBadge().label }}</span>
+            </div>
+          </div>
+
+          <!-- Location -->
+          <hr>
+          <div class="row g-3" *ngIf="assessment.latitude && assessment.longitude">
+            <div class="col-md-4">
+              <h6 class="text-muted mb-1">Koordinat</h6>
+              <p class="mb-0">{{ assessment.latitude }}, {{ assessment.longitude }}</p>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-outline-primary btn-sm" (click)="openMap()">
+                <i class="ri-map-pin-line me-1"></i> Buka di Google Maps
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Financial -->
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-header"><h6 class="card-title mb-0"><i class="ri-money-dollar-circle-line me-1"></i>Keuangan</h6></div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Estimasi Pendapatan Tahunan</small>
+            <h4 class="text-success">{{ formatCurrency(assessment.estimatedAnnualRevenue) }}</h4>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">Proyeksi Pajak Tahunan</small>
+            <h4 class="text-primary">{{ formatCurrency(assessment.projectedAnnualTax) }}</h4>
+          </div>
+          <hr>
+          <div class="mb-2">
+            <small class="text-muted">Izin Usaha</small>
+            <p class="mb-0">
+              <i [class]="assessment.hasBusinessPermit ? 'ri-checkbox-circle-fill text-success' : 'ri-close-circle-fill text-danger'"></i>
+              {{ assessment.hasBusinessPermit ? 'Ada' : 'Tidak Ada' }}
+            </p>
+          </div>
+          <div class="mb-2">
+            <small class="text-muted">Registrasi Pajak</small>
+            <p class="mb-0">
+              <i [class]="assessment.hasTaxRegistration ? 'ri-checkbox-circle-fill text-success' : 'ri-close-circle-fill text-danger'"></i>
+              {{ assessment.hasTaxRegistration ? 'Terdaftar' : 'Belum Terdaftar' }}
+            </p>
+          </div>
+          <div>
+            <small class="text-muted">Bersedia Diformalkan</small>
+            <p class="mb-0">
+              <i [class]="assessment.willingToFormalize ? 'ri-checkbox-circle-fill text-success' : 'ri-information-line text-muted'"></i>
+              {{ assessment.willingToFormalize ? 'Ya' : 'Belum Diketahui' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h6 class="card-title mb-0"><i class="ri-time-line me-1"></i>Informasi</h6></div>
+        <div class="card-body">
+          <div class="mb-2">
+            <small class="text-muted">Dibuat</small>
+            <p class="mb-0">{{ formatDate(assessment.createdAt) }}</p>
+          </div>
+          <div>
+            <small class="text-muted">Terakhir Diupdate</small>
+            <p class="mb-0">{{ formatDate(assessment.updatedAt) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

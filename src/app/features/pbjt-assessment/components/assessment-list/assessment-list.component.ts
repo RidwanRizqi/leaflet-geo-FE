@@ -1,9 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { Assessment } from '../../models/assessment.model';
 import { forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
+
+// Tambahkan import bootstrap jika global window.bootstrap tidak tersedia
+
 
 // Extended interface with realization data
 export interface AssessmentWithRealization extends Assessment {
@@ -27,6 +31,40 @@ export class AssessmentListComponent implements OnInit {
   error: string = '';
   Math = Math; // Expose Math to template
 
+  // Observability Modal State
+  selectedAssessmentForObservation: any = null;
+  loadingObservations: boolean = false;
+  assessmentObservations: any[] = [];
+  
+  dayTypes = [
+    { value: 'WEEKDAY_PEAK', label: 'Hari Kerja - Ramai' },
+    { value: 'WEEKDAY_OFFPEAK', label: 'Hari Kerja - Sepi' },
+    { value: 'WEEKEND_PEAK', label: 'Akhir Pekan - Ramai' }
+  ];
+
+  activeObservationTab: 'SAMPLE' | 'MENU' = 'MENU';
+  menuObservationDate: string = '';
+  menuItemsEdit: any[] = [];
+  openingDaysPerMonthEdit: number = 30;
+  savingMenuMethod = false;
+  menuObservations: any[] = [];
+  showMenuForm: boolean = false;
+
+  newObservation: any = {
+    observationDate: '',
+    dayType: 'WEEKDAY_PEAK',
+    visitors: 0,
+    durationHours: 0,
+    notes: '',
+    sampleTransactions: [
+      { amount: null, notes: '' },
+      { amount: null, notes: '' },
+      { amount: null, notes: '' },
+      { amount: null, notes: '' },
+      { amount: null, notes: '' }
+    ]
+  };
+
   // Pagination
   currentPage: number = 0;
   pageSize: number = 10;
@@ -40,9 +78,12 @@ export class AssessmentListComponent implements OnInit {
   selectedKabupaten: string = '';
   selectedConfidenceLevel: string = '';
 
+  @ViewChild('observationModalTemplate') observationModalTemplate!: TemplateRef<any>;
+
   constructor(
     private assessmentService: PbjtAssessmentService,
-    private router: Router
+    private router: Router,
+    private modalService: NgbModal
   ) { }
 
   ngOnInit(): void {
@@ -198,6 +239,230 @@ export class AssessmentListComponent implements OnInit {
         }
       });
     }
+  }
+
+  openObservationModal(assessment: any): void {
+    this.selectedAssessmentForObservation = assessment;
+    this.activeObservationTab = 'MENU';
+    // Deep copy menu items so changes aren't directly applied to the table row until saved
+    this.menuItemsEdit = assessment.menuItems ? JSON.parse(JSON.stringify(assessment.menuItems)) : [];
+    this.openingDaysPerMonthEdit = assessment.openingDaysPerMonth || 30;
+    this.menuObservationDate = ''; // Reset observation date
+    this.showMenuForm = false;
+
+    this.newObservation = {
+      observationDate: '',
+      dayType: 'WEEKDAY_PEAK',
+      visitors: 0,
+      durationHours: 0,
+      notes: '',
+      sampleTransactions: [
+        { amount: null, notes: '' },
+        { amount: null, notes: '' },
+        { amount: null, notes: '' },
+        { amount: null, notes: '' },
+        { amount: null, notes: '' }
+      ]
+    };
+    this.loadObservations(assessment.id);
+    this.loadMenuObservations(assessment.id);
+
+    // Only open the modal if we are initiating the check, not refreshing
+    if (!this.modalService.hasOpenModals()) {
+      this.modalService.open(this.observationModalTemplate, { size: 'lg', centered: true, backdrop: 'static' });
+    }
+  }
+
+  loadObservations(assessmentId: number): void {
+    this.loadingObservations = true;
+    this.assessmentService.getObservations(assessmentId).subscribe({
+      next: (res: any) => {
+        // Response bisa jadi di res.data atau array langsung
+        if (res && res.data) {
+           this.assessmentObservations = res.data;
+        } else if (Array.isArray(res)) {
+           this.assessmentObservations = res;
+        } else {
+           this.assessmentObservations = [];
+        }
+        this.loadingObservations = false;
+      },
+      error: (err) => {
+        console.error('Error loading observations:', err);
+        this.loadingObservations = false;
+      }
+    });
+  }
+
+  addSampleToNewObservation(): void {
+    if (this.newObservation.sampleTransactions.length < 30) {
+      this.newObservation.sampleTransactions.push({ amount: null, notes: '' });
+    }
+  }
+
+  removeSampleFromNewObservation(index: number): void {
+    if (this.newObservation.sampleTransactions.length > 5) {
+      this.newObservation.sampleTransactions.splice(index, 1);
+    }
+  }
+
+  submitObservation(): void {
+    if (!this.newObservation.observationDate || this.newObservation.visitors <= 0) {
+      alert('Mohon isi Tanggal Observasi dan Jumlah Pengunjung dengan benar (Pengunjung > 0).');
+      return;
+    }
+
+    // Filter amounts
+    const payload = {
+      ...this.newObservation,
+      sampleTransactions: this.newObservation.sampleTransactions.filter((tx: any) => tx.amount !== null && tx.amount > 0)
+    };
+
+    if (payload.sampleTransactions.length === 0) {
+      alert('Mohon isi minimal 1 sampel transaksi yang valid (Amount > 0).');
+      return;
+    }
+
+    this.loadingObservations = true;
+    // Panggil Add observation endpoint menggunakan array jika Service mengharapkan array (seperti di assessment form sebelumnya) 
+    // Tapi ini endpoint baru, seharusnya bisa single dto:
+    this.assessmentService.addObservation(this.selectedAssessmentForObservation.id, payload).subscribe({
+      next: (res: any) => {
+        alert('Observasi berhasil ditambahkan!');
+        // Refresh this specific observation view
+        this.openObservationModal(this.selectedAssessmentForObservation);
+        // Refresh master list background
+        this.loadAssessments();
+      },
+      error: (err) => {
+        console.error('Error saving observation:', err);
+        alert('Gagal menyimpan observasi.');
+        this.loadingObservations = false;
+      }
+    });
+  }
+
+  deleteObservation(obsId: number): void {
+    if (confirm('Apakah Anda yakin ingin menghapus observasi ini? Data pajaknya akan dikalkulasi ulang secara otomatis.')) {
+      this.loadingObservations = true;
+      this.assessmentService.deleteObservation(obsId).subscribe({
+        next: (res: any) => {
+          this.loadObservations(this.selectedAssessmentForObservation.id);
+          this.loadAssessments(); // Kalkulasi master background
+        },
+        error: (err) => {
+          console.error('Error deleting observation:', err);
+          alert('Gagal menghapus observasi.');
+          this.loadingObservations = false;
+        }
+      });
+    }
+  }
+
+  addMenuMethodItem(): void {
+    this.menuItemsEdit.push({ name: '', price: null, category: 'FOOD' });
+  }
+
+  removeMenuMethodItem(index: number): void {
+    this.menuItemsEdit.splice(index, 1);
+  }
+
+  deleteMenuObservation(obsId: number): void {
+    if (confirm('Apakah Anda yakin ingin menghapus riwayat observasi menu ini?')) {
+      this.loadingObservations = true;
+      const assessmentId = this.selectedAssessmentForObservation.id;
+      this.assessmentService.deleteMenuObservation(assessmentId, obsId).subscribe({
+        next: (res: any) => {
+          this.loadMenuObservations(assessmentId);
+        },
+        error: (err) => {
+          console.error('Error deleting menu observation:', err);
+          alert('Gagal menghapus observasi menu.');
+          this.loadingObservations = false;
+        }
+      });
+    }
+  }
+
+  loadMenuObservations(assessmentId: number): void {
+    this.loadingObservations = true;
+    this.assessmentService.getMenuObservations(assessmentId).subscribe({
+      next: (res: any) => {
+        if (res && res.data) {
+           this.menuObservations = res.data;
+        } else if (Array.isArray(res)) {
+           this.menuObservations = res;
+        } else {
+           this.menuObservations = [];
+        }
+        this.loadingObservations = false;
+      },
+      error: (err) => {
+        console.error('Error loading menu observations:', err);
+        this.loadingObservations = false;
+      }
+    });
+  }
+
+  openMenuForm(): void {
+    this.showMenuForm = true;
+    this.menuObservationDate = '';
+  }
+
+  cancelMenuForm(): void {
+    this.showMenuForm = false;
+  }
+
+  submitMenuMethod(): void {
+    if (!this.menuObservationDate) {
+      alert('Tanggal observasi wajib diisi.');
+      return;
+    }
+
+    if (!this.openingDaysPerMonthEdit || this.openingDaysPerMonthEdit < 1 || this.openingDaysPerMonthEdit > 31) {
+      alert('Hari buka per bulan harus antara 1-31.');
+      return;
+    }
+
+    if (this.menuItemsEdit.length > 0) {
+      const validItems = this.menuItemsEdit.every(item => item.name && item.price && item.category);
+      if (!validItems) {
+        alert('Harap lengkapi semua baris nama menu, harga, dan kategori.');
+        return;
+      }
+    }
+
+    this.savingMenuMethod = true;
+    const payload = {
+      observationDate: this.menuObservationDate,
+      openingDaysPerMonth: this.openingDaysPerMonthEdit,
+      menuItems: this.menuItemsEdit
+    };
+
+    this.assessmentService.updateMenuMethod(this.selectedAssessmentForObservation.id, payload).subscribe({
+      next: (res) => {
+        alert('Metode Menu / Nilai Tengah berhasil disimpan!');
+        this.savingMenuMethod = false;
+        this.showMenuForm = false;
+        this.loadMenuObservations(this.selectedAssessmentForObservation.id);
+        
+        this.loadAssessments();
+        
+        this.assessmentService.getAssessmentById(this.selectedAssessmentForObservation.id).subscribe({
+          next: (detailRes) => {
+            if(detailRes && detailRes.data) {
+                this.selectedAssessmentForObservation = detailRes.data;
+                this.menuItemsEdit = detailRes.data.menuItems ? JSON.parse(JSON.stringify(detailRes.data.menuItems)) : [];
+            }
+          }
+        });
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Gagal menyimpan Data Metode Menu!');
+        this.savingMenuMethod = false;
+      }
+    });
   }
 
   formatCurrency(value: number | undefined): string {

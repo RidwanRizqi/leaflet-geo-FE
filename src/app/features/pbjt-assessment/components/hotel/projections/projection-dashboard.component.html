@@ -1,0 +1,151 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Projections Hotel</h4>
+        <div class="page-title-right d-flex gap-2">
+          <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="selectedType" (change)="onFilterChange()">
+            <option *ngFor="let t of accommodationTypes" [value]="t.value">{{ t.label }}</option>
+          </select>
+          <button class="btn btn-success btn-sm" (click)="exportData()">
+            <i class="ri-download-line align-middle"></i> Export CSV
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading projection data...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Current Metrics -->
+    <div class="row">
+      <div class="col-xl-4 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <p class="text-muted mb-1">Current Annual Revenue</p>
+            <h4 class="mb-0">{{ formatCurrency(currentRevenue) }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <p class="text-muted mb-1">Current Annual Tax</p>
+            <h4 class="mb-0">{{ formatCurrency(currentTax) }}</h4>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <p class="text-muted mb-1">Properties Analyzed</p>
+            <h4 class="mb-0">{{ properties.length }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scenario Cards -->
+    <div class="row">
+      <div class="col-xl-4" *ngFor="let scenario of scenarioKeys">
+        <div class="card" [class.border-primary]="selectedScenario === scenario" style="cursor: pointer;" (click)="selectedScenario = scenario">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <span *ngIf="scenario === 'conservative'" class="badge bg-warning me-1">Conservative</span>
+              <span *ngIf="scenario === 'moderate'" class="badge bg-primary me-1">Moderate</span>
+              <span *ngIf="scenario === 'aggressive'" class="badge bg-danger me-1">Aggressive</span>
+              {{ scenarios[scenario].avgGrowth }}% Growth
+            </h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small mb-2">{{ scenarios[scenario].description }}</p>
+            <div class="d-flex justify-content-between">
+              <div>
+                <small class="text-muted">Total Revenue</small>
+                <h6>{{ formatCurrency(scenarios[scenario].totalRevenue) }}</h6>
+              </div>
+              <div class="text-end">
+                <small class="text-muted">Total Tax</small>
+                <h6>{{ formatCurrency(scenarios[scenario].totalTax) }}</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+      <div class="col-xl-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="ri-line-chart-line align-middle me-1"></i> Revenue Projections</h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 400px;">
+              <canvas #revenueChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0"><i class="ri-pie-chart-line align-middle me-1"></i> Revenue by Type</h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 400px;">
+              <canvas #typeChart></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projection Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Year-by-Year Breakdown</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Year</th>
+                    <th class="text-end">Conservative (5%)</th>
+                    <th class="text-end">Moderate (10%)</th>
+                    <th class="text-end">Aggressive (15%)</th>
+                    <th class="text-end">Actual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let p of projections">
+                    <td><strong>{{ p.year }}</strong></td>
+                    <td class="text-end text-warning">{{ formatCurrency(p.conservative) }}</td>
+                    <td class="text-end text-primary">{{ formatCurrency(p.moderate) }}</td>
+                    <td class="text-end text-danger">{{ formatCurrency(p.aggressive) }}</td>
+                    <td class="text-end">
+                      <span *ngIf="p.actual" class="text-success fw-bold">{{ formatCurrency(p.actual) }}</span>
+                      <span *ngIf="!p.actual" class="text-muted">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

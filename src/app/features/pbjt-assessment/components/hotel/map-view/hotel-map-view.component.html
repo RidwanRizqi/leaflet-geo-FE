@@ -1,0 +1,233 @@
+<!-- Full-screen map wrapper matching bidang-map layout -->
+<div class="hotel-map-wrapper">
+
+  <!-- ========== LEFT SIDEBAR ========== -->
+  <div class="hotel-sidebar">
+    <div class="sidebar-scroll">
+
+      <!-- Title -->
+      <div class="sidebar-title">
+        <i class="ri-hotel-line"></i>
+        <span>Peta Hotel</span>
+      </div>
+
+      <!-- Map Tools Section -->
+      <div class="sidebar-section">
+        <button class="sidebar-btn" (click)="toggleLayerPanel()" [class.active]="showLayerPanel">
+          <i class="ri-stack-line"></i>
+          <span>Layer Control</span>
+        </button>
+        <button class="sidebar-btn" (click)="goBack()">
+          <i class="ri-arrow-left-line"></i>
+          <span>Kembali</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Filter Section -->
+      <div class="sidebar-section">
+        <div class="search-input-wrap">
+          <i class="ri-search-line search-icon"></i>
+          <input type="text" class="search-input" placeholder="Cari nama, pemilik..."
+            [(ngModel)]="searchTerm" (input)="onFilterChange()">
+        </div>
+        <div class="filter-select-wrap">
+          <label class="filter-label">
+            <i class="ri-filter-3-line"></i> Tipe Akomodasi
+          </label>
+          <select class="filter-select" [(ngModel)]="selectedType" (change)="onFilterChange()">
+            <option *ngFor="let t of typeOptions" [value]="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+        <button class="sidebar-btn" (click)="resetFilters()" style="margin-top: 6px;">
+          <i class="ri-refresh-line"></i>
+          <span>Reset Filter</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <!-- Property List (in sidebar, not floating) -->
+      <div class="sidebar-section" *ngIf="currentLevel === 'hotels'">
+        <div class="prop-list-header">
+          <i class="ri-hotel-line"></i>
+          <span>Daftar Properti</span>
+          <span class="badge-count">{{ totalCount }}</span>
+        </div>
+        <div class="prop-list-scroll">
+          <div *ngFor="let prop of getFiltered()"
+            class="prop-list-item"
+            [class.active]="selectedProperty?.id === prop.id"
+            [class.no-coord]="!prop.latitude || !prop.longitude"
+            (click)="selectProperty(prop)">
+            <span class="prop-dot" [style.background]="getTypeColor(prop.accommodationType)"></span>
+            <div class="prop-item-info">
+              <div class="prop-item-name">{{ prop.propertyName }}</div>
+              <div class="prop-item-meta">
+                {{ getTypeLabel(prop.accommodationType) }}
+                <span *ngIf="!prop.latitude || !prop.longitude" class="no-coord-tag">Tanpa Koordinat</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="getFiltered().length === 0" class="no-props">
+            <i class="ri-hotel-line"></i>
+            <p>Tidak ada properti</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="sidebar-section">
+        <div class="sidebar-legend">
+          <div class="sidebar-legend-title">
+            <i class="ri-palette-line me-2"></i> Tipe Akomodasi
+          </div>
+          <div class="legend-item-row" *ngFor="let type of [AccommodationType.HOTEL, AccommodationType.WISMA, AccommodationType.HOMESTAY, AccommodationType.PENGINAPAN, AccommodationType.RUMAH_KOS]">
+            <span class="legend-dot" [style.background]="getTypeColor(type)"></span>
+            <span class="legend-label">{{ getTypeLabel(type) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected Property Info -->
+      <div class="sidebar-section" *ngIf="selectedProperty">
+        <div class="selected-prop-title">
+          <i class="ri-building-2-line"></i>
+          <span>Properti Dipilih</span>
+        </div>
+        <div class="selected-prop-card">
+          <h6 class="selected-prop-name">{{ selectedProperty.propertyName }}</h6>
+          <span class="badge-type" [style.borderLeftColor]="getTypeColor(selectedProperty.accommodationType)">
+            {{ getTypeLabel(selectedProperty.accommodationType) }}
+          </span>
+          <div class="selected-prop-detail">
+            <div class="prop-detail-row">
+              <i class="ri-user-line"></i>
+              <span>{{ selectedProperty.ownerName || '-' }}</span>
+            </div>
+            <div class="prop-detail-row">
+              <i class="ri-hotel-bed-line"></i>
+              <span>{{ selectedProperty.totalRooms }} kamar</span>
+            </div>
+            <div class="prop-detail-row">
+              <i class="ri-currency-line"></i>
+              <span class="fw-bold text-success">{{ formatCurrency(selectedProperty.projectedAnnualTax) }}</span>
+            </div>
+          </div>
+          <button class="btn-lihat-detail" (click)="viewDetail(selectedProperty!.id)">
+            <i class="ri-eye-line"></i> Lihat Detail
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========== MAIN CONTENT ========== -->
+  <div class="hotel-main-content">
+    <div class="hotel-card-green">
+
+      <!-- Map area -->
+      <div class="map-container">
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading-overlay">
+          <div class="spinner-border text-primary"></div>
+          <p class="mt-2">Memuat peta...</p>
+        </div>
+
+        <!-- BREADCRUMB NAV -->
+        <div class="map-breadcrumb" *ngIf="currentLevel !== 'kecamatan'">
+          <button class="btn btn-sm btn-outline-light" (click)="back()">
+            <i class="ri-arrow-left-line"></i> Kembali
+          </button>
+          <span class="breadcrumb-sep"></span>
+          <span class="breadcrumb-path">
+            <span class="breadcrumb-item">LUMAJANG</span>
+            <span *ngFor="let item of navigationStack; let last = last" class="breadcrumb-item">
+              <span class="breadcrumb-arrow"> &gt; </span>{{ item.name }}
+            </span>
+          </span>
+          <span class="badge-count-ms">
+            <span class="badge bg-success">{{ totalCount }}</span>
+            <span class="badge-text">Akomodasi</span>
+          </span>
+        </div>
+
+        <!-- Level info banner -->
+        <div class="level-banner" *ngIf="currentLevel === 'kecamatan'">
+          <i class="ri-map-2-line"></i>
+          <span>Kecamatan &mdash; Klik 2x pada kecamatan untuk melihat kelurahan</span>
+        </div>
+        <div class="level-banner level-banner-kel" *ngIf="currentLevel === 'kelurahan'">
+          <i class="ri-home-line"></i>
+          <span>Kelurahan {{ selectedKecamatanName }} &mdash; Klik 2x pada kelurahan untuk melihat hotel</span>
+        </div>
+
+        <!-- Floating badge (top-right) -->
+        <div class="floating-badge">
+          <span class="badge bg-success">
+            <i class="ri-hotel-line me-1"></i>
+            {{ totalCount | number }} Properti
+          </span>
+          <span *ngIf="!hasCoordinates && currentLevel === 'hotels'" class="badge bg-warning text-dark ms-1" title="Hotel tanpa koordinat">
+            <i class="ri-map-line me-1"></i>Tanpa Koordinat
+          </span>
+        </div>
+
+        <!-- Layer toggle button -->
+        <button class="layer-toggle-btn" (click)="toggleLayerPanel()" title="Layer Control">
+          <i class="ri-stack-line"></i>
+        </button>
+
+        <!-- Layer panel -->
+        <div class="layer-legend-panel" *ngIf="showLayerPanel">
+          <div class="legend-header">
+            <i class="ri-stack-line me-1"></i>
+            <span>Layer Control</span>
+            <button class="btn-close-panel" (click)="toggleLayerPanel()">
+              <i class="ri-close-line"></i>
+            </button>
+          </div>
+          <div class="legend-body">
+            <div class="legend-section">
+              <small class="section-title">TIPE AKOMODASI</small>
+              <div class="legend-item-advanced" *ngFor="let type of [AccommodationType.HOTEL, AccommodationType.WISMA, AccommodationType.HOMESTAY, AccommodationType.PENGINAPAN, AccommodationType.RUMAH_KOS]">
+                <div class="layer-row">
+                  <span class="legend-dot-large" [style.background]="getTypeColor(type)"></span>
+                  <span class="layer-name">{{ getTypeLabel(type) }}</span>
+                </div>
+              </div>
+            </div>
+            <hr class="legend-divider">
+            <div class="legend-section">
+              <small class="section-title">PETUNJUK</small>
+              <div class="hint-text">
+                <i class="ri-information-line"></i>
+                <span>Klik 2x pada batas untuk drill-down</span>
+              </div>
+              <div class="hint-text">
+                <i class="ri-information-line"></i>
+                <span>Klik marker untuk melihat detail</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaflet Map -->
+        <div id="hotel-map" class="leaflet-container"></div>
+
+        <!-- No-coordinates overlay -->
+        <div class="no-coords-overlay" *ngIf="!loading && currentLevel === 'hotels' && !hasCoordinates && totalCount > 0">
+          <div class="no-coords-box">
+            <i class="ri-map-pin-2-line" style="font-size: 32px; color: #adb5bd;"></i>
+            <p class="mt-2 mb-1 fw-bold text-muted">Hotel Tanpa Koordinat</p>
+            <small class="text-muted">Hotel di daftar samping tidak memiliki<br>data koordinat di SIMATDA.</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

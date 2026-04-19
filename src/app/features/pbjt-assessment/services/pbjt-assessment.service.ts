@@ -42,6 +42,14 @@ export class PbjtAssessmentService {
   }
 
   /**
+   * Lookup SIMATDA NPWPD/Wajib Pajak profile by NOP
+   */
+  lookupSimatdaByNop(nop: string): Observable<any> {
+    const queryStr = `SELECT t_npwpdwp as npwpd, t_namawp as nama_wp, t_alamat_lengkapwp as alamat_wp FROM view_wpobjek WHERE t_nop = '${nop}' OR t_nop_tanpa_titik = '${nop}' LIMIT 1`;
+    return this.http.post<any>(`${environment.apiUrl}api/simatda/query`, { query: queryStr });
+  }
+
+  /**
    * Get assessments by kabupaten
    */
   getAssessmentsByKabupaten(kabupaten: string): Observable<AssessmentListResponse> {
@@ -77,10 +85,53 @@ export class PbjtAssessmentService {
   }
 
   /**
+   * Update Menu Method Items for an assessment
+   */
+  updateMenuMethod(id: number, request: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}/menu-method`, request);
+  }
+
+  /**
+   * Get Menu Observations History
+   */
+  getMenuObservations(assessmentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${assessmentId}/menu-observations`);
+  }
+
+  /**
+   * Delete Menu Observation History
+   */
+  deleteMenuObservation(assessmentId: number, obsId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${assessmentId}/menu-observations/${obsId}`);
+  }
+
+  /**
    * Delete assessment
    */
   deleteAssessment(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get Observations for a specific Assessment
+   */
+  getObservations(assessmentId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${assessmentId}/observations`);
+  }
+
+  /**
+   * Add a new Observation to an Assessment (Endpoint expects an array or single? we'll pass single)
+   * The actual implementation in backend PbjtAssessmentController is a single ObservationDTO based on my prompt.
+   */
+  addObservation(assessmentId: number, data: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${assessmentId}/observations`, data);
+  }
+
+  /**
+   * Delete an Observation
+   */
+  deleteObservation(observationId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/observations/${observationId}`);
   }
 
   /**
