@@ -77,6 +77,10 @@ export class AssessmentListComponent implements OnInit {
   searchTerm: string = '';
   selectedKabupaten: string = '';
   selectedConfidenceLevel: string = '';
+  
+  // Category filter (hotel or makanan)
+  category: string = '';
+  basePath: string = '/pbjt-assessment';
 
   @ViewChild('observationModalTemplate') observationModalTemplate!: TemplateRef<any>;
 
@@ -87,6 +91,14 @@ export class AssessmentListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    const url = this.router.url;
+    if (url.startsWith('/pbjt-hotel')) {
+      this.category = 'hotel';
+      this.basePath = '/pbjt-hotel';
+    } else {
+      this.category = 'makanan';
+      this.basePath = '/pbjt-assessment';
+    }
     this.loadAssessments();
   }
 
@@ -95,7 +107,7 @@ export class AssessmentListComponent implements OnInit {
     this.error = '';
 
     // Load paginated assessments from backend with optional search
-    this.assessmentService.getAllAssessments(this.currentPage, this.pageSize, this.searchTerm).subscribe({
+    this.assessmentService.getAllAssessments(this.currentPage, this.pageSize, this.searchTerm, this.category).subscribe({
       next: (response) => {
         if (response.success && response.data) {
           // Map response data including realization from history
@@ -191,20 +203,20 @@ export class AssessmentListComponent implements OnInit {
   }
 
   viewDetail(assessment: AssessmentWithRealization): void {
-    this.router.navigate(['/pbjt-assessment/detail', assessment.id]);
+    this.router.navigate([`${this.basePath}/detail`, assessment.id]);
   }
 
   createNew(): void {
-    this.router.navigate(['/pbjt-assessment/create']);
+    this.router.navigate([`${this.basePath}/create`]);
   }
 
   editAssessment(assessment: AssessmentWithRealization): void {
-    this.router.navigate(['/pbjt-assessment/edit', assessment.id]);
+    this.router.navigate([`${this.basePath}/edit`, assessment.id]);
   }
 
   viewOnMap(assessment: AssessmentWithRealization): void {
     // Navigate to map with query parameters for location
-    this.router.navigate(['/pbjt-assessment/map'], {
+    this.router.navigate([`${this.basePath}/map`], {
       queryParams: {
         lat: assessment.location?.latitude,
         lng: assessment.location?.longitude,
