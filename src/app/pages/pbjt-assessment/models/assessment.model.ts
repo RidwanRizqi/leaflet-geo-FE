@@ -1,3 +1,9 @@
+export interface MenuItem {
+  name: string;
+  price: number;
+  category: 'FOOD' | 'BEVERAGE';
+}
+
 export interface Assessment {
   id?: number;
   businessId: string;
@@ -10,6 +16,10 @@ export interface Assessment {
   businessType?: string;
   paymentMethods?: string[];
 
+  // Menu Based Method
+  menuItems?: MenuItem[];
+  openingDaysPerMonth?: number;
+
   // Calculation results
   dailyRevenueWeekday?: number;
   dailyRevenueWeekend?: number;
@@ -17,6 +27,11 @@ export interface Assessment {
   monthlyRevenueAdjusted?: number;
   monthlyPbjt?: number;
   annualPbjt?: number;
+
+  // Menu Based Results
+  monthlyRevenueMenuBased?: number;
+  monthlyPbjtMenuBased?: number;
+  annualPbjtMenuBased?: number;
 
   // Adjustment factors
   adjustments?: AdjustmentDetails;
@@ -27,12 +42,6 @@ export interface Assessment {
   // Location
   location?: LocationDetails;
 
-  // Location factors (juga di root level untuk edit mode)
-  roadType?: string;
-  nearSchool?: boolean;
-  nearOffice?: boolean;
-  nearMarket?: boolean;
-
   // Observations
   observations: Observation[];
 
@@ -41,15 +50,15 @@ export interface Assessment {
   verifiedBy?: string;
   taxpayerSigned?: boolean;
 
-  // Menu items
-  menuItems?: MenuItem[];
-
   // Supporting documents
   photoUrls?: string[];
   supportingDocUrl?: string;
 
   // Validation data
   validationData?: any;
+
+  // Realization History
+  realisasiHistory?: RealisasiHistoryItem[];
 
   // Tax configuration
   taxRate?: number;
@@ -61,11 +70,10 @@ export interface Assessment {
   updatedAt?: string;
 }
 
-// Menu Item
-export interface MenuItem {
-  name: string;
-  price: number;
-  category: string; // 'FOOD' | 'BEVERAGE'
+export interface RealisasiHistoryItem {
+  tahun: number;
+  realisasiAmount: number;
+  jumlahTransaksi: number;
 }
 
 // Sample Transaction with notes
@@ -81,7 +89,6 @@ export interface Observation {
   visitors: number;
   durationHours: number;
   sampleTransactions: SampleTransaction[];
-  assignedUserId?: string;
   notes?: string;
   visitorsPerHour?: number;
   avgTransaction?: number;
@@ -114,6 +121,11 @@ export interface LocationDetails {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
+  // Advanced Factors
+  roadType?: string;
+  nearSchool?: boolean;
+  nearOffice?: boolean;
+  nearMarket?: boolean;
 }
 
 export interface AssessmentListResponse {
@@ -145,7 +157,6 @@ export interface AssessmentRequest {
   operatingHoursStart: string;
   operatingHoursEnd: string;
   assessmentDate: string;
-  openingDaysPerMonth?: number;
   // Location - flat structure (not nested)
   latitude: number;
   longitude: number;
@@ -153,13 +164,14 @@ export interface AssessmentRequest {
   kelurahan?: string;
   kecamatan?: string;
   kabupaten?: string;
-  // Location factors
+  // Advanced Factors
   roadType?: string;
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
-  // Menu items
+    // Menu Based Method
   menuItems?: MenuItem[];
+  openingDaysPerMonth?: number;
   // Observations with sampleTransactions
   observations: ObservationRequest[];
   // Surveyor info (required by backend)
@@ -183,7 +195,6 @@ export interface ObservationRequest {
   visitors: number;
   durationHours: number;
   sampleTransactions: SampleTransaction[];  // Required: 5-30 transaction objects
-  assignedUserId?: string;
   notes?: string;
 }
 

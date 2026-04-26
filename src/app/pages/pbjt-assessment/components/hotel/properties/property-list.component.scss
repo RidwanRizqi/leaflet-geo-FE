@@ -1,0 +1,15 @@
+.card-animate {
+  transition: transform 0.2s ease;
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.table-responsive {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.btn-group-sm {
+  white-space: nowrap;
+}

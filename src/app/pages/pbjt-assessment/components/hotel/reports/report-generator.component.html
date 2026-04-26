@@ -1,0 +1,121 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Reports Hotel</h4>
+        <div class="page-title-right">
+          <span class="badge bg-primary">{{ templates.length }} Reports Available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading data...</p>
+  </div>
+
+  <div *ngIf="!loading">
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+      <div class="col-xl-4 col-md-6">
+        <div class="card bg-primary text-white">
+          <div class="card-body">
+            <h6 class="text-white-50">Total Properties</h6>
+            <h3 class="text-white mb-0">{{ properties.length }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="card bg-success text-white">
+          <div class="card-body">
+            <h6 class="text-white-50">Formal Properties</h6>
+            <h3 class="text-white mb-0">{{ getFormalCount() }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4 col-md-6">
+        <div class="card bg-info text-white">
+          <div class="card-body">
+            <h6 class="text-white-50">Available Reports</h6>
+            <h3 class="text-white mb-0">{{ templates.length }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Report Templates -->
+    <div class="row">
+      <div class="col-12">
+        <h5 class="mb-3">Select Report Template</h5>
+      </div>
+      <div class="col-xl-4 col-md-6" *ngFor="let template of templates">
+        <div class="card" style="cursor: pointer;"
+          [class.border-primary]="selectedTemplate?.id === template.id"
+          (click)="selectTemplate(template)">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <div class="avatar-sm me-3">
+                <span class="avatar-title bg-primary-subtle rounded">
+                  <i class="{{ template.icon }} text-primary fs-20"></i>
+                </span>
+              </div>
+              <div>
+                <h6 class="mb-0">{{ template.name }}</h6>
+                <span class="badge {{ getCategoryBadge(template.category) }} mt-1">{{ getCategoryLabel(template.category) }}</span>
+              </div>
+            </div>
+            <p class="text-muted small mb-0">{{ template.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generate Section -->
+    <div class="row" *ngIf="selectedTemplate">
+      <div class="col-12">
+        <div class="card border-primary">
+          <div class="card-header bg-primary text-white">
+            <h5 class="card-title text-white mb-0">
+              <i class="{{ selectedTemplate.icon }} align-middle me-1"></i>
+              Generate: {{ selectedTemplate.name }}
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <label class="form-label">Filter by Type</label>
+                <select class="form-select" [(ngModel)]="selectedType">
+                  <option *ngFor="let t of accommodationTypes" [value]="t.value">{{ t.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Filter by Status</label>
+                <select class="form-select" [(ngModel)]="selectedStatus">
+                  <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-4 d-flex align-items-end gap-2">
+                <button class="btn btn-primary" (click)="generateReport()" [disabled]="generating">
+                  <span *ngIf="generating" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  <i *ngIf="!generating" class="ri-download-line align-middle me-1"></i>
+                  {{ generating ? 'Generating...' : 'Generate & Download' }}
+                </button>
+                <button class="btn btn-light" (click)="resetFilters()">
+                  <i class="ri-filter-off-line"></i> Reset
+                </button>
+              </div>
+            </div>
+            <p class="text-muted small mb-0">
+              <i class="ri-information-line"></i> Report will be generated as CSV file with {{ getFilteredData().length }} records based on current filters.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,666 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">{{ isEditMode ? 'Edit Assessment' : 'Assessment Baru' }}</h4>
+        <div class="page-title-right">
+          <button class="btn btn-light" (click)="cancel()">
+            <i class="ri-arrow-left-line"></i> Kembali
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Memuat data...</p>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="row mb-4" *ngIf="!isLoading">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div *ngFor="let step of [0,1,2,3,4]; let i = index"
+                 class="step-item text-center flex-fill"
+                 [class.active]="currentStep === i"
+                 [class.completed]="currentStep > i"
+                 (click)="goToStep(i)"
+                 style="cursor: pointer;">
+              <div class="step-number mb-1"
+                   [class.bg-primary]="currentStep === i"
+                   [class.bg-success]="currentStep > i"
+                   [class.bg-light]="currentStep < i">
+                <span class="text-white" *ngIf="currentStep >= i">{{ i + 1 }}</span>
+                <span class="text-muted" *ngIf="currentStep < i">{{ i + 1 }}</span>
+              </div>
+              <small [class.text-primary]="currentStep === i"
+                     [class.text-success]="currentStep > i"
+                     [class.text-muted]="currentStep < i">
+                {{ getStepLabel(i) }}
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="row" *ngIf="!isLoading">
+    <div class="col-12">
+
+      <!-- STEP 0: Type Selection -->
+      <div class="card" *ngIf="currentStep === 0">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="ri-list-check-2 me-2"></i>Pilih Tipe Akomodasi</h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4 col-lg" *ngFor="let type of accommodationTypes">
+              <div class="card border h-100"
+                   [class.border-primary]="selectedType === type"
+                   [class.shadow-sm]="selectedType === type"
+                   (click)="selectType(type)"
+                   style="cursor: pointer; transition: all 0.2s;">
+                <div class="card-body text-center p-3">
+                  <div class="avatar-sm mx-auto mb-2">
+                    <span class="avatar-title rounded-circle fs-4"
+                          [style.background-color]="getTypeColor(type) + '20'"
+                          [style.color]="getTypeColor(type)">
+                      <i [class]="getTypeRiIcon(type)"></i>
+                    </span>
+                  </div>
+                  <h6 class="mb-1">{{ getTypeLabel(type) }}</h6>
+                  <small class="text-muted">
+                    {{ type === AccommodationType.HOTEL ? 'Hotel berbintang dengan fasilitas lengkap' :
+                       type === AccommodationType.WISMA ? 'Wisma/Guest House, 5-25 kamar' :
+                       type === AccommodationType.HOMESTAY ? 'Homestay kecil, 1-8 kamar' :
+                       type === AccommodationType.PENGINAPAN ? 'Penginapan budget' :
+                       'Kos bulanan untuk mahasiswa/pekerja' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="text-end mt-4">
+            <button class="btn btn-primary" (click)="nextStep()" [disabled]="!selectedType">
+              Lanjut <i class="ri-arrow-right-line ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 1: Basic Information -->
+      <div class="card" *ngIf="currentStep === 1">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="ri-user-line me-2"></i>Informasi Properti & Pemilik</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="basicInfoForm">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Nama Properti <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="propertyName" placeholder="Contoh: Hotel Grand Lumajang">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Nama Pemilik <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ownerName">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">No. Telepon <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" formControlName="ownerPhone" placeholder="08123456789">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" formControlName="email">
+              </div>
+              <div class="col-md-12">
+                <label class="form-label">Alamat <span class="text-danger">*</span></label>
+                <textarea class="form-control" formControlName="address" rows="2"></textarea>
+              </div>
+
+              <div class="col-12">
+                <hr>
+                <h6><i class="ri-map-pin-line me-1"></i>Lokasi</h6>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Latitude</label>
+                <input type="number" class="form-control" formControlName="latitude" step="0.0001">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Longitude</label>
+                <input type="number" class="form-control" formControlName="longitude" step="0.0001">
+              </div>
+              <div class="col-md-4 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-primary w-100" (click)="getCurrentLocation()">
+                  <i class="ri-focus-3-line me-1"></i> Ambil Lokasi
+                </button>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Kelurahan</label>
+                <input type="text" class="form-control" formControlName="kelurahan">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Kecamatan</label>
+                <input type="text" class="form-control" formControlName="kecamatan">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Kabupaten</label>
+                <input type="text" class="form-control" formControlName="kabupaten">
+              </div>
+
+              <div class="col-12"><hr><h6><i class="ri-building-line me-1"></i>Detail Bangunan</h6></div>
+              <div class="col-md-4">
+                <label class="form-label">Jumlah Kamar <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" formControlName="totalRooms" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Luas Bangunan (m²)</label>
+                <input type="number" class="form-control" formControlName="buildingArea">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Luas Tanah (m²)</label>
+                <input type="number" class="form-control" formControlName="landArea">
+              </div>
+
+              <!-- Photo Upload -->
+              <div class="col-12">
+                <hr>
+                <h6><i class="ri-image-add-line me-1"></i>Foto Properti</h6>
+              </div>
+              <div class="col-12">
+                <div class="image-drop-zone"
+                     [class.has-images]="uploadedImages.length > 0"
+                     [class.drop-active]="isUploading"
+                     (dragover)="onDragOver($event)"
+                     (dragleave)="onDragLeave($event)"
+                     (drop)="onDrop($event)"
+                     (click)="fileInput.click()">
+                  <input #fileInput type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple
+                         (change)="onFileSelect($event)" style="display: none;">
+                  <div *ngIf="uploadedImages.length === 0" class="drop-placeholder">
+                    <i class="ri-upload-cloud-2-line"></i>
+                    <p>Drag & drop foto atau klik untuk pilih</p>
+                    <small class="text-muted">JPG, PNG, GIF, WebP &mdash; maksimal {{ maxImages }} foto</small>
+                  </div>
+                  <div *ngIf="isUploading" class="drop-uploading">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                    <span>Mengupload...</span>
+                  </div>
+                </div>
+
+                <div class="image-preview-grid" *ngIf="uploadedImages.length > 0">
+                  <div class="image-preview-item" *ngFor="let img of uploadedImages; let i = index">
+                    <img [src]="img.preview" alt="Preview {{ i + 1 }}">
+                    <button type="button" class="btn-remove-image" (click)="removeImage(i); $event.stopPropagation()">
+                      <i class="ri-close-line"></i>
+                    </button>
+                  </div>
+                  <div class="image-preview-item add-more" *ngIf="uploadedImages.length < maxImages"
+                       (click)="fileInput.click()">
+                    <i class="ri-add-line"></i>
+                    <small>Tambah</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-light" (click)="prevStep()"><i class="ri-arrow-left-line me-1"></i> Kembali</button>
+            <button class="btn btn-primary" (click)="nextStep()">Lanjut <i class="ri-arrow-right-line ms-1"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Type-Specific Data -->
+      <div class="card" *ngIf="currentStep === 2">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="ri-settings-3-line me-2"></i>Detail {{ getTypeLabel(selectedType!) }}</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="specificDataForm">
+
+            <!-- HOTEL -->
+            <div *ngIf="selectedType === AccommodationType.HOTEL" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Rating Bintang</label>
+                <select class="form-select" formControlName="starRating">
+                  <option [ngValue]="null">Pilih rating</option>
+                  <option *ngFor="let s of starRatings" [ngValue]="s">{{ s }} Bintang</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Afiliasi Brand</label>
+                <input type="text" class="form-control" formControlName="brandAffiliation">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Kapasitas Parkir</label>
+                <input type="number" class="form-control" formControlName="parkingSpaces">
+              </div>
+              <div class="col-12"><h6 class="mt-2">Fasilitas</h6></div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasRestaurant" id="hasRestaurant">
+                  <label class="form-check-label" for="hasRestaurant">Restoran</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasMeetingRooms" id="hasMeetingRooms">
+                  <label class="form-check-label" for="hasMeetingRooms">Ruang Meeting</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasPool" id="hasPool">
+                  <label class="form-check-label" for="hasPool">Kolam Renang</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasGym" id="hasGym">
+                  <label class="form-check-label" for="hasGym">Gym</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasSpa" id="hasSpa">
+                  <label class="form-check-label" for="hasSpa">Spa</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- WISMA -->
+            <div *ngIf="selectedType === AccommodationType.WISMA" class="row g-3">
+              <div class="col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="mealService" id="mealService">
+                  <label class="form-check-label" for="mealService">Layanan Makan</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="ownerResident" id="ownerResident">
+                  <label class="form-check-label" for="ownerResident">Pemilik Tinggal di Lokasi</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasParking" id="hasParking">
+                  <label class="form-check-label" for="hasParking">Tersedia Parkir</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasWifi" id="hasWifi">
+                  <label class="form-check-label" for="hasWifi">Tersedia WiFi</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- HOMESTAY -->
+            <div *ngIf="selectedType === AccommodationType.HOMESTAY" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Kamar Disewakan</label>
+                <input type="number" class="form-control" formControlName="roomsForRent" min="1" max="8">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Total Kamar Tidur</label>
+                <input type="number" class="form-control" formControlName="totalBedrooms">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Jumlah Kamar Mandi</label>
+                <input type="number" class="form-control" formControlName="bathroomCount">
+              </div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="isSharedBathroom" id="sharedBath">
+                <label class="form-check-label" for="sharedBath">Kamar Mandi Bersama</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="includesBreakfast" id="breakfast">
+                <label class="form-check-label" for="breakfast">Termasuk Sarapan</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="includesDinner" id="dinner">
+                <label class="form-check-label" for="dinner">Termasuk Makan Malam</label>
+              </div></div>
+              <div class="col-12"><h6 class="mt-2">Terdaftar Online</h6></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="listedAirbnb" id="airbnb">
+                <label class="form-check-label" for="airbnb">Airbnb</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="listedAgoda" id="agoda">
+                <label class="form-check-label" for="agoda">Agoda</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="listedTiket" id="tiket">
+                <label class="form-check-label" for="tiket">Tiket.com</label>
+              </div></div>
+            </div>
+
+            <!-- PENGINAPAN -->
+            <div *ngIf="selectedType === AccommodationType.PENGINAPAN" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Tipe Lokasi</label>
+                <select class="form-select" formControlName="locationType">
+                  <option value="">Pilih tipe</option>
+                  <option *ngFor="let loc of locationTypes" [value]="loc.value">{{ loc.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">KM Bersama</label>
+                <input type="number" class="form-control" formControlName="sharedBathroomCount">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">KM Dalam</label>
+                <input type="number" class="form-control" formControlName="privateBathroomCount">
+              </div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="hourlyRateOffered" id="hourly">
+                <label class="form-check-label" for="hourly">Tarif Per Jam</label>
+              </div></div>
+              <div class="col-md-4" *ngIf="specificDataForm.get('hourlyRateOffered')?.value">
+                <label class="form-label">Tarif/Jam (Rp)</label>
+                <input type="number" class="form-control" formControlName="hourlyRate">
+              </div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="operates24Hours" id="op24">
+                <label class="form-check-label" for="op24">Operasi 24 Jam</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="hasSecurity" id="security">
+                <label class="form-check-label" for="security">Memiliki Satpam</label>
+              </div></div>
+            </div>
+
+            <!-- RUMAH KOS -->
+            <div *ngIf="selectedType === AccommodationType.RUMAH_KOS" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Tipe Kos</label>
+                <select class="form-select" formControlName="kosSubtype">
+                  <option value="">Pilih tipe</option>
+                  <option *ngFor="let k of kosSubtypes" [value]="k.value">{{ k.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Tipe Kamar Mandi</label>
+                <select class="form-select" formControlName="bathroomType">
+                  <option value="">Pilih tipe</option>
+                  <option *ngFor="let b of bathroomTypes" [value]="b.value">{{ b.label }}</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Target Penyewa</label>
+                <select class="form-select" formControlName="targetTenant">
+                  <option value="">Pilih target</option>
+                  <option value="STUDENT">Mahasiswa</option>
+                  <option value="WORKER">Pekerja</option>
+                  <option value="MIXED">Campuran</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Jarak ke Kampus (km)</label>
+                <input type="number" class="form-control" formControlName="distanceToCampusKm" step="0.1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Minimum Sewa (bulan)</label>
+                <input type="number" class="form-control" formControlName="minimumStayMonths" min="1">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Deposit (bulan)</label>
+                <input type="number" class="form-control" formControlName="depositMonths" min="0">
+              </div>
+              <div class="col-12"><h6 class="mt-2">Fasilitas</h6></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="hasKitchen" id="kitchen">
+                <label class="form-check-label" for="kitchen">Dapur</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="laundryService" id="laundry">
+                <label class="form-check-label" for="laundry">Layanan Laundry</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="cleaningService" id="cleaning">
+                <label class="form-check-label" for="cleaning">Layanan Kebersihan</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="wifiIncluded" id="wifi">
+                <label class="form-check-label" for="wifi">WiFi</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="electricityIncluded" id="electric">
+                <label class="form-check-label" for="electric">Listrik Termasuk</label>
+              </div></div>
+              <div class="col-md-4"><div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" formControlName="waterIncluded" id="water">
+                <label class="form-check-label" for="water">Air Termasuk</label>
+              </div></div>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-light" (click)="prevStep()"><i class="ri-arrow-left-line me-1"></i> Kembali</button>
+            <button class="btn btn-primary" (click)="nextStep()">Lanjut <i class="ri-arrow-right-line ms-1"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Operational Data -->
+      <div class="card" *ngIf="currentStep === 3">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="ri-bar-chart-line me-2"></i>Data Operasional & Pendapatan</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="operationalForm">
+
+            <!-- HOTEL Operational -->
+            <div *ngIf="selectedType === AccommodationType.HOTEL" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Rata-rata Tingkat Hunian</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="averageOccupancyRate" min="0" max="1" step="0.01" placeholder="0.75">
+                  <span class="input-group-text">0-1 (0.75 = 75%)</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Rata-rata Tarif Harian (ADR)</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="averageDailyRate" placeholder="500000">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Segmen Pasar</label>
+                <input type="text" class="form-control" formControlName="marketSegment" placeholder="Business, Leisure">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Tipe Tamu Utama</label>
+                <input type="text" class="form-control" formControlName="mainGuestType" placeholder="Corporate, Tourist">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Bulan Puncak</label>
+                <input type="text" class="form-control" formControlName="peakSeasonMonths" placeholder="Juni-Agustus, Desember">
+              </div>
+            </div>
+
+            <!-- WISMA Operational -->
+            <div *ngIf="selectedType === AccommodationType.WISMA" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Rata-rata Tingkat Hunian</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="averageOccupancyRate" min="0" max="1" step="0.01" placeholder="0.70">
+                  <span class="input-group-text">0-1</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tarif Per Malam</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="averageRatePerNight" placeholder="300000">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">% Walk-in</label>
+                <input type="number" class="form-control" formControlName="walkInPercentage" min="0" max="1" step="0.01" placeholder="0.30">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">% Booking Online</label>
+                <input type="number" class="form-control" formControlName="onlineBookingPercentage" min="0" max="1" step="0.01" placeholder="0.20">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Faktor Musiman</label>
+                <input type="number" class="form-control" formControlName="seasonalFactor" min="0" max="1" step="0.01">
+              </div>
+            </div>
+
+            <!-- HOMESTAY Operational -->
+            <div *ngIf="selectedType === AccommodationType.HOMESTAY" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Tarif Per Malam</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="nightlyRate" placeholder="150000">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tarif Per Minggu</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="weeklyRate" placeholder="900000">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Rata-rata Tamu/Bulan</label>
+                <input type="number" class="form-control" formControlName="avgGuestsPerMonth" min="0" placeholder="10">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Rata-rata Malam/Tamu</label>
+                <input type="number" class="form-control" formControlName="avgNightsPerGuest" min="1" placeholder="3">
+              </div>
+            </div>
+
+            <!-- PENGINAPAN Operational -->
+            <div *ngIf="selectedType === AccommodationType.PENGINAPAN" class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Hunian Hari Ramai</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="peakDayOccupancy" min="0" max="1" step="0.01" placeholder="0.90">
+                  <span class="input-group-text">0-1</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Hunian Hari Biasa</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="regularDayOccupancy" min="0" max="1" step="0.01" placeholder="0.60">
+                  <span class="input-group-text">0-1</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Jumlah Hari Ramai/Bulan</label>
+                <input type="number" class="form-control" formControlName="peakDaysPerMonth" min="0" max="31" placeholder="8">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Tarif Per Malam</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="averageRatePerNight" placeholder="150000">
+                </div>
+              </div>
+            </div>
+
+            <!-- RUMAH KOS Operational -->
+            <div *ngIf="selectedType === AccommodationType.RUMAH_KOS" class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Tingkat Hunian</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="typicalOccupancyRate" min="0" max="1" step="0.01" placeholder="0.85">
+                  <span class="input-group-text">0-1</span>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Tarif Bulanan/Kamar</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input type="number" class="form-control" formControlName="monthlyRatePerRoom" placeholder="1000000">
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Lama Sewa Rata-rata (bulan)</label>
+                <input type="number" class="form-control" formControlName="avgTenantDurationMonths" min="1" placeholder="6">
+              </div>
+            </div>
+          </form>
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-light" (click)="prevStep()"><i class="ri-arrow-left-line me-1"></i> Kembali</button>
+            <button class="btn btn-primary" (click)="nextStep()">Lanjut <i class="ri-arrow-right-line ms-1"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Formalization & Submit -->
+      <div class="card" *ngIf="currentStep === 4">
+        <div class="card-header">
+          <h5 class="card-title mb-0"><i class="ri-shield-check-line me-2"></i>Status Formalisasi & Submit</h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="formalizationForm">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasBusinessPermit" id="permit">
+                  <label class="form-check-label" for="permit">Memiliki Izin Usaha</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="hasTaxRegistration" id="tax">
+                  <label class="form-check-label" for="tax">Terdaftar Pajak (NPWPD)</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" formControlName="willingToFormalize" id="willing">
+                  <label class="form-check-label" for="willing">Bersedia Diformalkan</label>
+                </div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Catatan Tambahan</label>
+                <textarea class="form-control" formControlName="notes" rows="3" placeholder="Catatan survei..."></textarea>
+              </div>
+            </div>
+          </form>
+
+          <!-- Summary -->
+          <div class="card bg-light mt-4" *ngIf="selectedType">
+            <div class="card-body">
+              <h6><i class="ri-draft-line me-1"></i>Ringkasan Assessment</h6>
+              <div class="row g-2">
+                <div class="col-md-4"><strong>Tipe:</strong> {{ getTypeLabel(selectedType) }}</div>
+                <div class="col-md-4"><strong>Properti:</strong> {{ basicInfoForm.get('propertyName')?.value || '-' }}</div>
+                <div class="col-md-4"><strong>Pemilik:</strong> {{ basicInfoForm.get('ownerName')?.value || '-' }}</div>
+                <div class="col-md-4"><strong>Kamar:</strong> {{ basicInfoForm.get('totalRooms')?.value || '-' }}</div>
+                <div class="col-md-4"><strong>Alamat:</strong> {{ basicInfoForm.get('address')?.value || '-' }}</div>
+                <div class="col-md-4"><strong>Kecamatan:</strong> {{ basicInfoForm.get('kecamatan')?.value || '-' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <button class="btn btn-light" (click)="prevStep()"><i class="ri-arrow-left-line me-1"></i> Kembali</button>
+            <button class="btn btn-success btn-lg" (click)="onSubmit()" [disabled]="isSubmitting">
+              <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-1"></span>
+              <i class="ri-check-line me-1" *ngIf="!isSubmitting"></i>
+              {{ isSubmitting ? 'Menyimpan...' : (isEditMode ? 'Update Assessment' : 'Simpan Assessment') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -13,12 +13,20 @@ export class PbjtAssessmentService {
   constructor(private http: HttpClient) { }
 
   /**
-   * Get all assessments with pagination
+   * Get all assessments with pagination and optional search
    */
-  getAllAssessments(page: number = 0, size: number = 10): Observable<AssessmentListResponse> {
-    const params = new HttpParams()
+  getAllAssessments(page: number = 0, size: number = 10, search: string = '', category: string = ''): Observable<AssessmentListResponse> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+
+    if (search && search.trim()) {
+      params = params.set('search', search.trim());
+    }
+
+    if (category && category.trim()) {
+      params = params.set('category', category.trim());
+    }
 
     return this.http.get<AssessmentListResponse>(this.apiUrl, { params });
   }
@@ -38,18 +46,17 @@ export class PbjtAssessmentService {
   }
 
   /**
-   * Lookup SIMATDA NPWPD/Wajib Pajak profile by NOP
-   */
-  lookupSimatdaByNop(nop: string): Observable<any> {
-    const queryStr = `SELECT t_npwpdwp as npwpd, t_namawp as nama_wp, t_alamat_lengkapwp as alamat_wp FROM view_wpobjek WHERE t_nop = '${nop}' OR t_nop_tanpa_titik = '${nop}' LIMIT 1`;
-    return this.http.post<any>(`${environment.apiUrl}api/simatda/query`, { query: queryStr });
-  }
-
-  /**
    * Get assessments by kabupaten
    */
   getAssessmentsByKabupaten(kabupaten: string): Observable<AssessmentListResponse> {
     return this.http.get<AssessmentListResponse>(`${this.apiUrl}/kabupaten/${kabupaten}`);
+  }
+
+  /**
+   * Calculate potential assessment without saving
+   */
+  calculateAssessment(assessment: AssessmentRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/calculate`, assessment);
   }
 
   /**
@@ -180,24 +187,29 @@ export class PbjtAssessmentService {
   /**
    * Get statistics by kecamatan (for map view)
    */
-  getStatsByKecamatan(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/stats/by-kecamatan`);
+  getStatsByKecamatan(category: string = ''): Observable<any[]> {
+    let params = new HttpParams();
+    if (category) params = params.set('category', category);
+    return this.http.get<any[]>(`${this.apiUrl}/stats/by-kecamatan`, { params });
   }
 
   /**
    * Get statistics by kelurahan for specific kecamatan (for map view)
    */
-  getStatsByKelurahan(kecamatan: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/stats/by-kelurahan/${kecamatan}`);
+  getStatsByKelurahan(kecamatan: string, category: string = ''): Observable<any[]> {
+    let params = new HttpParams();
+    if (category) params = params.set('category', category);
+    return this.http.get<any[]>(`${this.apiUrl}/stats/by-kelurahan/${kecamatan}`, { params });
   }
 
   /**
    * Get assessments by location (kecamatan and kelurahan)
    */
-  getAssessmentsByLocation(kecamatan: string, kelurahan: string): Observable<any[]> {
-    const params = new HttpParams()
+  getAssessmentsByLocation(kecamatan: string, kelurahan: string, category: string = ''): Observable<any[]> {
+    let params = new HttpParams()
       .set('kecamatan', kecamatan)
       .set('kelurahan', kelurahan);
+    if (category) params = params.set('category', category);
     return this.http.get<any[]>(`${this.apiUrl}/by-location`, { params });
   }
 

@@ -1,0 +1,197 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Daftar Potensi Perhotelan</h4>
+        <div class="page-title-right d-flex gap-2">
+          <button class="btn btn-light btn-sm" (click)="refresh()" [disabled]="loading">
+            <i class="ri-refresh-line"></i> Refresh
+          </button>
+          <button class="btn btn-success btn-sm" (click)="exportToExcel()">
+            <i class="ri-file-excel-2-line"></i> Export
+          </button>
+          <button class="btn btn-primary" (click)="createNew()">
+            <i class="ri-add-line me-1"></i> Buat Asesmen
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Total Data</p>
+              <h4 class="fs-22 fw-semibold mb-0">{{ hotelData.length }}</h4>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-primary-subtle rounded fs-3"><i class="ri-hotel-line text-primary"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-md-6" *ngFor="let y of years; let i = index">
+      <div class="card card-animate" *ngIf="i < 3">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1">
+              <p class="text-uppercase fw-medium text-muted mb-0">Realisasi {{ y }}</p>
+              <h6 class="fw-semibold mb-0">Rp {{ formatCurrency(totalRealisasiByYear[y]) }}</h6>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-success-subtle rounded fs-3"><i class="ri-money-dollar-circle-line text-success"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Table -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <div class="row align-items-center g-2">
+            <div class="col-md-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text"><i class="ri-search-line"></i></span>
+                <input type="text" class="form-control" placeholder="Cari nama OP, nama WP, jenis..."
+                  [(ngModel)]="searchTerm" (input)="onFilterChange()">
+              </div>
+            </div>
+            <div class="col-md-7 text-end">
+              <span class="text-muted">Menampilkan {{ filteredData.length }} dari {{ hotelData.length }} data</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <!-- Loading -->
+          <div *ngIf="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Memuat data potensi perhotelan...</p>
+          </div>
+
+          <!-- Error -->
+          <div *ngIf="error && !loading" class="text-center py-5">
+            <i class="ri-error-warning-line text-danger" style="font-size: 3rem;"></i>
+            <p class="mt-3">{{ error }}</p>
+            <button class="btn btn-primary btn-sm" (click)="refresh()">
+              <i class="ri-refresh-line me-1"></i> Coba Lagi
+            </button>
+          </div>
+
+          <!-- Data Table matching Excel format -->
+          <div *ngIf="!loading && !error && filteredData.length > 0" class="table-responsive">
+            <table class="table table-bordered table-hover table-striped table-sm align-middle mb-0" style="font-size: 12px;">
+              <thead class="table-primary">
+                <tr>
+                  <th rowspan="2" class="text-center" style="width: 40px; vertical-align: middle;">NO</th>
+                  <th rowspan="2" class="text-center" style="min-width: 100px; vertical-align: middle;">OP</th>
+                  <th rowspan="2" style="min-width: 180px; vertical-align: middle;">NAMA OP</th>
+                  <th rowspan="2" class="text-center" style="width: 90px; vertical-align: middle;">JENIS</th>
+                  <th rowspan="2" class="text-center" style="min-width: 120px; vertical-align: middle;">NPWPD</th>
+                  <th rowspan="2" style="min-width: 140px; vertical-align: middle;">NAMA WP</th>
+                  <th [attr.colspan]="years.length" class="text-center">REALISASI</th>
+                  <th rowspan="2" class="text-center" style="min-width: 120px; vertical-align: middle;">ESTIMASI PENDAPATAN</th>
+                  <th rowspan="2" class="text-center" style="min-width: 110px; vertical-align: middle;">PROYEKSI PAJAK</th>
+                  <th rowspan="2" class="text-center" style="width: 80px; vertical-align: middle;">AKSI</th>
+                </tr>
+                <tr>
+                  <th *ngFor="let y of years" class="text-center" style="width: 90px;">{{ y }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of paginatedData" style="cursor: pointer;">
+                  <td class="text-center">{{ item.no }}</td>
+                  <td class="text-center"><small>{{ item.op }}</small></td>
+                  <td>
+                    <strong>{{ item.namaOp }}</strong>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge {{ getJenisClass(item.jenis) }}" style="font-size: 10px;">
+                      {{ getJenisLabel(item.jenis) }}
+                    </span>
+                  </td>
+                  <td class="text-center"><small>{{ item.npwpd }}</small></td>
+                  <td>{{ item.namaWp }}</td>
+                  <td *ngFor="let y of years" class="text-end"
+                      [class.text-success]="item.realisasi[y] > 0"
+                      [class.text-muted]="item.realisasi[y] === 0">
+                    {{ formatRealisasi(item.realisasi[y]) }}
+                  </td>
+                  <td class="text-end">
+                    <span *ngIf="item.estimasiPendapatan > 0">{{ formatCurrency(item.estimasiPendapatan) }}</span>
+                    <span *ngIf="item.estimasiPendapatan === 0" class="text-muted">Hsl Perhitungan</span>
+                  </td>
+                  <td class="text-end">
+                    <span *ngIf="item.proyeksiPajak > 0">{{ formatCurrency(item.proyeksiPajak) }}</span>
+                    <span *ngIf="item.proyeksiPajak === 0" class="text-muted">Hsl Perhitungan</span>
+                  </td>
+                  <td class="text-center" (click)="$event.stopPropagation()">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary btn-sm" (click)="viewDetails(item)" title="Detail">
+                        <i class="ri-eye-line"></i>
+                      </button>
+                      <button class="btn btn-outline-success btn-sm" (click)="editAssessment(item)" title="Edit">
+                        <i class="ri-pencil-line"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- Footer totals -->
+              <tfoot class="table-warning">
+                <tr class="fw-bold">
+                  <td colspan="6" class="text-center">TOTAL</td>
+                  <td *ngFor="let y of years" class="text-end">{{ formatCurrency(totalRealisasiByYear[y]) }}</td>
+                  <td class="text-end">{{ formatCurrency(totalEstimasi) }}</td>
+                  <td class="text-end">{{ formatCurrency(totalProyeksi) }}</td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loading && !error && filteredData.length === 0" class="text-center py-5">
+            <i class="ri-file-list-3-line" style="font-size: 4rem; color: #ccc;"></i>
+            <h5 class="mt-3 text-muted">Data Tidak Ditemukan</h5>
+            <p class="text-muted">Coba ubah kata kunci pencarian atau buat asesmen baru.</p>
+            <button class="btn btn-primary" (click)="createNew()">
+              <i class="ri-add-line me-1"></i> Buat Asesmen
+            </button>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="!loading && totalPages > 1" class="d-flex justify-content-between align-items-center p-3 border-top">
+            <span class="text-muted small">
+              Halaman {{ currentPage + 1 }} dari {{ totalPages }}
+              ({{ currentPage * pageSize + 1 }}-{{ Math.min((currentPage + 1) * pageSize, filteredData.length) }} dari {{ filteredData.length }})
+            </span>
+            <nav>
+              <ul class="pagination pagination-sm mb-0">
+                <li class="page-item" [class.disabled]="currentPage === 0">
+                  <a class="page-link" (click)="onPrevPage()" style="cursor: pointer;"><i class="ri-arrow-left-s-line"></i></a>
+                </li>
+                <li class="page-item" *ngFor="let p of [].constructor(totalPages); let i = index" [class.active]="i === currentPage">
+                  <a class="page-link" (click)="onPageChange(i)" style="cursor: pointer;">{{ i + 1 }}</a>
+                </li>
+                <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+                  <a class="page-link" (click)="onNextPage()" style="cursor: pointer;"><i class="ri-arrow-right-s-line"></i></a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

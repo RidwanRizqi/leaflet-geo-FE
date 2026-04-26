@@ -1,0 +1,288 @@
+<div class="container-fluid">
+  <!-- Page Title -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <h4 class="mb-sm-0">Dashboard Hotel</h4>
+        <div class="page-title-right d-flex gap-2">
+          <button class="btn btn-primary" (click)="navigateToCreate()">
+            <i class="ri-add-line align-middle"></i> New Assessment
+          </button>
+          <button class="btn btn-light" (click)="loadDashboardData()">
+            <i class="ri-refresh-line align-middle"></i> Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading dashboard data...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && metrics">
+    <!-- Summary Cards -->
+    <div class="row">
+      <!-- Total Properties -->
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToAssessments()">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <p class="text-uppercase fw-medium text-muted mb-0">Total Properties</p>
+                <h4 class="fs-22 fw-semibold mb-0">{{ metrics.totalProperties | number }}</h4>
+              </div>
+              <div class="avatar-sm flex-shrink-0">
+                <span class="avatar-title bg-primary-subtle rounded fs-3">
+                  <i class="ri-building-line text-primary"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Revenue -->
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <p class="text-uppercase fw-medium text-muted mb-0">Current Revenue</p>
+                <h4 class="fs-22 fw-semibold mb-0">Rp {{ formatCurrency(metrics.revenue.current) }}</h4>
+                <span class="{{ getGrowthColor(metrics.revenue.growth) }}">
+                  <i class="{{ getGrowthIcon(metrics.revenue.growth) }}"></i>
+                  {{ formatPercentage(Math.abs(metrics.revenue.growth)) }}
+                </span>
+              </div>
+              <div class="avatar-sm flex-shrink-0">
+                <span class="avatar-title bg-success-subtle rounded fs-3">
+                  <i class="ri-money-dollar-circle-line text-success"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tax Collected -->
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <p class="text-uppercase fw-medium text-muted mb-0">Tax Collected</p>
+                <h4 class="fs-22 fw-semibold mb-0">Rp {{ formatCurrency(metrics.tax.collected) }}</h4>
+                <span class="text-warning">Gap: Rp {{ formatCurrency(metrics.tax.gap) }}</span>
+              </div>
+              <div class="avatar-sm flex-shrink-0">
+                <span class="avatar-title bg-warning-subtle rounded fs-3">
+                  <i class="ri-bank-line text-warning"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formalization Rate -->
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToFormalization()">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <p class="text-uppercase fw-medium text-muted mb-0">Formalization Rate</p>
+                <h4 class="fs-22 fw-semibold mb-0">{{ formatPercentage(metrics.formalization.rate) }}</h4>
+                <span class="text-info">{{ metrics.formalization.formal }}/{{ metrics.totalProperties }}</span>
+              </div>
+              <div class="avatar-sm flex-shrink-0">
+                <span class="avatar-title bg-info-subtle rounded fs-3">
+                  <i class="ri-shield-check-line text-info"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Accommodation Type Cards -->
+    <div class="row">
+      <div class="col-12">
+        <h5 class="mb-3">By Accommodation Type</h5>
+      </div>
+      <div class="col-xl col-md-4 col-sm-6" *ngFor="let card of typeCards">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToType(card.type)">
+          <div class="card-body text-center">
+            <div class="avatar-sm mx-auto mb-3">
+              <span class="avatar-title rounded fs-3" [style.background-color]="card.color + '20'" [style.color]="card.color">
+                <i class="{{ card.riIcon }}"></i>
+              </span>
+            </div>
+            <h4 class="mb-1">{{ card.count | number }}</h4>
+            <p class="text-muted mb-0">{{ card.type }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+      <!-- Revenue Trend Chart -->
+      <div class="col-xl-12">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+              <i class="ri-line-chart-line align-middle me-1"></i> Revenue & Tax Trends
+            </h5>
+            <select class="form-select form-select-sm" style="width: auto;" [(ngModel)]="selectedPeriod" (change)="onPeriodChange(selectedPeriod)">
+              <option value="monthly">Monthly</option>
+              <option value="quarterly">Quarterly</option>
+              <option value="yearly">Yearly</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div style="height: 350px;">
+              <canvas baseChart [data]="revenueChartData" [options]="revenueChartOptions" [type]="'line'"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Type Distribution Chart -->
+      <div class="col-xl-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="ri-pie-chart-line align-middle me-1"></i> Property Distribution
+            </h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 300px;">
+              <canvas baseChart [data]="typeDistributionData" [options]="typeDistributionOptions" [type]="'doughnut'"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formalization Chart -->
+      <div class="col-xl-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">
+              <i class="ri-bar-chart-line align-middle me-1"></i> Formalization Status
+            </h5>
+          </div>
+          <div class="card-body">
+            <div style="height: 300px;">
+              <canvas baseChart [data]="formalizationData" [options]="formalizationOptions" [type]="'bar'"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Metrics Grid -->
+    <div class="row">
+      <div class="col-xl-3 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <i class="ri-money-dollar-circle-line text-success fs-24 mb-2"></i>
+            <p class="text-muted mb-1">Revenue Potential</p>
+            <h5>Rp {{ formatCurrency(metrics.revenue.potential) }}</h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <i class="ri-wallet-3-line text-primary fs-24 mb-2"></i>
+            <p class="text-muted mb-1">Tax Potential</p>
+            <h5>Rp {{ formatCurrency(metrics.tax.potential) }}</h5>
+            <small class="text-muted">Collection Rate: {{ formatPercentage(metrics.tax.collectionRate) }}</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <i class="ri-arrow-up-line text-info fs-24 mb-2"></i>
+            <p class="text-muted mb-1">Growth Rate</p>
+            <h5>{{ formatPercentage(metrics.revenue.growth) }}</h5>
+            <small class="text-muted">Year over year</small>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card" style="cursor: pointer;" (click)="navigateToFormalization()">
+          <div class="card-body">
+            <i class="ri-error-warning-line text-danger fs-24 mb-2"></i>
+            <p class="text-muted mb-1">Informal Properties</p>
+            <h5>{{ metrics.formalization.informal | number }}</h5>
+            <small class="text-muted">Formalization target</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+      <div class="col-12">
+        <h5 class="mb-3">Quick Actions</h5>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToCreate()">
+          <div class="card-body text-center py-4">
+            <i class="ri-add-circle-line fs-36 text-primary mb-2"></i>
+            <h6>New Assessment</h6>
+            <p class="text-muted mb-0 small">Create new property assessment</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToMap()">
+          <div class="card-body text-center py-4">
+            <i class="ri-map-pin-line fs-36 text-success mb-2"></i>
+            <h6>View Map</h6>
+            <p class="text-muted mb-0 small">Geographic distribution</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToProjections()">
+          <div class="card-body text-center py-4">
+            <i class="ri-line-chart-line fs-36 text-info mb-2"></i>
+            <h6>Projections</h6>
+            <p class="text-muted mb-0 small">Revenue projections & analysis</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="card card-animate" style="cursor: pointer;" (click)="navigateToFormalization()">
+          <div class="card-body text-center py-4">
+            <i class="ri-shield-check-line fs-36 text-warning mb-2"></i>
+            <h6>Formalization</h6>
+            <p class="text-muted mb-0 small">Track formalization progress</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !metrics" class="text-center py-5">
+    <i class="ri-dashboard-line" style="font-size: 4rem; color: #adb5bd;"></i>
+    <h4 class="mt-3">No Data Available</h4>
+    <p class="text-muted">Start by creating your first accommodation assessment</p>
+    <button class="btn btn-primary" (click)="navigateToCreate()">
+      <i class="ri-add-line align-middle"></i> Create Assessment
+    </button>
+  </div>
+</div>
