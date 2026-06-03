@@ -39,7 +39,7 @@ export class DashboardPajakComponent implements OnInit {
 
   // Filter tahun
   selectedYear: number = 2025;
-  availableYears: number[] = [2020, 2021, 2022, 2023, 2024, 2025];
+  availableYears: number[] = [2020, 2021, 2022, 2023, 2024, 2025, 2026];
 
   // Color palette for charts - Modern & Colorful
   private colorPalette = [

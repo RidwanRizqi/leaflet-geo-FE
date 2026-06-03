@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "fix-file",
+			"type": "shell",
+			"command": "python -c \"import re; f=open('D:/BPRD/leaflet-geo/leaflet-geo-FE/src/app/features/pbjt-assessment/components/assessment-form/assessment-form.component.ts', 'r', encoding='utf-8'); code=f.read(); f.close(); code = re.sub(r'this\\.step3Form\\s*=\\s*this\\.fb\\.group\\(\\{\\s*observations:\\s*this\\.fb\\.array\\(\\[\\]\\)\\s*\\}\\);', 'this.step3Form = this.fb.group({ observations: this.fb.array([]) });', code); print(len(code))\"",
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

@@ -573,3 +573,44 @@
 .text-dark {
   color: #2d3748 !important;
 }
+
+// Probabilitas Badge & Detail Panel
+.prob-badge {
+  color: #fff !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  &:hover {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+.prob-detail {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  animation: slideDown 0.2s ease;
+
+  table td {
+    color: #4a5568;
+    vertical-align: middle;
+  }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// Warning pulse animation for critical probability
+.prob-badge.is-warning {
+  animation: warnPulse 2s ease-in-out infinite;
+}
+
+@keyframes warnPulse {
+  0%, 100% { box-shadow: 0 2px 6px rgba(255, 0, 0, 0.2); }
+  50%       { box-shadow: 0 2px 14px rgba(255, 0, 0, 0.5); }
+}

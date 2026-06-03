@@ -23,6 +23,14 @@ export interface TargetRealisasi {
   realisasi: number;
   selisih: number;
   persentasePencapaian: number;
+  runRateAktual?: number;
+  runRateDibutuhkan?: number;
+  defisitSurplus?: number;
+  rasio?: number;
+  probabilitas?: number;
+  kategori?: string;
+  warna?: string;
+  isWarning?: boolean;
   details?: RekeningDetail[]; // Breakdown per rekening
 }
 

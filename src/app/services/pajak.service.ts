@@ -37,4 +37,13 @@ export class PajakService {
         return this.http.get<ApiResponse<PajakData[]>>(`${this.apiUrl}/pajak-bulanan`, { params })
             .pipe(map(response => response.data || []));
     }
+
+    /**
+     * Get target vs realisasi per jenis pajak
+     */
+    getTargetRealisasi(tahun: number = 2025): Observable<any[]> {
+        const params = new HttpParams().set('tahun', tahun.toString());
+        return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/target-realisasi`, { params })
+            .pipe(map(response => response.data || []));
+    }
 }

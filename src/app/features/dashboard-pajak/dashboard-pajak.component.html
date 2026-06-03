@@ -42,6 +42,64 @@
         <div class="summary-card-content">
           <h6 class="category-name mb-1">{{ kategori }}</h6>
           <h4 class="category-value mb-0">{{ formatCurrency(getTotalByCategory(kategori)) }}</h4>
+          <p class="mb-0 mt-2 d-flex align-items-center" *ngIf="getTargetPencapaian(kategori) > 0">
+            <span class="badge px-2 py-1"
+                  [ngClass]="'bg-' + getProgressBarColor(getTargetPencapaian(kategori))">
+              <i class="ri-funds-line me-1"></i> {{ getTargetPencapaian(kategori) | number:'1.2-2' }}% dari Target
+            </span>
+          </p>
+          <p class="mb-0 mt-1 text-muted small" *ngIf="getTargetValue(kategori) > 0">
+            Target: <strong>{{ formatCurrency(getTargetValue(kategori)) }}</strong>
+          </p>
+
+          <!-- Probabilitas Badge -->
+          <div *ngIf="getProbabilitas(kategori) !== null" class="mt-2">
+            <span class="badge prob-badge px-2 py-1"
+                  [style.backgroundColor]="getWarnaProb(kategori)"
+                  style="cursor: pointer; font-size: 0.72rem;"
+                  (click)="$event.stopPropagation(); toggleProbDetail(kategori)"
+                  title="Klik untuk detail kalkulasi">
+              <i *ngIf="isWarningProb(kategori)" class="ri-error-warning-line me-1"></i>
+              <i *ngIf="!isWarningProb(kategori)" class="ri-line-chart-line me-1"></i>
+              Prob: {{ getProbabilitas(kategori)! | percent:'1.0-0' }} &bull; {{ getKategoriProb(kategori) }}
+            </span>
+            <!-- Detail Kalkulasi Collapse -->
+            <div *ngIf="isProbExpanded(kategori)" class="prob-detail mt-2 p-2 rounded"
+                 (click)="$event.stopPropagation()">
+              <small class="text-muted d-block mb-1"><strong>Detail Kalkulasi:</strong></small>
+              <table class="table table-sm table-borderless mb-0" style="font-size: 0.75rem;">
+                <tbody>
+                  <tr>
+                    <td class="text-muted py-0 px-1"><small>Run-rate Aktual</small></td>
+                    <td class="text-end py-0 px-1"><small><strong>
+                      {{ formatCurrency(getTargetValue(kategori) * (getRunRateAktual(kategori) || 0)) }}/hari
+                    </strong></small></td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted py-0 px-1"><small>Run-rate Dibutuhkan</small></td>
+                    <td class="text-end py-0 px-1"><small>
+                      {{ formatCurrency(getTargetValue(kategori) * (getRunRateDibutuhkan(kategori) || 0)) }}/hari
+                    </small></td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted py-0 px-1"><small>Surplus/Defisit</small></td>
+                    <td class="text-end py-0 px-1"
+                        [ngClass]="(getDefisitSurplus(kategori) || 0) >= 0 ? 'text-success' : 'text-danger'">
+                      <small><strong>{{ (getDefisitSurplus(kategori) || 0) >= 0 ? '+' : '' }}{{ getDefisitSurplus(kategori)! | percent:'1.2-4' }}</strong></small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-muted py-0 px-1"><small>Rasio Tren</small></td>
+                    <td class="text-end py-0 px-1">
+                      <small><strong>{{ getRasio(kategori)! | number:'1.2-2' }}x</strong>
+                        {{ (getDefisitSurplus(kategori) || 0) >= 0 ? 'lebih cepat' : 'lebih lambat' }}
+                      </small>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -194,6 +252,40 @@
               <div class="stat-content">
                 <h6 class="stat-label">Rata-rata per Bulan</h6>
                 <h3 class="stat-value">{{ formatCurrency(getAverageByCategory(selectedCategory)) }}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Probabilitas Stat Card in Modal -->
+          <div class="col-md-6" *ngIf="getProbabilitas(selectedCategory) !== null">
+            <div class="stat-card" [style.borderColor]="getWarnaProb(selectedCategory)">
+              <div class="stat-icon" [style.background]="getWarnaProb(selectedCategory)">
+                <i class="ri-donut-chart-line"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label">Probabilitas Capai Target</h6>
+                <h3 class="stat-value" [style.color]="getWarnaProb(selectedCategory)">
+                  {{ getProbabilitas(selectedCategory)! | percent:'1.1-1' }}
+                </h3>
+                <small class="text-muted">{{ getKategoriProb(selectedCategory) }}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6" *ngIf="getRasio(selectedCategory) !== null">
+            <div class="stat-card stat-card-success">
+              <div class="stat-icon">
+                <i class="ri-speed-up-fill"></i>
+              </div>
+              <div class="stat-content">
+                <h6 class="stat-label">Rasio Run-Rate</h6>
+                <h3 class="stat-value" [ngClass]="(getDefisitSurplus(selectedCategory) || 0) >= 0 ? 'text-success' : 'text-danger'">
+                  {{ getRasio(selectedCategory)! | number:'1.3-3' }}x
+                </h3>
+                <small class="text-muted">
+                  <i class="ri-arrow-{{ (getDefisitSurplus(selectedCategory) || 0) >= 0 ? 'up' : 'down' }}-line"></i>
+                  {{ (getDefisitSurplus(selectedCategory) || 0) >= 0 ? 'On-track / surplus' : 'Perlu akselerasi' }}
+                </small>
               </div>
             </div>
           </div>

@@ -726,6 +726,9 @@
       },
       "BLOK": {
         "TEXT": "Blok"
+      },
+      "ANGGARAN": {
+        "TEXT": "Anggaran"
       }
     }
   },

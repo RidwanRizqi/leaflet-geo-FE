@@ -29,6 +29,7 @@ export class DashboardPendapatanComponent implements OnInit {
 
   // Expand/Collapse
   expandedIndex: number | null = null;
+  expandedCalcIndex: number | null = null;
 
   // Modal Breakdown
   showBreakdownModal: boolean = false;
@@ -291,6 +292,10 @@ export class DashboardPendapatanComponent implements OnInit {
 
   toggleExpand(index: number): void {
     this.expandedIndex = this.expandedIndex === index ? null : index;
+  }
+
+  toggleCalc(index: number): void {
+    this.expandedCalcIndex = this.expandedCalcIndex === index ? null : index;
   }
 
   openBreakdownModal(item: TargetRealisasi): void {

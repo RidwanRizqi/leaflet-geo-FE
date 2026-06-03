@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexStroke, ApexYAxis, ApexGrid, ApexLegend, ChartComponent } from 'ng-apexcharts';
 import { PajakService, PajakData } from '../../services/pajak.service';
+import { TargetRealisasi } from '../../models/pendapatan.model';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -24,7 +25,11 @@ export type ChartOptions = {
 })
 export class DashboardPajakComponent implements OnInit {
   pajakData: PajakData[] = [];
+  targetData: TargetRealisasi[] = [];
   kategoris: string[] = [];
+
+  // Panel probabilitas expanded state per kategori
+  expandedProbKategori: string | null = null;
   chartOptionsMap: Map<string, Partial<ChartOptions>> = new Map();
 
   selectedCategory: string = '';
@@ -66,19 +71,22 @@ export class DashboardPajakComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.pajakService.getPajakBulanan(this.selectedYear).subscribe({
-      next: (data: PajakData[]) => {
-        this.pajakData = data || [];
-        this.processData();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading pajak data:', error);
-        this.errorMessage = 'Gagal memuat data. Menggunakan data offline...';
-        this.isLoading = false;
-        // Fallback to static JSON if API fails
-        this.loadFallbackData();
-      }
+    // Fetch both Pajak Bulanan and Target Realisasi
+    Promise.all([
+      this.pajakService.getPajakBulanan(this.selectedYear).toPromise(),
+      this.pajakService.getTargetRealisasi(this.selectedYear).toPromise().catch(() => [])
+    ])
+    .then(([pajakRes, targetRes]) => {
+      this.pajakData = pajakRes || [];
+      this.targetData = targetRes || [];
+      this.processData();
+      this.isLoading = false;
+    })
+    .catch((error) => {
+      console.error('Error loading pajak data:', error);
+      this.errorMessage = 'Gagal memuat data. Menggunakan data offline...';
+      this.isLoading = false;
+      this.loadFallbackData();
     });
   }
 
@@ -349,6 +357,90 @@ export class DashboardPajakComponent implements OnInit {
     return this.pajakData
       .filter(item => item.kategori === kategori && item.tahun == this.selectedYear)
       .reduce((sum, item) => sum + item.value, 0);
+  }
+
+  // --- Target & Persentase Pencapaian ---
+
+  /** Cari entry targetData yang cocok dengan kategori di dashboard-pajak */
+  private findTarget(kategori: string): TargetRealisasi | undefined {
+    if (!this.targetData || this.targetData.length === 0) return undefined;
+    const localUpper = String(kategori).toUpperCase();
+    return this.targetData.find(t => {
+      const db = t.jenisPajak ? String(t.jenisPajak).toUpperCase() : '';
+      return db === localUpper
+        || db.includes(localUpper)
+        || localUpper.includes(db)
+        || db.replace('PAJAK ', '') === localUpper
+        || localUpper.replace('PAJAK ', '') === db
+        // fuzzy: cocokkan kata kunci utama
+        || (localUpper.split('-').some(k => k.trim().length > 3 && db.includes(k.trim())))
+        || (db.split('-').some(k => k.trim().length > 3 && localUpper.includes(k.trim())));
+    });
+  }
+
+  getTargetPencapaian(kategori: string): number {
+    const t = this.findTarget(kategori);
+    return t?.persentasePencapaian ?? 0;
+  }
+
+  getTargetValue(kategori: string): number {
+    const t = this.findTarget(kategori);
+    return t?.target ?? 0;
+  }
+
+  getProbabilitas(kategori: string): number | null {
+    const t = this.findTarget(kategori);
+    return t?.probabilitas ?? null;
+  }
+
+  getKategoriProb(kategori: string): string {
+    const t = this.findTarget(kategori);
+    return t?.kategori ?? '';
+  }
+
+  getWarnaProb(kategori: string): string {
+    const t = this.findTarget(kategori);
+    return t?.warna ?? '#6c757d';
+  }
+
+  isWarningProb(kategori: string): boolean {
+    const t = this.findTarget(kategori);
+    return t?.isWarning ?? false;
+  }
+
+  getRasio(kategori: string): number | null {
+    const t = this.findTarget(kategori);
+    return t?.rasio ?? null;
+  }
+
+  getDefisitSurplus(kategori: string): number | null {
+    const t = this.findTarget(kategori);
+    return t?.defisitSurplus ?? null;
+  }
+
+  getRunRateAktual(kategori: string): number | null {
+    const t = this.findTarget(kategori);
+    return t?.runRateAktual ?? null;
+  }
+
+  getRunRateDibutuhkan(kategori: string): number | null {
+    const t = this.findTarget(kategori);
+    return t?.runRateDibutuhkan ?? null;
+  }
+
+  toggleProbDetail(kategori: string): void {
+    this.expandedProbKategori = this.expandedProbKategori === kategori ? null : kategori;
+  }
+
+  isProbExpanded(kategori: string): boolean {
+    return this.expandedProbKategori === kategori;
+  }
+
+  getProgressBarColor(persentase: number): string {
+    if (persentase >= 100) return 'success';
+    if (persentase >= 75) return 'info';
+    if (persentase >= 50) return 'warning';
+    return 'danger';
   }
 
   getDataCountByCategory(kategori: string): number {

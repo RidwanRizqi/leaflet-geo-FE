@@ -132,18 +132,18 @@ export class AnggaranComponent implements OnInit, OnDestroy {
                 console.error('Error loading jenis pajak options:', err);
                 // Fallback options
                 this.jenisPajakOptions = [
-                    { value: 'REKLAME', label: 'Pajak Reklame' },
-                    { value: 'AIR_TANAH', label: 'Pajak Air Tanah' },
-                    { value: 'MBLB', label: 'Pajak MBLB' },
-                    { value: 'PBB_P2', label: 'PBB-P2' },
-                    { value: 'BPHTB', label: 'BPHTB' },
-                    { value: 'PBJT_MAKANAN_MINUMAN', label: 'PBJT Makanan dan/atau Minuman' },
-                    { value: 'PBJT_LISTRIK', label: 'PBJT Tenaga Listrik' },
-                    { value: 'PBJT_HOTEL', label: 'PBJT Jasa Perhotelan' },
-                    { value: 'PBJT_PARKIR', label: 'PBJT Jasa Parkir' },
-                    { value: 'PBJT_HIBURAN', label: 'PBJT Jasa Kesenian dan Hiburan' },
-                    { value: 'OPSEN_PKB', label: 'Opsen PKB' },
-                    { value: 'OPSEN_BBNKB', label: 'Opsen BBNKB' }
+                    { value: 'Pajak Reklame', label: 'Pajak Reklame' },
+                    { value: 'Pajak Air Tanah', label: 'Pajak Air Tanah' },
+                    { value: 'Pajak Mineral Bukan Logam dan Batuan', label: 'Pajak MBLB' },
+                    { value: 'Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBBP2)', label: 'PBB-P2' },
+                    { value: 'Bea Perolehan Hak Atas Tanah dan Bangunan (BPHTB)', label: 'BPHTB' },
+                    { value: 'PBJT-Makanan dan/atau Minuman', label: 'PBJT Makanan dan/atau Minuman' },
+                    { value: 'PBJT-Tenaga Listrik', label: 'PBJT Tenaga Listrik' },
+                    { value: 'PBJT-Jasa Perhotelan', label: 'PBJT Jasa Perhotelan' },
+                    { value: 'PBJT-Jasa Parkir', label: 'PBJT Jasa Parkir' },
+                    { value: 'PBJT-Jasa Kesenian dan Hiburan', label: 'PBJT Jasa Kesenian dan Hiburan' },
+                    { value: 'Opsen PKB', label: 'Opsen PKB' },
+                    { value: 'Opsen BBNKB', label: 'Opsen BBNKB' }
                 ];
             }
         });

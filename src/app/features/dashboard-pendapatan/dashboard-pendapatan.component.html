@@ -179,9 +179,64 @@
                      [ngClass]="'bg-' + getProgressBarColor(item.persentasePencapaian)"
                      [style.width.%]="item.persentasePencapaian"></div>
               </div>
-              <small class="text-muted">
+              <small class="text-muted d-block">
                 {{ formatCurrency(item.realisasi) }} / {{ formatCurrency(item.target) }}
               </small>
+
+              <!-- Probabilitas Indicator -->
+              <div *ngIf="item.probabilitas !== undefined" class="d-flex flex-column mt-1 mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge" [style.backgroundColor]="item.warna" style="cursor: pointer;" 
+                        (click)="toggleCalc(i)" title="Klik untuk melihat detail kalkulasi">
+                    <i *ngIf="item.isWarning" class="ri-error-warning-line me-1"></i>
+                    Probabilitas: {{ item.probabilitas | percent:'1.1-1' }} ({{ item.kategori }})
+                  </span>
+                  <small class="text-muted" *ngIf="item.defisitSurplus !== undefined" 
+                         style="cursor: pointer; border-bottom: 1px dashed #6c757d;"
+                         (click)="toggleCalc(i)" title="Klik untuk melihat detail kalkulasi">
+                    <i class="ri-information-line"></i> {{ item.defisitSurplus >= 0 ? 'Surplus' : 'Defisit' }}: {{ item.defisitSurplus | percent:'1.2-4' }}
+                  </small>
+                </div>
+                
+                <!-- Calculation Detail Breakdown -->
+                <div *ngIf="expandedCalcIndex === i" class="mt-2 p-2 bg-light rounded border">
+                  <small class="text-muted d-block mb-1"><strong>📊 Detail Kalkulasi Prediksi:</strong></small>
+                  <table class="table table-sm table-borderless mb-0" style="font-size: 0.8rem;">
+                    <tbody>
+                      <tr>
+                        <td class="text-muted py-0 px-1"><small>Sisa Target Kekurangan</small></td>
+                        <td class="text-end py-0 px-1"><small><strong>{{ formatCurrency(item.target - item.realisasi) }}</strong></small></td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" class="px-1 py-1"><hr class="my-0" style="border-style: dashed;"></td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted py-0 px-1"><small>Pemasukan Aktual / Hari</small></td>
+                        <td class="text-end py-0 px-1"><small>{{ formatCurrency(item.target * item.runRateAktual!) }} <span class="text-muted">({{ item.runRateAktual | percent:'1.2-3' }})</span></small></td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted py-0 px-1"><small>Pemasukan Wajib / Hari</small></td>
+                        <td class="text-end py-0 px-1"><small>{{ formatCurrency(item.target * item.runRateDibutuhkan!) }} <span class="text-muted">({{ item.runRateDibutuhkan | percent:'1.2-3' }})</span></small></td>
+                      </tr>
+                      <tr>
+                        <td colspan="2" class="px-1 py-1"><hr class="my-0"></td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted py-0 px-1"><small>Surplus/Defisit / Hari</small></td>
+                        <td class="text-end py-0 px-1" [ngClass]="item.defisitSurplus! >= 0 ? 'text-success' : 'text-danger'">
+                          <small><strong>{{ formatCurrency(item.target * item.defisitSurplus!) }}</strong> <span class="text-muted">({{ item.defisitSurplus | percent:'1.2-3' }})</span></small>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted py-0 px-1"><small>Performa Tren</small></td>
+                        <td class="text-end py-0 px-1">
+                          <small><strong>{{ item.rasio | number:'1.2-2' }}x</strong> {{ item.defisitSurplus! >= 0 ? 'lebih cepat' : 'lebih lambat' }}</small>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
 
               <!-- Breakdown Detail -->
               <div *ngIf="expandedIndex === i && item.details && item.details.length > 0"

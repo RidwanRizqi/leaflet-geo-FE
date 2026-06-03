@@ -22,7 +22,7 @@ export class DashboardPendapatanComponent implements OnInit {
 
   // Filter
   selectedYear: number = 2025;
-  availableYears: number[] = [2021, 2022, 2023, 2024, 2025];
+  availableYears: number[] = [2021, 2022, 2023, 2024, 2025, 2026];
 
   // Expand/Collapse
   expandedIndex: number | null = null;
