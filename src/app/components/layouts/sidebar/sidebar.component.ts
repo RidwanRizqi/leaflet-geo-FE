@@ -1,14 +1,16 @@
-import { Component, OnInit, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
 import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 import { environment } from 'src/environments/environment';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, combineLatest } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { RestApiService } from 'src/app/services/rest-api.service';
 import { Store } from '@ngrx/store';
 import { selectMenuItems } from 'src/app/store/menu/menu.selector';
+import { selectMenuPermissions } from 'src/app/store/auth/auth.selector';
 import { cloneDeep } from 'lodash';
 
 @Component({
@@ -16,13 +18,15 @@ import { cloneDeep } from 'lodash';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
 
   menu: any;
   toggle: any = true;
   menuItems: MenuItem[] = [];
   @ViewChild('sideMenu') sideMenu!: ElementRef;
   @Output() mobileMenuButtonClicked = new EventEmitter();
+
+  private destroy$ = new Subject<void>();
 
   constructor(private router: Router, public translate: TranslateService, private restApiService: RestApiService, private store: Store) {
     translate.setDefaultLang('en');
@@ -44,15 +48,18 @@ export class SidebarComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    // Menu Items
-    this.store.select(selectMenuItems).subscribe((menus: any) => {
-      // this.menuItems = menus.map((menu: any) => this.mapToMenuItem(menu));
-      this.menuItems = cloneDeep(menus);
+    combineLatest([
+      this.store.select(selectMenuItems),
+      this.store.select(selectMenuPermissions)
+    ]).pipe(takeUntil(this.destroy$)).subscribe(([menus, permissions]) => {
+      const fullMenus = cloneDeep(menus);
+      if (permissions === null || permissions.length === 0) {
+        this.menuItems = (permissions === null) ? fullMenus : [];
+      } else {
+        this.menuItems = this.filterMenusByPermission(fullMenus, permissions);
+      }
     });
-    // const menusData = await firstValueFrom(this.restApiService.getSidebarMenu({ application_id: null, sort: 'order asc' }));
-    // this.menuItems = menusData.data.map((menu: any) => this.mapToMenuItem(menu));
 
-    console.log('menunya', this.menuItems);
     this.router.events.subscribe((event) => {
       if (document.documentElement.getAttribute('data-layout') != "twocolumn") {
         if (event instanceof NavigationEnd) {
@@ -230,10 +237,27 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  /**
-   * SidebarHide modal
-   * @param content modal content
-   */
+  private filterMenusByPermission(menus: MenuItem[], allowedMenuIds: number[]): MenuItem[] {
+    return menus.filter(menu => {
+      if (menu.id && allowedMenuIds.includes(menu.id)) {
+        return true;
+      }
+      if (menu.subItems && menu.subItems.length > 0) {
+        const filteredSubItems = this.filterMenusByPermission(menu.subItems, allowedMenuIds);
+        if (filteredSubItems.length > 0) {
+          menu.subItems = filteredSubItems;
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   SidebarHide() {
     document.body.classList.remove('vertical-sidebar-enable');
   }

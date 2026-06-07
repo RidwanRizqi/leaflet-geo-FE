@@ -60,6 +60,10 @@ const routes: Routes = [
     path: 'tematik',
     loadChildren: () => import('./tematik/tematik.module').then(m => m.TematikModule),
   },
+  {
+    path: 'menu-fungsi',
+    loadChildren: () => import('../pages/menu-fungsi/menu-fungsi.module').then(m => m.MenuFungsiModule),
+  },
 ];
 
 @NgModule({

@@ -429,6 +429,21 @@ export const MENU: MenuItem[] = [
         },
         parentId: 9,
         isLayout: false,
+      },
+      {
+        id: 95,
+        label: 'Menu Fungsi',
+        icon: 'ri-shield-keyhole-line',
+        isCollapsed: true,
+        link: '/menu-fungsi',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'primary',
+          text: 'RBAC'
+        },
+        parentId: 9,
+        isLayout: false,
       }
     ],
     isTitle: false,

@@ -117,7 +117,18 @@ export class CoverComponent implements OnInit {
         this.alertMessage = response.message || 'Login berhasil';
 
         this.spinner.hide();
-        await this.router.navigate([this.returnUrl || '/']);
+
+        const roleRoutes: Record<string, string> = {
+          'ADMIN': '/dashboard-pajak',
+          'EKSEKUTIF': '/dashboard-pajak',
+          'GIS': '/bidang/map',
+          'PBJT-HOTEL': '/pbjt-hotel/assessment-list',
+          'PBJT-MAMIN': '/pbjt-makanan',
+        };
+        const role = response.data.role;
+        const defaultRoute = roleRoutes[role] || '/';
+        const target = this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : defaultRoute;
+        await this.router.navigate([target]);
       } else {
         // Login failed
         this.error = response.message || 'Login gagal';

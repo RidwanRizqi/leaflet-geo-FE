@@ -6,17 +6,20 @@ import { map, switchMap, catchError, take } from 'rxjs/operators';
 
 // Auth Services
 import { AuthenticationService } from '../services/auth.service';
-import { setUser } from 'src/app/store/auth/auth.action';
+import { RoleMenuService } from '../services/role-menu.service';
+import { setUser, setMenuPermissions } from 'src/app/store/auth/auth.action';
 import { RemoteConfigService } from '../services/remote-config.service';
 import { setMenu } from 'src/app/store/menu/menu.action';
 import { MENU } from 'src/app/components/layouts/sidebar/menu';
-import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
+import { selectCurrentUser, selectMenuPermissions } from 'src/app/store/auth/auth.selector';
+import { MenuItem } from 'src/app/components/layouts/sidebar/menu.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
     constructor(
         private router: Router,
         private authenticationService: AuthenticationService,
+        private roleMenuService: RoleMenuService,
         private remoteConfigService: RemoteConfigService,
         private store: Store
     ) { }
@@ -48,7 +51,10 @@ export class AuthGuard implements CanActivate {
                                         token: response.data.token
                                     }
                                 }));
-                                return this.checkRouteAccess(route);
+                                // Load menu permissions
+                                    return from(this.loadMenuPermissions(response.data.role)).pipe(
+                                        switchMap(() => this.checkRouteAccess(route, state))
+                                    );
                             } else {
                                 // Token invalid, clear and redirect
                                 this.authenticationService.clearToken();
@@ -65,12 +71,54 @@ export class AuthGuard implements CanActivate {
                     );
                 }
 
-                return this.checkRouteAccess(route);
+                // Load menu permissions if not yet loaded
+                    return from(this.roleMenuService.getMyPermissions()).pipe(
+                        switchMap(menuIds => {
+                            this.store.dispatch(setMenuPermissions({ menuIds: menuIds ?? null }));
+                            return this.checkRouteAccess(route, state);
+                        }),
+                        catchError(() => {
+                            this.store.dispatch(setMenuPermissions({ menuIds: [] }));
+                            return this.checkRouteAccess(route, state);
+                        })
+                );
             })
         );
     }
 
-    private checkRouteAccess(route: ActivatedRouteSnapshot): Observable<boolean> {
+    private async loadMenuPermissions(role: string): Promise<void> {
+        try {
+            const menuIds = await from(this.roleMenuService.getMyPermissions()).toPromise();
+            this.store.dispatch(setMenuPermissions({ menuIds: menuIds ?? null }));
+        } catch (error) {
+            console.error('Error loading menu permissions:', error);
+            this.store.dispatch(setMenuPermissions({ menuIds: [] }));
+        }
+    }
+
+    private pathMenuMap: Map<string, number[]> | null = null;
+
+    private getPathMenuMap(): Map<string, number[]> {
+        if (this.pathMenuMap) return this.pathMenuMap;
+        const map = new Map<string, number[]>();
+        const flatten = (items: MenuItem[]) => {
+            for (const item of items) {
+                if (item.link && item.link !== '#') {
+                    const existing = map.get(item.link) || [];
+                    existing.push(item.id!);
+                    map.set(item.link, existing);
+                }
+                if (item.subItems && item.subItems.length > 0) {
+                    flatten(item.subItems);
+                }
+            }
+        };
+        flatten(MENU);
+        this.pathMenuMap = map;
+        return map;
+    }
+
+    private checkRouteAccess(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
         console.log('Route Data:', route.data);
 
         if (route.data['remoteApp']) {
@@ -101,6 +149,30 @@ export class AuthGuard implements CanActivate {
         if (route.data['role'] && !this.authenticationService.userHasRole(route.data['role'])) {
             this.router.navigate(['/pages/error'], { queryParams: { q: '401' } });
             return of(false);
+        }
+
+        const path = state.url.split('?')[0];
+        const unprotectedPaths = ['/auth/signin', '/auth', '/pages/error'];
+        const isUnprotected = unprotectedPaths.some(p => path === p || path.startsWith(p + '/'));
+
+        if (!isUnprotected) {
+            const pathMap = this.getPathMenuMap();
+            const menuIds = pathMap.get(path);
+            if (menuIds && menuIds.length > 0) {
+                return this.store.select(selectMenuPermissions).pipe(
+                    take(1),
+                    map(permissions => {
+                        if (permissions === null) return true;
+                        const hasAccess = menuIds.some(id => permissions.includes(id));
+                        if (!hasAccess) {
+                            console.warn(`Access denied to "${path}" - missing menu permission`);
+                            this.router.navigate(['/pages/error'], { queryParams: { q: '401' } });
+                            return false;
+                        }
+                        return true;
+                    })
+                );
+            }
         }
 
         return of(true);

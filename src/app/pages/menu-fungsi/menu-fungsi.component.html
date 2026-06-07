@@ -1,0 +1,123 @@
+<div class="row">
+  <div class="col-12">
+    <div class="page-title-box d-flex align-items-center justify-content-between">
+      <h4 class="mb-0">Menu Fungsi</h4>
+      <div class="page-title-right">
+        <ol class="breadcrumb m-0">
+          <li class="breadcrumb-item"><a href="javascript: void(0);">Admin</a></li>
+          <li class="breadcrumb-item active">Menu Fungsi</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="loading">
+  <div class="col-12 text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Memuat data...</p>
+  </div>
+</div>
+
+<div class="row" *ngIf="!loading">
+  <!-- Left: Role List -->
+  <div class="col-xl-4 col-lg-5">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">Daftar Role</h5>
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush" *ngIf="roles.length > 0">
+          <button
+            *ngFor="let role of roles"
+            class="list-group-item list-group-item-action d-flex align-items-center"
+            [class.active]="selectedRole === role"
+            (click)="selectRole(role)"
+          >
+            <i class="ri-shield-user-line me-2 fs-5"></i>
+            <div>
+              <strong>{{ role }}</strong>
+              <small class="d-block text-muted">{{ getMenuCountText(role) }}</small>
+            </div>
+          </button>
+        </div>
+        <div class="text-center py-4" *ngIf="roles.length === 0">
+          <i class="ri-inbox-line fs-1 text-muted"></i>
+          <p class="text-muted mt-2">Belum ada role</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Menu Tree -->
+  <div class="col-xl-8 col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          <ng-container *ngIf="selectedRole">
+            Akses Menu untuk <strong>{{ selectedRole }}</strong>
+          </ng-container>
+          <ng-container *ngIf="!selectedRole">Pilih role terlebih dahulu</ng-container>
+        </h5>
+        <div *ngIf="selectedRole">
+          <button class="btn btn-sm btn-soft-secondary me-1" (click)="selectAll()">
+            <i class="ri-checkbox-multiple-line"></i> Pilih Semua
+          </button>
+          <button class="btn btn-sm btn-soft-danger" (click)="deselectAll()">
+            <i class="ri-checkbox-indeterminate-line"></i> Hapus Semua
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body" *ngIf="selectedRole">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" *ngIf="successMessage">
+          <i class="ri-checkbox-circle-line me-1"></i> {{ successMessage }}
+          <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" *ngIf="errorMessage">
+          <i class="ri-error-warning-line me-1"></i> {{ errorMessage }}
+          <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+        </div>
+
+        <div class="menu-tree">
+          <div
+            *ngFor="let node of orderedMenuNodes"
+            class="menu-item-row d-flex align-items-center py-1"
+            [style.paddingLeft.px]="getIndentLevel(node) * 28"
+          >
+            <div class="form-check mb-0">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                [id]="'menu-' + node.id"
+                [checked]="node.checked"
+                [indeterminate]="node.indeterminate"
+                (change)="toggleMenu(node.id)"
+              />
+              <label class="form-check-label" [for]="'menu-' + node.id">
+                <i [class]="getIcon(node.icon) + ' me-1'"></i>
+                <span [class.fw-semibold]="getIndentLevel(node) === 0">{{ getLabel(node.label) }}</span>
+                <span class="text-muted small ms-1" *ngIf="node.link && getIndentLevel(node) > 0">({{ node.link }})</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-2 border-top">
+          <button class="btn btn-primary" (click)="saveMapping()" [disabled]="saving">
+            <span *ngIf="saving" class="spinner-border spinner-border-sm me-1"></span>
+            <i class="ri-save-line me-1" *ngIf="!saving"></i>
+            Simpan Mapping
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body text-center py-5" *ngIf="!selectedRole">
+        <i class="ri-file-list-3-line fs-1 text-muted"></i>
+        <p class="text-muted mt-2">Pilih role dari daftar di samping untuk mengatur akses menu</p>
+      </div>
+    </div>
+  </div>
+</div>

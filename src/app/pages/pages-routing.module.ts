@@ -52,6 +52,10 @@ const routes: Routes = [
     path: 'bidang',
     loadChildren: () => import('./bidang/bidang.module').then(m => m.BidangModule),
   },
+  {
+    path: 'menu-fungsi',
+    loadChildren: () => import('./menu-fungsi/menu-fungsi.module').then(m => m.MenuFungsiModule),
+  },
 ];
 
 @NgModule({

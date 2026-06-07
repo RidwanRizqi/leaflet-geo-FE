@@ -1,0 +1,18 @@
+.menu-tree {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.menu-item-row {
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.04);
+  }
+
+  .form-check-input:indeterminate {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+  }
+}
