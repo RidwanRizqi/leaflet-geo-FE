@@ -321,9 +321,18 @@
               <input type="text" class="form-control" formControlName="surveyorId"
                      placeholder="ID Petugas Survey"
                      [class.is-invalid]="submitted && f2['surveyorId'].errors">
-              <div *ngIf="submitted && f2['surveyorId'].errors" class="invalid-feedback">
-                Surveyor ID wajib diisi
+            </div>
+
+            <!-- Guidance Box -->
+            <div class="alert alert-info border-info mt-4 mb-0">
+              <div class="d-flex align-items-center mb-1">
+                <i class="ri-information-line fs-4 me-2 text-info"></i>
+                <strong>Pengisian Daftar Harga & Menu (Metode Nilai Tengah)</strong>
               </div>
+              <p class="mb-0 small text-muted">
+                Daftar harga/menu dan data transaksi observasi diisi <strong>setelah</strong> menyimpan data profil usaha & lokasi ini. 
+                Setelah disimpan, cari nama usaha terkait di halaman daftar assessment, lalu klik tombol <strong>Observasi</strong> (ikon checklist <i class="ri-survey-line"></i>) untuk mulai menginput menu.
+              </p>
             </div>
           </div>
           <div class="card-footer">

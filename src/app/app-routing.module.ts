@@ -15,6 +15,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./features/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
       { path: 'dashboard-pendapatan', loadComponent: () => import('./features/dashboard-pendapatan/dashboard-pendapatan.component').then(m => m.DashboardPendapatanComponent) },
+      { path: 'proyeksi-ai', loadComponent: () => import('./features/proyeksi-iipa/proyeksi-iipa.component').then(m => m.ProyeksiIipaComponent) },
       { path: 'pbjt-assessment', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-hotel', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-makanan', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },

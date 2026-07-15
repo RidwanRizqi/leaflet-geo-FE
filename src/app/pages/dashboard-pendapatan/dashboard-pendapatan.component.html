@@ -5,7 +5,12 @@
       <div class="page-title-box d-sm-flex align-items-center justify-content-between">
         <h4 class="mb-sm-0 font-size-18">Dashboard Pendapatan Pajak</h4>
 
-        <div class="page-title-right">
+        <div class="page-title-right d-flex align-items-center gap-2">
+          <button class="btn btn-sm btn-primary d-flex align-items-center gap-1" (click)="triggerAiAnalysis()" [disabled]="isTriggeringAi">
+            <i class="bx bx-rocket font-size-16" *ngIf="!isTriggeringAi"></i>
+            <span class="spinner-border spinner-border-sm me-1" *ngIf="isTriggeringAi" role="status"></span>
+            <span>Jalankan Analisis AI IIPA</span>
+          </button>
           <select class="form-select form-select-sm" [(ngModel)]="selectedYear" (change)="onYearChange()" style="width: auto;">
             <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
           </select>
@@ -410,3 +415,122 @@
 
 <!-- Modal Backdrop -->
 <div class="modal-backdrop fade show" *ngIf="showBreakdownModal" (click)="closeBreakdownModal()"></div>
+
+<!-- IIPA AI PROYEKSI 2026 WIDGET CARD -->
+<div class="row mt-4" *ngIf="proyeksiIipaList && proyeksiIipaList.length > 0">
+  <div class="col-12">
+    <div class="card border-primary">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="card-title text-white mb-0">
+          <i class="bx bx-chip me-2"></i> Rekomendasi Proyeksi IIPA AI Machine Learning (Tahun 2026)
+        </h5>
+        <span class="badge bg-light text-primary fw-semibold">Adaptive Decision Engine</span>
+      </div>
+      <div class="card-body">
+        <p class="text-muted mb-3">
+          Sistem secara adaptif memilih <strong>Algoritma Pemenang (Superior Model)</strong> dan strategi penanganan guncangan untuk masing-masing jenis pajak berdasarkan evaluasi akurasi MASE.
+        </p>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th width="5%">#</th>
+                <th width="25%">Jenis Pajak Daerah</th>
+                <th width="15%">Bulan Proyeksi</th>
+                <th width="20%">Model Superior Pemenang</th>
+                <th width="15%">Strategi Guncangan</th>
+                <th width="20%" class="text-end">Estimasi Proyeksi (Rp)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of proyeksiIipaList.slice(0, 10); let idx = index">
+                <td>{{ idx + 1 }}</td>
+                <td><strong>{{ item.namaPajak }}</strong></td>
+                <td>{{ item.tanggalProyeksi }}</td>
+                <td><span class="badge bg-success-subtle text-success border border-success px-2 py-1"><i class="bx bx-check-shield me-1"></i>{{ item.modelPemenang }}</span></td>
+                <td><span class="badge bg-info-subtle text-info border border-info px-2 py-1">{{ item.strategiGuncangan }}</span></td>
+                <td class="text-end text-primary fw-bold">Rp {{ item.nilaiProyeksi | number:'1.2-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STEP-BY-STEP REALTIME PROGRESS MODAL -->
+<div class="modal fade show d-block" tabindex="-1" *ngIf="showProgressModal" style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title text-white d-flex align-items-center gap-2">
+          <i class="bx bx-脳 text-warning font-size-22"></i> IIPA Adaptive AI Engine — Executing Pipeline
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeProgressModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted mb-4">
+          Sistem sedang mengeksekusi 3-Stage Architecture IIPA secara otomatis di latar belakang server:
+        </p>
+
+        <!-- STAGE 1 STEP -->
+        <div class="d-flex align-items-start mb-3">
+          <div class="me-3 mt-1">
+            <span class="badge rounded-circle p-2" [ngClass]="(proyeksiStatus?.stage >= 1) ? 'bg-success' : 'bg-secondary'">
+              <i class="bx" [ngClass]="(proyeksiStatus?.stage > 1) ? 'bx-check' : 'bx-loader-alt bx-spin'"></i>
+            </span>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-bold" [ngClass]="{'text-primary': proyeksiStatus?.stage === 1, 'text-success': proyeksiStatus?.stage > 1}">
+              STAGE 1: Structural Break Detection & ITSA
+            </h6>
+            <small class="text-muted">Mendeteksi guncangan struktural (Bai-Perron) & regresi ITSA pada data historis...</small>
+          </div>
+        </div>
+
+        <!-- STAGE 2 STEP -->
+        <div class="d-flex align-items-start mb-3">
+          <div class="me-3 mt-1">
+            <span class="badge rounded-circle p-2" [ngClass]="(proyeksiStatus?.stage >= 2) ? 'bg-success' : 'bg-secondary'">
+              <i class="bx" [ngClass]="(proyeksiStatus?.stage > 2) ? 'bx-check' : ((proyeksiStatus?.stage === 2) ? 'bx-loader-alt bx-spin' : 'bx-time')"></i>
+            </span>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-bold" [ngClass]="{'text-primary': proyeksiStatus?.stage === 2, 'text-success': proyeksiStatus?.stage > 2}">
+              STAGE 2: Break-Informed Parameter Adaptation
+            </h6>
+            <small class="text-muted">Menerapkan 3 Channel Adaptasi & 4 Strategi Pengolahan Data (Segment, Adjust, dll)...</small>
+          </div>
+        </div>
+
+        <!-- STAGE 3 STEP -->
+        <div class="d-flex align-items-start mb-4">
+          <div class="me-3 mt-1">
+            <span class="badge rounded-circle p-2" [ngClass]="(proyeksiStatus?.stage >= 3) ? 'bg-success' : 'bg-secondary'">
+              <i class="bx" [ngClass]="(proyeksiStatus?.stage >= 4) ? 'bx-check' : ((proyeksiStatus?.stage === 3) ? 'bx-loader-alt bx-spin' : 'bx-time')"></i>
+            </span>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-bold" [ngClass]="{'text-primary': proyeksiStatus?.stage === 3, 'text-success': proyeksiStatus?.stage >= 4}">
+              STAGE 3: Model Competition & Winner Selection
+            </h6>
+            <small class="text-muted">Menguji 9 Algoritma (Theta, ETS, RF, LSTM) & menyeleksi model superior berdasarkan MASE...</small>
+          </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="progress mb-2" style="height: 10px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" [style.width.%]="proyeksiStatus?.percent || 10"></div>
+        </div>
+        <div class="d-flex justify-content-between text-muted font-size-12">
+          <span>Status: {{ proyeksiStatus?.message || 'Memulai proses...' }}</span>
+          <span>{{ proyeksiStatus?.percent || 0 }}%</span>
+        </div>
+      </div>
+      <div class="modal-footer bg-light">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="closeProgressModal()">Tutup / Lanjutkan di Latar Belakang</button>
+      </div>
+    </div>
+  </div>
+</div>

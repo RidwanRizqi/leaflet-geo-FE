@@ -38,9 +38,12 @@ export class DashboardPendapatanComponent implements OnInit {
   isLoadingTrend = false;
   isLoadingTop = false;
 
-  // Chart options
-  chartOptions: any;
-  trendChartOptions: any;
+  // IIPA AI Proyeksi
+  proyeksiIipaList: any[] = [];
+  proyeksiStatus: any = null;
+  showProgressModal: boolean = false;
+  statusInterval: any = null;
+  isTriggeringAi: boolean = false;
 
   constructor(private pendapatanService: PendapatanService) {}
 
@@ -53,6 +56,7 @@ export class DashboardPendapatanComponent implements OnInit {
     this.loadTargetRealisasi();
     this.loadTrendBulanan();
     this.loadTopKontributor();
+    this.loadProyeksiIipa();
   }
 
   loadSummary(): void {
@@ -350,6 +354,73 @@ export class DashboardPendapatanComponent implements OnInit {
         show: false
       }
     };
+  }
+
+  // --- IIPA AI PROYEKSI METHODS ---
+
+  loadProyeksiIipa(): void {
+    this.pendapatanService.getProyeksiIipa(2026).subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.proyeksiIipaList = res.data;
+        }
+      },
+      error: (err) => console.error('Error loading proyeksi IIPA:', err)
+    });
+  }
+
+  triggerAiAnalysis(): void {
+    this.isTriggeringAi = true;
+    this.showProgressModal = true;
+    this.pendapatanService.triggerProyeksi().subscribe({
+      next: (res) => {
+        this.isTriggeringAi = false;
+        this.startStatusPolling();
+      },
+      error: (err) => {
+        this.isTriggeringAi = false;
+        console.error('Error triggering AI:', err);
+      }
+    });
+  }
+
+  startStatusPolling(): void {
+    if (this.statusInterval) {
+      clearInterval(this.statusInterval);
+    }
+    this.pollStatus();
+    this.statusInterval = setInterval(() => {
+      this.pollStatus();
+    }, 1500);
+  }
+
+  pollStatus(): void {
+    this.pendapatanService.getProyeksiStatus().subscribe({
+      next: (res) => {
+        if (res && res.data) {
+          this.proyeksiStatus = res.data;
+          if (!this.proyeksiStatus.isRunning && this.proyeksiStatus.percent === 100) {
+            this.stopStatusPolling();
+            this.loadProyeksiIipa();
+          } else if (this.proyeksiStatus.isError) {
+            this.stopStatusPolling();
+          }
+        }
+      },
+      error: (err) => console.error('Error polling status:', err)
+    });
+  }
+
+  stopStatusPolling(): void {
+    if (this.statusInterval) {
+      clearInterval(this.statusInterval);
+      this.statusInterval = null;
+    }
+  }
+
+  closeProgressModal(): void {
+    this.showProgressModal = false;
+    this.stopStatusPolling();
   }
 }
 

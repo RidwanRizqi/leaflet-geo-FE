@@ -67,7 +67,6 @@ export class AuthGuard implements CanActivate {
 
 
                 if (route.data['role'] && !this.authenticationService.userHasRole(route.data['role'])) {
-                    this.router.navigate(['/pages/error'], { queryParams: { q: '401' } });
                     return of(false);
                 }
 

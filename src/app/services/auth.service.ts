@@ -107,7 +107,13 @@ export class AuthenticationService {
         let userRoles: string[] = [];
 
         this.store.select(selectCurrentUser).subscribe(user => {
-            userRoles = (user?.roles_name as string[]) || [];
+            if (user) {
+                if (user.roles_name) {
+                    userRoles = Array.isArray(user.roles_name) ? user.roles_name : [user.roles_name];
+                } else if (user.role) {
+                    userRoles = Array.isArray(user.role) ? user.role : [user.role];
+                }
+            }
         });
 
         const lowerCaseUserRoles = userRoles.map(role => role.toLowerCase());

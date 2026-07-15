@@ -41,4 +41,17 @@ export class PendapatanService {
     }
     return this.http.get<any[]>(`${this.apiUrl}/realisasi-by-jenis`, { params });
   }
+
+  getProyeksiIipa(tahun: number = 2026): Observable<any> {
+    const params = new HttpParams().set('tahun', tahun.toString());
+    return this.http.get<any>(`${this.apiUrl}/proyeksi-iipa`, { params });
+  }
+
+  getProyeksiStatus(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/proyeksi-status`);
+  }
+
+  triggerProyeksi(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/trigger-proyeksi`, {});
+  }
 }

@@ -18,7 +18,7 @@ export class RestApiService {
     }
 
     getLoggedInUser(url: string = this.apiUrl) {
-        return this.http.get(url + 'auth/info', { withCredentials: true });
+        return this.http.get(url + 'auth/me', { withCredentials: true });
     }
 
     getFiles(path: string): Observable<any> {

@@ -377,7 +377,7 @@ export class AssessmentFormComponent implements OnInit {
     operation.subscribe({
       next: (response) => {
         if (response.success) {
-          alert(`Assessment berhasil ${this.isEditMode ? 'diupdate' : 'dibuat'}!`);
+          alert(`Assessment berhasil ${this.isEditMode ? 'diupdate' : 'dibuat'}! Silakan tambahkan Daftar Harga/Menu atau Data Observasi melalui tombol "Observasi" (ikon checklist) pada halaman daftar assessment.`);
           this.router.navigate(['/pbjt-assessment']);
         }
         this.loading = false;

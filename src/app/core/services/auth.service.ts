@@ -80,7 +80,13 @@ export class AuthenticationService {
   
       // Get user roles from store
       this.store.select(selectCurrentUser).subscribe(user => {
-          userRoles = (user?.roles_name as string[]) || [];
+          if (user) {
+              if (user.roles_name) {
+                  userRoles = Array.isArray(user.roles_name) ? user.roles_name : [user.roles_name];
+              } else if (user.role) {
+                  userRoles = Array.isArray(user.role) ? user.role : [user.role];
+              }
+          }
       });
   
       const lowerCaseUserRoles = userRoles.map(role => role.toLowerCase());
@@ -94,7 +100,7 @@ export class AuthenticationService {
     }
 
     getLoggedInUser() {
-        return this.http.get(this.apiUrl + 'auth/info', { withCredentials: true });
+        return this.http.get(this.apiUrl + 'auth/me', { withCredentials: true });
     }
 
     private clearLocalStorage(): void {

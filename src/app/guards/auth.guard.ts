@@ -147,7 +147,6 @@ export class AuthGuard implements CanActivate {
         }
 
         if (route.data['role'] && !this.authenticationService.userHasRole(route.data['role'])) {
-            this.router.navigate(['/pages/error'], { queryParams: { q: '401' } });
             return of(false);
         }
 
@@ -166,7 +165,6 @@ export class AuthGuard implements CanActivate {
                         const hasAccess = menuIds.some(id => permissions.includes(id));
                         if (!hasAccess) {
                             console.warn(`Access denied to "${path}" - missing menu permission`);
-                            this.router.navigate(['/pages/error'], { queryParams: { q: '401' } });
                             return false;
                         }
                         return true;
