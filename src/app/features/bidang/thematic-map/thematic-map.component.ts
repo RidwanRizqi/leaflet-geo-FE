@@ -149,10 +149,20 @@ export class ThematicMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // Wait for DOM to be ready
     setTimeout(() => {
       this.initMap();
+      
+      // Auto-enter fullscreen to hide navbar & footer by default on Tematik view
+      if (!this.isFullscreen) {
+        this.toggleSidebarAndNavbar();
+      }
     }, 100);
   }
 
   ngOnDestroy(): void {
+    // Restore navbar & footer before leaving the thematic page
+    if (this.isFullscreen) {
+      this.toggleSidebarAndNavbar();
+    }
+
     if (this.map) {
       // Remove bidang boundaries layer
       if (this.bidangBoundariesLayer) {

@@ -21,7 +21,7 @@ export class DashboardPendapatanComponent implements OnInit {
   topKontributor: TopKontributor[] = [];
 
   // Filter
-  selectedYear: number = 2025;
+  selectedYear: number = new Date().getFullYear();
   availableYears: number[] = [2021, 2022, 2023, 2024, 2025, 2026];
 
   // Expand/Collapse

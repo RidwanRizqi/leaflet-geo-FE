@@ -23,6 +23,21 @@ export class MenuFungsiComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
+  showAddRoleModal: boolean = false;
+  newRoleName: string = '';
+
+  showAddUserModal: boolean = false;
+  showPassword: boolean = false;
+  newUser = {
+    username: '',
+    password: '',
+    role: ''
+  }
+
+
+  users: any[] = [{username: 'admin', role: 'ADMIN'}, {username: 'operator', role: 'OPERATOR'}, {username: 'viewer', role: 'USER_1'}];
+  selectedUser: string = '';
+
   constructor(private roleMenuService: RoleMenuService) {}
 
   ngOnInit(): void {
@@ -95,6 +110,7 @@ export class MenuFungsiComponent implements OnInit {
 
   selectRole(role: string): void {
     this.selectedRole = role;
+    this.selectedUser = '';
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -205,4 +221,97 @@ export class MenuFungsiComponent implements OnInit {
   getIcon(icon: string | undefined): string {
     return icon || 'ri-menu-line';
   }
+
+  openAddRoleModal(){
+    this.newRoleName = '';
+    this.showAddRoleModal = true;
+  }
+
+  closeAddRoleModal() {
+    this.showAddRoleModal = false;
+    this.newRoleName = '';
+  }
+
+  saveNewRole(){
+    if(!this.newRoleName.trim()) return;
+
+    const roleUpper = this.newRoleName.trim().toUpperCase();
+
+    if(this.roles.includes(roleUpper)){
+      this.errorMessage = 'Role sudah ada di daftar!';
+      return;
+    }
+
+    this.roles.push(roleUpper);
+    this.closeAddRoleModal();
+    this.successMessage = `role ${roleUpper} berhasil ditambahkan!`;
+    this.selectRole(roleUpper); 
+  }
+
+  deleteRole(role: string, event: Event){
+    event.stopPropagation();
+    const konfirmasi = confirm(`apakah anda yakin ingin menghapus role ${role}?`);
+
+    if(konfirmasi){
+      this.roles = this.roles.filter(r => r !== role);
+
+      if (this.selectedRole === role) {
+        this.selectedRole = '';
+      }
+
+      this.successMessage = `Role ${role} berhasil dihapus!`;
+    }
+  }
+
+  selectUser(user: string){
+    this.selectedUser = user;
+    this.selectedRole = '';
+  }
+
+  openAddUserModal(){
+    this.newUser = {username: '', password: '', role: ''};
+    this.showAddUserModal = true;
+  }
+
+  closeAddUserModal(){
+    this.showAddUserModal = false;
+  }
+
+  saveNewUser(){
+   const userBaru = {
+    username: this.newUser.username.trim().toLowerCase(),
+    password: this.newUser.password,
+    role: this.newUser.role
+   };
+
+   const isExist = this.users.find(u => u.username === userBaru.username);
+   if (isExist){
+    this.errorMessage = `Username ${userBaru.username} sudah dipakai`;
+    return;
+   }
+
+   this.users.push(userBaru);
+   this.closeAddUserModal();
+   this.successMessage = `User ${userBaru.username} dengan role ${userBaru.role} berhasil didaftarkan!`;
+   this.selectUser(userBaru.username);
+  }
+
+  deleteUser(username: string, event: Event){
+    event.stopPropagation();
+    const konfirmasi = confirm(`Apakah anda yakin ingin menghapus user ${username}?`);
+
+    if(konfirmasi){
+      this.users = this.users.filter(u => u.username !== username);
+      if(this.selectedUser === username){
+        this.selectedUser = '';
+      }
+
+      this.successMessage = `User ${username} berhasil dihapus!`;
+    }
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
 }
