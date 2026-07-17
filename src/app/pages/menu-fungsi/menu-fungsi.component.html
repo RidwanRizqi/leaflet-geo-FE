@@ -25,22 +25,33 @@
   <!-- Left: Role List -->
   <div class="col-xl-4 col-lg-5">
     <div class="card">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">Daftar Role</h5>
+        <button class="btn btn-sm btn-primary" (click)="openAddRoleModal()"><i class="ri-add-line me-1"></i> Tambah</button>
       </div>
       <div class="card-body p-0">
         <div class="list-group list-group-flush" *ngIf="roles.length > 0">
           <button
             *ngFor="let role of roles"
-            class="list-group-item list-group-item-action d-flex align-items-center"
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
             [class.active]="selectedRole === role"
             (click)="selectRole(role)"
           >
-            <i class="ri-shield-user-line me-2 fs-5"></i>
-            <div>
-              <strong>{{ role }}</strong>
-              <small class="d-block text-muted">{{ getMenuCountText(role) }}</small>
+            <div class="d-flex align-items-center">
+              <i class="ri-shield-user-line me-2 fs-5"></i>
+              <div class="text-start">
+                <strong>{{ role }}</strong>
+                <small class="d-block" [ngClass]="selectedRole === role ? 'text-white-50' : 'text-muted'">
+                  {{ getMenuCountText(role) }}
+                </small>
+              </div>
             </div>
+            <!-- Ikon Sampah (Hapus Role) -->
+            <i class="ri-delete-bin-line text-danger fs-5" 
+               style="cursor: pointer; z-index: 10;" 
+               (click)="deleteRole(role, $event)" 
+               title="Hapus Role">
+            </i>
           </button>
         </div>
         <div class="text-center py-4" *ngIf="roles.length === 0">
@@ -49,6 +60,45 @@
         </div>
       </div>
     </div>
+    <!-- User List Card -->
+  <div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Daftar User</h5>
+      <button class="btn btn-sm btn-primary" (click)="openAddUserModal()">
+        <i class="ri-add-line me-1"></i> Tambah
+      </button>
+    </div>
+    <div class="card-body p-0">
+      <div class="list-group list-group-flush" *ngIf="users.length > 0">
+        <button
+          *ngFor="let user of users"
+          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          [class.active]="selectedUser === user.username"
+          (click)="selectUser(user.username)"
+        >
+          <div class="d-flex align-items-center">
+            <i class="ri-user-line me-2 fs-5"></i>
+            <div class="text-start">
+              <strong>{{ user.username }}</strong>
+              <small class="d-block mt-1" [ngClass]="selectedUser === user.username ? 'text-white-50' : 'text-muted'">
+                Role: <span class="badge bg-secondary">{{ user.role }}</span>
+              </small>
+            </div>
+          </div>
+          <!-- Ikon Sampah (Hapus User) -->
+          <i class="ri-delete-bin-line text-danger fs-5" 
+             style="cursor: pointer; z-index: 10;" 
+             (click)="deleteUser(user.username, $event)" 
+             title="Hapus User">
+          </i>
+        </button>
+      </div>
+      <div class="text-center py-4" *ngIf="users.length === 0">
+        <i class="ri-group-line fs-1 text-muted"></i>
+        <p class="text-muted mt-2">Belum ada user</p>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- Right: Menu Tree -->
@@ -121,3 +171,88 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Tambah Role -->
+<div class="modal fade" tabindex="-1" [class.show]="showAddRoleModal" [style.display]="showAddRoleModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Role Baru</h5>
+        <button type="button" class="btn-close" (click)="closeAddRoleModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="newRoleName" class="form-label">Nama Role</label>
+          <input type="text" class="form-control" id="newRoleName" 
+                 [(ngModel)]="newRoleName" 
+                 placeholder="Contoh: AUDITOR" 
+                 (keyup.enter)="saveNewRole()">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeAddRoleModal()">Batal</button>
+        <button type="button" class="btn btn-primary" (click)="saveNewRole()" [disabled]="!newRoleName.trim()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Backdrop (Layer Gelap di Belakang) -->
+<div class="modal-backdrop fade show" *ngIf="showAddRoleModal"></div>
+
+<!-- Modal Tambah User -->
+  <div class="modal fade" tabindex="-1" [class.show]="showAddUserModal" [style.display]="showAddUserModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Tambah User Baru</h5>
+          <button type="button" class="btn-close" (click)="closeAddUserModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="newUsername" class="form-label">Username</label>
+            <input type="text" class="form-control" id="newUsername" 
+                  [(ngModel)]="newUser.username" 
+                  placeholder="Contoh: budi_admin">
+          </div>
+          <div class="mb-3">
+            <label for="newUserPassword" class="form-label">Password</label>
+            <div class="input-group">
+                <input [type]="showPassword ? 'text' : 'password'" 
+                      class="form-control" 
+                      id="newUserPassword" 
+                      [(ngModel)]="newUser.password" 
+                      name="password"
+                      placeholder="Masukkan password anda">
+
+                <button class="btn btn-link position-absolute end-0 top-50 translate-middle-y text-decoration-none pe-3 toggle-password"
+                    type="button" (click)="togglePasswordVisibility()">
+                    <i class="mdi"
+                        [ngClass]="{'mdi-eye-off-outline': !showPassword, 'mdi-eye-outline': showPassword}">
+                    </i>
+                </button>
+            </div>
+        </div>
+          <div class="mb-3">
+            <label for="newUserRole" class="form-label">Pilih Role</label>
+            <!-- Select ini akan berulang (dinamis) berdasarkan daftar Role yang sudah ada di sistem -->
+            <select class="form-select" id="newUserRole" [(ngModel)]="newUser.role">
+              <option value="" disabled selected>-- Pilih Role --</option>
+              <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeAddUserModal()">Batal</button>
+          <!-- Tombol simpan otomatis mati (disabled) kalau ada isian yang kosong -->
+          <button type="button" class="btn btn-primary" (click)="saveNewUser()" 
+                  [disabled]="!newUser.username || !newUser.password || !newUser.role">
+            Simpan User
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Modal Backdrop untuk User -->
+<div class="modal-backdrop fade show" *ngIf="showAddUserModal"></div>

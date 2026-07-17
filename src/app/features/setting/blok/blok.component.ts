@@ -150,9 +150,37 @@ export class BlokComponent implements OnInit, OnDestroy {
     }
 
     loadDropdownData(): void {
-        this.kecamatanList = [];
-        this.allKelurahanList = [];
-        this.kelurahanList = [];
+
+        this.settingService.getKecamatanPaginated(0,100).subscribe({
+            next: (res) => {
+                this.kecamatanList = res.items as any;
+                this.mapRelations();
+            
+            }
+        });
+
+        this.settingService.getKelurahanPaginated(0, 100).subscribe({
+            next: (res) => {
+                this.allKelurahanList = res.items as any;
+                this.kelurahanList = [...this.allKelurahanList];
+                this.mapRelations();
+            }
+        })
+    }
+
+    mapRelations(): void{
+        if (this.originalData && this.originalData.length > 0) {
+            this.originalData = this.originalData.map(blok => {
+                return {
+                    ...blok,
+                    kecamatan: this.kecamatanList.find(k => k.kd_kec === blok.kd_kec),
+                    kelurahan: this.allKelurahanList.find(k => k.kd_kec === blok.kd_kec && k.kd_kel === blok.kd_kel)
+                };
+            });
+
+            this.filteredData = [...this.originalData];
+            this.displayedData = [...this.originalData];
+        }
     }
 
     loadData(): void {
@@ -167,6 +195,7 @@ export class BlokComponent implements OnInit, OnDestroy {
                 this.originalData = response.items as Blok[];
                 this.filteredData = [...this.originalData];
                 this.displayedData = [...this.originalData];
+                this.mapRelations();
                 this.totalRecords = response.totalCount;
                 this.updatePagination();
                 this.spinner.hide();

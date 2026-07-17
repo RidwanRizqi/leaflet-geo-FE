@@ -365,16 +365,31 @@ export class DashboardPajakComponent implements OnInit {
   private findTarget(kategori: string): TargetRealisasi | undefined {
     if (!this.targetData || this.targetData.length === 0) return undefined;
     const localUpper = String(kategori).toUpperCase();
+    
+    // Coba exact match terlebih dahulu
+    const exactMatch = this.targetData.find(t => {
+      const db = t.jenisPajak ? String(t.jenisPajak).toUpperCase() : '';
+      return db === localUpper;
+    });
+    
+    if (exactMatch) return exactMatch;
+    
+    // Jika tidak ada exact match, gunakan fuzzy match yang lebih aman
     return this.targetData.find(t => {
       const db = t.jenisPajak ? String(t.jenisPajak).toUpperCase() : '';
-      return db === localUpper
-        || db.includes(localUpper)
+      return db.includes(localUpper)
         || localUpper.includes(db)
         || db.replace('PAJAK ', '') === localUpper
         || localUpper.replace('PAJAK ', '') === db
-        // fuzzy: cocokkan kata kunci utama
-        || (localUpper.split('-').some(k => k.trim().length > 3 && db.includes(k.trim())))
-        || (db.split('-').some(k => k.trim().length > 3 && localUpper.includes(k.trim())));
+        // fuzzy: cocokkan kata kunci utama (mengabaikan kata 'PBJT' karena menyebabkan false positive)
+        || (localUpper.split('-').some(k => {
+             const key = k.trim();
+             return key.length > 3 && key !== 'PBJT' && db.includes(key);
+           }))
+        || (db.split('-').some(k => {
+             const key = k.trim();
+             return key.length > 3 && key !== 'PBJT' && localUpper.includes(key);
+           }));
     });
   }
 
