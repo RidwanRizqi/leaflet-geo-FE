@@ -79,6 +79,10 @@
                   <th class="text-end">Realisasi 2023</th>
                   <th class="text-end">Realisasi 2024</th>
                   <th class="text-end">Realisasi 2025</th>
+                  <th class="text-end">
+                    <span class="d-block">Justifikasi</span>
+                    <small class="text-warning fw-normal">(Omzet WP)</small>
+                  </th>
                   <th>Tanggal</th>
                   <th>Actions</th>
                 </tr>
@@ -152,6 +156,14 @@
                   <td>
                     <small>{{ assessment.assessmentDate | date:'dd/MM/yyyy' }}</small>
                   </td>
+                  <!-- TAMBAHKAN SEL INI -->
+                  <td class="text-end">
+                    <span class="fw-bold" [class.text-warning]="(assessment.justifikasiOmzet || 0) > 0" [class.text-muted]="!(assessment.justifikasiOmzet || 0)">
+                      {{ formatCurrency(assessment.justifikasiOmzet || 0) }}
+                    </span>
+                  </td>
+                  <td>
+                    <small>{{ assessment.assessmentDate | date:'dd/MM/yyyy' }}</small>
                   <td>
                     <div class="btn-group btn-group-sm" role="group">
                       <button
@@ -189,6 +201,12 @@
                         (click)="deleteAssessment(assessment)"
                         title="Delete">
                         <i class="ri-delete-bin-line"></i>
+                      </button>
+                      <button
+                        class="btn btn-outline-dark"
+                        (click)="openSignatureModal(assessment, signatureModalTemplate)"
+                        title="Print Berita Acara">
+                        <i class="ri-printer-line"></i>
                       </button>
                     </div>
                   </td>
@@ -509,7 +527,52 @@
               </div>
             </div>
         </div>
-
       </div>
     </div>
   </ng-template>
+
+  <!-- Modal Tanda Tangan -->
+<ng-template #signatureModalTemplate let-modal>
+  <div class="modal-header bg-light">
+    <h5 class="modal-title">Form Tanda Tangan Berita Acara</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body p-4 bg-light bg-opacity-50">
+    <div class="row">
+      <!-- Wajib Pajak -->
+      <div class="col-md-6 mb-3 text-center">
+        <label class="form-label fw-bold">Wajib Pajak / Penanggung Jawab</label>
+        <input type="text" class="form-control mb-3 text-center" [(ngModel)]="wpName" placeholder="Nama Wajib Pajak">
+        
+        <div style="border: 2px dashed #a3c2e0; background-color: #fff; border-radius: 8px;">
+          <!-- Lebar diset agar responsif menggunakan style inline block -->
+          <canvas id="wpCanvas" width="1000" height="350" style="touch-action: none;"></canvas>
+        </div>
+        <button class="btn btn-sm btn-outline-danger mt-2" (click)="clearWpSignature()"><i class="ri-eraser-line me-1"></i>Bersihkan</button>
+      </div>
+
+      <!-- Petugas Pemeriksa -->
+      <div class="col-md-6 mb-3 text-center">
+        <label class="form-label fw-bold">Petugas Pemeriksa (Surveyor)</label>
+        <input type="text" class="form-control mb-3 text-center" [(ngModel)]="petugasName" placeholder="Nama Petugas">
+        
+        <div style="border: 2px dashed #a3c2e0; background-color: #fff; border-radius: 8px;">
+          <canvas id="petugasCanvas" width="1000" height="350" style="touch-action: none;"></canvas>
+        </div>
+        <button class="btn btn-sm btn-outline-danger mt-2" (click)="clearPetugasSignature()"><i class="ri-eraser-line me-1"></i>Bersihkan</button>
+      </div>
+    </div>
+    
+    <div class="alert alert-warning mb-0 mt-3 border-0" role="alert">
+       <i class="ri-information-line me-2"></i><strong>Tips:</strong> Jika tidak bertanda tangan, silakan kosongi kotak tanda tangan di atas.
+    </div>
+  </div>
+  
+  <div class="modal-footer border-top-0">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss('Close click')">Tutup</button>
+    <button type="button" class="btn btn-success" (click)="modal.close('generate')">
+      <i class="ri-printer-line me-1"></i> Generate Berita Acara
+    </button>
+  </div>
+</ng-template>
+

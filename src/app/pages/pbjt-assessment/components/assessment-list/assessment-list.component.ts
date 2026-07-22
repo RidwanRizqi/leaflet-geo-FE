@@ -4,6 +4,9 @@ import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { Assessment } from '../../models/assessment.model';
 import { forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
+import signaturePad from 'signature_pad';
+import { setTimeout } from 'timers/promises';
+import SignaturePad from 'signature_pad';
 
 // Extended interface with realization data
 export interface AssessmentWithRealization extends Assessment {
@@ -303,4 +306,5 @@ export class AssessmentListComponent implements OnInit {
     // Download
     XLSX.writeFile(workbook, filename);
   }
+
 }
