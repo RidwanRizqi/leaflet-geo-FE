@@ -216,6 +216,12 @@
                   placeholder="Contoh: budi_admin">
           </div>
           <div class="mb-3">
+            <label for="newNama" class="form-label">Nama Lengkap</label>
+            <input type="text" class="form-control" id="newNama" 
+                  [(ngModel)]="newUser.nama" 
+                  placeholder="Contoh: Budi Santoso">
+          </div>
+          <div class="mb-3">
             <label for="newUserPassword" class="form-label">Password</label>
             <div class="input-group">
                 <input [type]="showPassword ? 'text' : 'password'" 

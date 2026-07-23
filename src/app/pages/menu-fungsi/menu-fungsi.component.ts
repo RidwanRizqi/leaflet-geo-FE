@@ -33,7 +33,8 @@ export class MenuFungsiComponent implements OnInit {
   newUser = {
     username: '',
     password: '',
-    role: ''
+    role: '',
+    nama: ''
   }
 
   users: any[] = [];
@@ -316,7 +317,7 @@ export class MenuFungsiComponent implements OnInit {
   }
 
   openAddUserModal(){
-    this.newUser = {username: '', password: '', role: ''};
+    this.newUser = {username: '', password: '', role: '', nama: ''};
     this.showAddUserModal = true;
   }
 
@@ -328,7 +329,8 @@ export class MenuFungsiComponent implements OnInit {
    const userBaru = {
     username: this.newUser.username.trim().toLowerCase(),
     password: this.newUser.password,
-    role: this.newUser.role
+    role: this.newUser.role,
+    nama: this.newUser.nama.trim()
    };
 
    const isExist = this.users.find(u => u.username === userBaru.username);

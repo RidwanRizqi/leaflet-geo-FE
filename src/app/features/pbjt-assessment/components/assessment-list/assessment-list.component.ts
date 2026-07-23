@@ -303,8 +303,8 @@ export class AssessmentListComponent implements OnInit {
             .signature-box.right { float: right; }
             .signature-line { margin-top: 80px; border-top: 1px solid #000; width: 80%; display: inline-block; }
             @media print {
-              body { padding: 0; margin: 1cm; }
-              @page { size: A4; margin: 20mm; }
+              @page { size: A4; margin: 0; }
+              body { padding: 15mm; margin: 0; }
             }
           </style>
         </head>
@@ -619,13 +619,25 @@ export class AssessmentListComponent implements OnInit {
     return this.assessmentService.getBusinessTypeDisplayName(type || '');
   }
 
+  isUserRole(): boolean {
+    if (!this.currentUser) return false;
+    const role = Array.isArray(this.currentUser.roles_name) 
+      ? this.currentUser.roles_name[0] 
+      : (this.currentUser.role || this.currentUser.roles_name || '');
+    return role && role.toUpperCase() === 'USER';
+  }
+
   openSignatureModal(assessment: any, modalTemplate: any){
     this.selectedAssessmentForPrint = assessment;
     
     // 1. Nama Wajib Pajak:
     // Dinamis mengambil dari DB (misal simpatda). 
     // Pastikan backend mengirimkan field 'ownerName', jika tidak ada maka default kosong.
-    this.wpName = assessment.ownerName || assessment.businessName || '';
+    if (this.isUserRole()) {
+      this.wpName = ''; // USER role doesn't have WP signature
+    } else {
+      this.wpName = assessment.ownerName || assessment.businessName || '';
+    }
     
     // 2. Nama Petugas Pemeriksa:
     if (this.currentUser) {
@@ -636,7 +648,8 @@ export class AssessmentListComponent implements OnInit {
         
         // Jika yang login BUKAN Admin, langsung isi dengan nama aslinya
         if (role && !role.toLowerCase().includes('admin')) {
-            this.petugasName = this.currentUser.name || this.currentUser.username || assessment.surveyorId || '';
+            // Check both nama and name field depending on the JWT structure
+            this.petugasName = this.currentUser.nama || this.currentUser.name || this.currentUser.username || assessment.surveyorId || '';
         } else {
             // Jika admin, biarkan kosong agar diketik manual
             this.petugasName = ''; 
@@ -651,8 +664,8 @@ export class AssessmentListComponent implements OnInit {
           const wpCanvas = document.getElementById('wpCanvas') as HTMLCanvasElement;
           const petugasCanvas = document.getElementById('petugasCanvas') as HTMLCanvasElement;
           
-          const wpSig = this.wpSignaturePad.isEmpty() ? null : this.trimCanvas(wpCanvas || (this.wpSignaturePad as any).canvas);
-          const petugasSig = this.petugasSignaturePad.isEmpty() ? null : this.trimCanvas(petugasCanvas || (this.petugasSignaturePad as any).canvas);
+          const wpSig = this.wpSignaturePad && !this.wpSignaturePad.isEmpty() ? this.trimCanvas(wpCanvas || (this.wpSignaturePad as any).canvas) : null;
+          const petugasSig = this.petugasSignaturePad && !this.petugasSignaturePad.isEmpty() ? this.trimCanvas(petugasCanvas || (this.petugasSignaturePad as any).canvas) : null;
           this.generatePrintBeritaAcara(this.selectedAssessmentForPrint, wpSig, petugasSig);
         }
       },
@@ -663,17 +676,19 @@ export class AssessmentListComponent implements OnInit {
       const canvasWp = document.getElementById('wpCanvas') as HTMLCanvasElement;
       const canvasPetugas = document.getElementById('petugasCanvas') as HTMLCanvasElement;
 
-      if(canvasWp && canvasPetugas){
-        // Menambahkan properti minWidth dan maxWidth agar tinta (stroke) lebih tebal/bold
         const signatureConfig = {
           backgroundColor: 'rgba(255, 255, 255, 0)',
           minWidth: 2.5,
           maxWidth: 5.5,
           penColor: 'black'
         };
-        this.wpSignaturePad = new SignaturePad(canvasWp, signatureConfig);
-        this.petugasSignaturePad = new SignaturePad(canvasPetugas, signatureConfig);
-      }
+
+        if(canvasWp){
+          this.wpSignaturePad = new SignaturePad(canvasWp, signatureConfig);
+        }
+        if(canvasPetugas){
+          this.petugasSignaturePad = new SignaturePad(canvasPetugas, signatureConfig);
+        }
     }, 200);
   }
 
@@ -804,8 +819,8 @@ export class AssessmentListComponent implements OnInit {
             .signature-img-ba { width: 280px; height: auto; max-height: 180px; margin: 5px 0; object-fit: contain; }
             
             @media print {
-              body { padding: 0; margin: 0; }
-              @page { size: A4; margin: 15mm; }
+              @page { size: A4; margin: 0; }
+              body { padding: 15mm; margin: 0; }
             }
           </style>
         </head>
@@ -905,16 +920,18 @@ export class AssessmentListComponent implements OnInit {
           </p>
 
           <!-- TANDA TANGAN -->
-          <div class="signature-area-ba">
+          <div class="signature-area-ba" ${this.isUserRole() ? 'style="justify-content: flex-end;"' : ''}>
+            ${!this.isUserRole() ? `
             <div class="signature-box-ba">
               <p style="margin: 0;">Wajib Pajak/Wakil/Kuasa</p>
-              ${wpSignatureData ? `<img src="${wpSignatureData}" class="signature-img-ba"/>` : `<br><br><br><br>`}
+              ${wpSignatureData ? '<img src="' + wpSignatureData + '" class="signature-img-ba"/>' : '<br><br><br><br>'}
               <p style="margin: 0;"><strong>${this.wpName || '....................................................'}</strong></p>
             </div>
+            ` : ''}
             
             <div class="signature-box-ba">
               <p style="margin: 0;">Petugas Pajak</p>
-              ${petugasSignatureData ? `<img src="${petugasSignatureData}" class="signature-img-ba"/>` : `<br><br><br><br>`}
+              ${petugasSignatureData ? '<img src="' + petugasSignatureData + '" class="signature-img-ba"/>' : '<br><br><br><br>'}
               <p style="margin: 0;"><strong>${this.petugasName || '....................................................'}</strong></p>
               <p style="margin: 5px 0 0 0;">NIP. ........................................</p>
             </div>
@@ -935,11 +952,10 @@ export class AssessmentListComponent implements OnInit {
     }, 500);
   }
 
-
-
   /**
    * Export all assessments to Excel file
    */
+
   exportToExcel(): void {
     // Load ALL data for export (not just current page)
     this.assessmentService.getAllAssessments(0, 1000).subscribe({
