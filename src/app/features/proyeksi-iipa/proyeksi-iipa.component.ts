@@ -40,8 +40,8 @@ export class ProyeksiIipaComponent implements OnInit {
 
   loadProyeksiData(): void {
     this.isLoading = true;
-    this.pendapatanService.getProyeksiIipa(this.selectedTahun).subscribe({
-      next: (res) => {
+    (this.pendapatanService as any).getProyeksiIipa(this.selectedTahun).subscribe({
+      next: (res: any) => {
         if (res && res.data) {
           this.proyeksiList = res.data.map((item: any) => ({
             ...item,
@@ -52,7 +52,7 @@ export class ProyeksiIipaComponent implements OnInit {
         }
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Error loading proyeksi:', err);
         this.isLoading = false;
       }
@@ -97,8 +97,8 @@ export class ProyeksiIipaComponent implements OnInit {
   }
 
   checkCurrentStatus(): void {
-    this.pendapatanService.getProyeksiStatus().subscribe({
-      next: (res) => {
+    (this.pendapatanService as any).getProyeksiStatus().subscribe({
+      next: (res: any) => {
         if (res && res.data) {
           this.proyeksiStatus = res.data;
         }
@@ -109,12 +109,12 @@ export class ProyeksiIipaComponent implements OnInit {
   triggerAiAnalysis(): void {
     this.isTriggeringAi = true;
     this.showProgressModal = true;
-    this.pendapatanService.triggerProyeksi().subscribe({
-      next: (res) => {
+    (this.pendapatanService as any).triggerProyeksi().subscribe({
+      next: (res: any) => {
         this.isTriggeringAi = false;
         this.startStatusPolling();
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isTriggeringAi = false;
         console.error('Error triggering AI:', err);
       }
@@ -132,8 +132,8 @@ export class ProyeksiIipaComponent implements OnInit {
   }
 
   pollStatus(): void {
-    this.pendapatanService.getProyeksiStatus().subscribe({
-      next: (res) => {
+    (this.pendapatanService as any).getProyeksiStatus().subscribe({
+      next: (res: any) => {
         if (res && res.data) {
           this.proyeksiStatus = res.data;
           if (!this.proyeksiStatus.isRunning && this.proyeksiStatus.percent === 100) {
@@ -144,7 +144,7 @@ export class ProyeksiIipaComponent implements OnInit {
           }
         }
       },
-      error: (err) => console.error('Error polling status:', err)
+      error: (err: any) => console.error('Error polling status:', err)
     });
   }
 

@@ -266,7 +266,8 @@ export class AccommodationService {
       willing_to_formalize: data.willingToFormalize,
       status: data.status,
       photo_urls: data.photoUrls,
-      supporting_doc_url: data.supportingDocUrl
+      supporting_doc_url: data.supportingDocUrl,
+      tax_rate: (data as any).taxRate
     };
   }
 

@@ -3,6 +3,8 @@ import { RoleMenuService } from '../../services/role-menu.service';
 import { MenuNode, RoleMenuDTO } from '../../models/role-menu.model';
 import { MENU } from '../../components/layouts/sidebar/menu';
 import { MenuItem } from '../../components/layouts/sidebar/menu.model';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-menu-fungsi',
@@ -31,18 +33,36 @@ export class MenuFungsiComponent implements OnInit {
   newUser = {
     username: '',
     password: '',
-    role: ''
+    role: '',
+    nama: ''
   }
 
-
-  users: any[] = [{username: 'admin', role: 'ADMIN'}, {username: 'operator', role: 'OPERATOR'}, {username: 'viewer', role: 'USER_1'}];
+  users: any[] = [];
   selectedUser: string = '';
 
-  constructor(private roleMenuService: RoleMenuService) {}
+  constructor(private roleMenuService: RoleMenuService, private http: HttpClient) {}
 
   ngOnInit(): void {
     this.buildMenuTree();
     this.loadAllData();
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.loading = true;
+    this.http.get<any>(`${environment.apiUrl}api/users`).subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.users = res.data;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading users:', err);
+        this.errorMessage = 'Gagal memuat data user';
+        this.loading = false;
+      }
+    });
   }
 
   buildMenuTree(): void {
@@ -91,18 +111,18 @@ export class MenuFungsiComponent implements OnInit {
       next: (mappings) => {
         this.existingMappings = mappings;
         this.roles = mappings.map(m => m.roleName);
-        for (const role of ['ADMIN', 'OPERATOR', 'VIEWER']) {
-          if (!this.roles.includes(role)) {
-            this.roles.push(role);
+          if (!this.selectedRole && this.roles.includes(this.selectedRole)) {
+            this.selectRole(this.selectedRole);
           }
-        }
+          this.loading = false;
+        
         if (this.selectedRole && this.roles.includes(this.selectedRole)) {
           this.selectRole(this.selectedRole);
         }
         this.loading = false;
       },
       error: () => {
-        this.roles = ['ADMIN', 'OPERATOR', 'VIEWER'];
+        this.roles = [];
         this.loading = false;
       }
     });
@@ -242,18 +262,46 @@ export class MenuFungsiComponent implements OnInit {
       return;
     }
 
-    this.roles.push(roleUpper);
-    this.closeAddRoleModal();
-    this.successMessage = `role ${roleUpper} berhasil ditambahkan!`;
-    this.selectRole(roleUpper); 
+    this.saving = true;
+    this.roleMenuService.updateRoleMenu({ roleName: roleUpper, menuIds: [] }).subscribe({
+      next: (res) => {
+        if(res.success){
+          this.roles.push(roleUpper);
+          this.closeAddRoleModal();
+          this.successMessage = `Role ${roleUpper} ditambahkan ke database! Silakan centang menu aksesnya lalu klik 'Simpan Data'.`;
+          this.selectRole(roleUpper);
+        }
+        this.saving = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Gagal menyimpan role ke database!';
+        this.saving = false;
+      }
+    });
   }
 
   deleteRole(role: string, event: Event){
     event.stopPropagation();
-    const konfirmasi = confirm(`apakah anda yakin ingin menghapus role ${role}?`);
+    const konfirmasi = confirm(`Apakah anda yakin ingin menghapus role ${role}?`);
 
     if(konfirmasi){
-      this.roles = this.roles.filter(r => r !== role);
+      this.saving = true;
+      this.roleMenuService.deleteRoleMenu(role).subscribe({
+        next: (res) => {
+          if(res.success){
+            this.roles = this.roles.filter(r => r !== role);
+            if(this.selectedRole === role){
+              this.selectedRole = '';
+            }
+            this.successMessage = `Role ${role} berhasil dihapus dari database!`
+          }
+          this.saving = false;
+        },
+        error: (err) => {
+          this.errorMessage = 'Gagal menghapus role dari database!';
+          this.saving = false;
+        }
+      });
 
       if (this.selectedRole === role) {
         this.selectedRole = '';
@@ -269,7 +317,7 @@ export class MenuFungsiComponent implements OnInit {
   }
 
   openAddUserModal(){
-    this.newUser = {username: '', password: '', role: ''};
+    this.newUser = {username: '', password: '', role: '', nama: ''};
     this.showAddUserModal = true;
   }
 
@@ -281,7 +329,8 @@ export class MenuFungsiComponent implements OnInit {
    const userBaru = {
     username: this.newUser.username.trim().toLowerCase(),
     password: this.newUser.password,
-    role: this.newUser.role
+    role: this.newUser.role,
+    nama: this.newUser.nama.trim()
    };
 
    const isExist = this.users.find(u => u.username === userBaru.username);
@@ -290,10 +339,22 @@ export class MenuFungsiComponent implements OnInit {
     return;
    }
 
-   this.users.push(userBaru);
-   this.closeAddUserModal();
-   this.successMessage = `User ${userBaru.username} dengan role ${userBaru.role} berhasil didaftarkan!`;
-   this.selectUser(userBaru.username);
+   this.saving = true;
+   this.http.post<any>(`${environment.apiUrl}api/users`, userBaru).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.users.push(res.data);
+          this.closeAddUserModal();
+          this.successMessage = `User ${userBaru.username} dengan role ${userBaru.role} berhasil didaftarkan!`;
+          this.selectUser(userBaru.username);
+        }
+        this.saving = false;
+      },
+      error: (err) => {
+        this.errorMessage = err.error?.message || `Gagal mendaftarkan user ${userBaru.username}`;
+        this.saving = false;
+      }
+   });
   }
 
   deleteUser(username: string, event: Event){
@@ -301,12 +362,23 @@ export class MenuFungsiComponent implements OnInit {
     const konfirmasi = confirm(`Apakah anda yakin ingin menghapus user ${username}?`);
 
     if(konfirmasi){
-      this.users = this.users.filter(u => u.username !== username);
-      if(this.selectedUser === username){
-        this.selectedUser = '';
-      }
-
-      this.successMessage = `User ${username} berhasil dihapus!`;
+      this.saving = true;
+      this.http.delete<any>(`${environment.apiUrl}api/users/${username}`).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.users = this.users.filter(u => u.username !== username);
+            if(this.selectedUser === username){
+              this.selectedUser = '';
+            }
+            this.successMessage = `User ${username} berhasil dihapus!`;
+          }
+          this.saving = false;
+        },
+        error: (err) => {
+          this.errorMessage = err.error?.message || `Gagal menghapus user ${username}`;
+          this.saving = false;
+        }
+      });
     }
   }
 
