@@ -42,6 +42,7 @@ export class AssessmentFormComponent implements OnInit {
   isLoadingKecamatan = false;
   isLoadingKelurahan = false;
   selectedKdKec: string | null = null;
+  currentAssessment: any = null;
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
@@ -151,6 +152,7 @@ export class AssessmentFormComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           const assessment = response.data;
+          this.currentAssessment = assessment;
 
           if (assessment.businessId) {
              this.lookupSimatdaWpData(assessment.businessId);
@@ -336,7 +338,8 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursStart: step1Value.operatingHoursStart,
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
-      menuItems: [],
+      menuItems: this.currentAssessment?.menuItems || [],
+      openingDaysPerMonth: this.currentAssessment?.openingDaysPerMonth || 30,
 
       // Location - FLAT (not nested)
       address: step2Value.address,
@@ -359,8 +362,7 @@ export class AssessmentFormComponent implements OnInit {
       photoUrls: imageUrls,
 
       // Observations with sampleTransactions
-      // Filter hanya observasi yang terisi (ada tanggal)
-      observations: []
+      observations: this.currentAssessment?.observations || []
     };
   }
 
