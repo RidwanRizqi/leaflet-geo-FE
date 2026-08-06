@@ -79,7 +79,7 @@ export class DashboardPendapatanComponent implements OnInit {
       next: (data) => {
         // Handle null or non-array response
         this.targetRealisasi = Array.isArray(data) ? data : [];
-
+          
         // Sort by urutan (order)
         this.targetRealisasi.sort((a, b) => (a.urutan || 0) - (b.urutan || 0));
 
@@ -141,8 +141,22 @@ export class DashboardPendapatanComponent implements OnInit {
       return;
     }
     const categories = data.map(d => d.jenisPajak);
-    const targetData = data.map(d => d.target / 1000000); // Convert to millions
-    const realisasiData = data.map(d => d.realisasi / 1000000);
+    const rawTarget = data.map(d => d.target / 1000000); // in millions
+    const rawRealisasi = data.map(d => d.realisasi / 1000000);
+
+    // Transformasi non-linier agar nominal ratusan juta s/d 5M terlihat gagah & proporsional
+    const transformVal = (v: number): number => {
+      if (!v || v <= 0) return 0;
+      return Math.pow(v / 50000, 0.45) * 100;
+    }; 
+
+    const inverseVal = (y: number): number => {
+      if (!y || y <= 0) return 0;
+      return 50000 * Math.pow(y / 100, 1 / 0.45);
+    };
+
+    const targetData = rawTarget.map(v => transformVal(v));
+    const realisasiData = rawRealisasi.map(v => transformVal(v));
 
     this.chartOptions = {
       series: [
@@ -157,7 +171,7 @@ export class DashboardPendapatanComponent implements OnInit {
       ],
       chart: {
         type: 'bar',
-        height: 400,
+        height: 700,
         toolbar: {
           show: true
         }
@@ -165,39 +179,89 @@ export class DashboardPendapatanComponent implements OnInit {
       plotOptions: {
         bar: {
           horizontal: false,
-          columnWidth: '55%',
-          endingShape: 'rounded'
-        },
+          columnWidth: '65%',
+          borderRadius: 4,
+          dataLabels: {
+            position: 'top'
+          }
+        }
       },
       dataLabels: {
-        enabled: false
+        enabled: true,
+        formatter: (val: number, opts: any) => {
+          if (!opts) return '';
+          const sIndex = opts.seriesIndex;
+          const dIndex = opts.dataPointIndex;
+          const realVal = sIndex === 0 ? rawTarget[dIndex] : rawRealisasi[dIndex];
+          if (!realVal || realVal === 0) return '0';
+          if (realVal >= 1000) {
+            return (realVal / 1000).toFixed(1) + 'M';
+          }
+          return Math.round(realVal) + 'Jt';
+        },
+        offsetY: -22,
+        style: {
+          fontSize: '10px',
+          fontWeight: 600,
+          colors: ['#304758']
+        }
       },
       stroke: {
         show: true,
         width: 2,
         colors: ['transparent']
       },
+      grid: {
+        show: true,
+        borderColor: '#e8ecf1',
+        strokeDashArray: 4,
+        yaxis: {
+          lines: {
+            show: true
+          }
+        },
+        xaxis: {
+          lines: {
+            show: false
+          }
+        }
+      },
       xaxis: {
         categories: categories,
         labels: {
           rotate: -45,
+          rotateAlways: true,
+          trim: false,
+          maxHeight: 180,
           style: {
-            fontSize: '10px'
+            fontSize: '11px',
+            fontWeight: 500
           }
         }
       },
       yaxis: {
         title: {
-          text: 'Jumlah (Juta Rupiah)'
+          text: 'Skala Nominal (Juta - Miliar)',
+          style: {
+            fontSize: '12px',
+            fontWeight: 600
+          }
         },
-        logarithmic: true,
+        min: 0,
+        max: 100,
+        tickAmount: 10,
         labels: {
-          formatter: function (val: number) {
-            // val sudah dalam juta (dari backend dibagi 1000000)
-            if (val >= 1000) {
-              return (val / 1000).toFixed(1) + ' M'; // Miliar
+          formatter: (y: number) => {
+            if (y <= 0) return '0';
+            const realVal = inverseVal(y);
+            if (realVal >= 1000) {
+              const m = realVal / 1000;
+              return (m >= 10 ? m.toFixed(0) : m.toFixed(1)) + ' M';
             }
-            return val.toFixed(0) + ' Jt'; // Juta
+            if (realVal >= 100) {
+              return (Math.round(realVal / 50) * 50) + ' Jt';
+            }
+            return Math.round(realVal) + ' Jt';
           }
         }
       },
@@ -206,12 +270,16 @@ export class DashboardPendapatanComponent implements OnInit {
       },
       tooltip: {
         y: {
-          formatter: function (val: number) {
-            // val sudah dalam juta
-            if (val >= 1000) {
-              return 'Rp ' + (val / 1000).toFixed(2) + ' Miliar';
+          formatter: (val: number, opts: any) => {
+            if (!opts) return '';
+            const sIndex = opts.seriesIndex;
+            const dIndex = opts.dataPointIndex;
+            const realVal = sIndex === 0 ? rawTarget[dIndex] : rawRealisasi[dIndex];
+            if (!realVal || realVal === 0) return 'Rp 0';
+            if (realVal >= 1000) {
+              return 'Rp ' + (realVal / 1000).toFixed(2) + ' Miliar';
             }
-            return 'Rp ' + val.toFixed(2) + ' Juta';
+            return 'Rp ' + realVal.toFixed(2) + ' Juta';
           }
         }
       },
@@ -326,7 +394,8 @@ export class DashboardPendapatanComponent implements OnInit {
         },
         plotOptions: {
           bar: {
-            horizontal: true
+            horizontal: true,
+            barHeight: '70%'
           }
         }
       };
@@ -352,6 +421,7 @@ export class DashboardPendapatanComponent implements OnInit {
         bar: {
           borderRadius: 8,
           horizontal: true,
+          barHeight: '70%',
           distributed: true,
           dataLabels: {
             position: 'top'
@@ -362,12 +432,16 @@ export class DashboardPendapatanComponent implements OnInit {
       dataLabels: {
         enabled: true,
         formatter: function (val: number) {
-          return val.toFixed(2) + ' Jt';
+          if (val === 0) return '0';
+          if (val >= 1000) {
+            return (val / 1000).toFixed(1) + ' M';
+          }
+          return val.toFixed(1) + ' Jt';
         },
-        offsetX: 0,
+        offsetX: 5,
         style: {
           fontSize: '10px',
-          colors: ['#fff']
+          colors: ['#304758']
         }
       },
       xaxis: {
