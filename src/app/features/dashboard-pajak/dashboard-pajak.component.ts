@@ -16,8 +16,6 @@ export type ChartOptions = {
   colors: string[];
 };
 
-
-
 @Component({
   selector: 'app-dashboard-pajak',
   templateUrl: './dashboard-pajak.component.html',

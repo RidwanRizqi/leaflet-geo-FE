@@ -125,10 +125,20 @@ export class CoverComponent implements OnInit {
           'PBJT-HOTEL': '/pbjt-hotel/assessment-list',
           'PBJT-MAMIN': '/pbjt-makanan',
         };
-        const role = response.data.role;
+        const role = response.data.role?.toUpperCase() || '';
         const defaultRoute = roleRoutes[role] || '/';
         const target = this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : defaultRoute;
-        await this.router.navigate([target]);
+        
+        const navSuccess = await this.router.navigate([target]);
+        if (!navSuccess) {
+          // Jika AuthGuard memblokir akses (misal tidak punya menu permission untuk route target)
+          this.error = 'Akses ditolak: Anda belum diberikan akses ke menu utama. Silakan hubungi Admin.';
+          this.alertType = 'danger';
+          this.alertMessage = this.error;
+          this.toastService.show(this.error, { classname: 'bg-danger text-white', delay: 5000 });
+          this.authenticationService.clearToken();
+          this.store.dispatch(setUser({ user: null }));
+        }
       } else {
         // Login failed
         this.error = response.message || 'Login gagal';

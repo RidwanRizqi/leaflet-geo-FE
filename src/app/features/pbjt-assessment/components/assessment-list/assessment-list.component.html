@@ -153,9 +153,6 @@
                       {{ formatCurrency(assessment.realisasi2025 || 0) }}
                     </span>
                   </td>
-                  <td>
-                    <small>{{ assessment.assessmentDate | date:'dd/MM/yyyy' }}</small>
-                  </td>
                   <!-- TAMBAHKAN SEL INI -->
                   <td class="text-end">
                     <span class="fw-bold" [class.text-warning]="(assessment.justifikasiOmzet || 0) > 0" [class.text-muted]="!(assessment.justifikasiOmzet || 0)">
