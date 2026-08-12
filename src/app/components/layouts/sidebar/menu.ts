@@ -432,6 +432,21 @@ export const MENU: MenuItem[] = [
       },
       {
         id: 95,
+        label: 'MENUITEMS.SETTING.OPSEN.TEXT',
+        icon: 'ri-exchange-dollar-line',
+        isCollapsed: true,
+        link: '/setting/opsen',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'success',
+          text: 'New'
+        },
+        parentId: 9,
+        isLayout: false,
+      },
+      {
+        id: 96,
         label: 'Menu Fungsi',
         icon: 'ri-shield-keyhole-line',
         isCollapsed: true,
