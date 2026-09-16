@@ -19,6 +19,7 @@ interface ImagePreview {
 }
 
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-assessment-form',
@@ -46,7 +47,7 @@ export class AssessmentFormComponent implements OnInit {
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
-  maxImages = 4;
+  maxImages = 8;
   isDragOver = false;
   allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 
@@ -142,6 +143,7 @@ export class AssessmentFormComponent implements OnInit {
       nearSchool: [false],
       nearOffice: [false],
       nearMarket: [false],
+      crowdLevel: ['NORMAL'],
       surveyorId: ['', Validators.required]  // Required by backend
     });
   }
@@ -196,7 +198,8 @@ export class AssessmentFormComponent implements OnInit {
               roadType: assessment.location.roadType || '',
               nearSchool: assessment.location.nearSchool || false,
               nearOffice: assessment.location.nearOffice || false,
-              nearMarket: assessment.location.nearMarket || false
+              nearMarket: assessment.location.nearMarket || false,
+              crowdLevel: assessment.location.crowdLevel || 'NORMAL'
             });
 
             // Load kelurahan list based on the loaded kecamatan
@@ -267,7 +270,12 @@ export class AssessmentFormComponent implements OnInit {
     }
 
     if (errors.length > 0) {
-      alert('Field yang belum lengkap:\n\n' + errors.join('\n'));
+      Swal.fire({
+        title: 'Form Belum Lengkap',
+        html: `Field yang belum lengkap:<br><br><ul style="text-align: left;"><li>${errors.join('</li><li>')}</li></ul>`,
+        icon: 'warning',
+        confirmButtonText: 'OK'
+      });
       this.markFormGroupTouched(this.step1Form);
       this.markFormGroupTouched(this.step2Form);
 
@@ -300,13 +308,13 @@ export class AssessmentFormComponent implements OnInit {
             this.submitAssessmentData(allImageUrls);
           } else {
             this.loading = false;
-            alert('Gagal upload gambar!');
+            Swal.fire('Gagal!', 'Gagal upload gambar!', 'error');
           }
         },
         error: (error) => {
           console.error('❌ Error uploading images:', error);
           this.loading = false;
-          alert('Gagal upload gambar: ' + (error.error?.message || error.message));
+          Swal.fire('Gagal!', 'Gagal upload gambar: ' + (error.error?.message || error.message), 'error');
         }
       });
     } else {
@@ -354,6 +362,7 @@ export class AssessmentFormComponent implements OnInit {
       nearSchool: !!step2Value.nearSchool,
       nearOffice: !!step2Value.nearOffice,
       nearMarket: !!step2Value.nearMarket,
+      crowdLevel: step2Value.crowdLevel || 'NORMAL',
 
       // Surveyor
       surveyorId: step2Value.surveyorId,
@@ -379,14 +388,20 @@ export class AssessmentFormComponent implements OnInit {
     operation.subscribe({
       next: (response) => {
         if (response.success) {
-          alert(`Assessment berhasil ${this.isEditMode ? 'diupdate' : 'dibuat'}! Silakan tambahkan Daftar Harga/Menu atau Data Observasi melalui tombol "Observasi" (ikon checklist) pada halaman daftar assessment.`);
-          this.router.navigate(['/pbjt-assessment']);
+          Swal.fire({
+            title: 'Berhasil!',
+            text: `Assessment berhasil ${this.isEditMode ? 'diupdate' : 'dibuat'}! Silakan tambahkan Daftar Harga/Menu atau Data Observasi melalui tombol "Observasi" (ikon checklist) pada halaman daftar assessment.`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            this.router.navigate(['/pbjt-assessment']);
+          });
         }
         this.loading = false;
       },
       error: (error) => {
         console.error('Error saving assessment:', error);
-        alert('Gagal menyimpan assessment!');
+        Swal.fire('Gagal!', 'Gagal menyimpan assessment!', 'error');
         this.loading = false;
       }
     });
@@ -642,7 +657,7 @@ export class AssessmentFormComponent implements OnInit {
   handleFiles(files: FileList): void {
     const remainingSlots = this.maxImages - this.uploadedImages.length;
     if (remainingSlots <= 0) {
-      alert(`Maksimal ${this.maxImages} gambar!`);
+      Swal.fire('Peringatan!', `Maksimal ${this.maxImages} gambar!`, 'warning');
       return;
     }
 
@@ -653,7 +668,7 @@ export class AssessmentFormComponent implements OnInit {
 
       // Validate file type
       if (!this.allowedTypes.includes(file.type)) {
-        alert(`File "${file.name}" bukan gambar yang valid. Gunakan JPG, PNG, GIF, atau WebP.`);
+        Swal.fire('Peringatan!', `File "${file.name}" bukan gambar yang valid. Gunakan JPG, PNG, GIF, atau WebP.`, 'warning');
         continue;
       }
 
@@ -670,7 +685,7 @@ export class AssessmentFormComponent implements OnInit {
     }
 
     if (files.length > remainingSlots) {
-      alert(`Hanya ${filesToProcess} gambar yang ditambahkan. Maksimal ${this.maxImages} gambar.`);
+      Swal.fire('Peringatan!', `Hanya ${filesToProcess} gambar yang ditambahkan. Maksimal ${this.maxImages} gambar.`, 'warning');
     }
   }
 

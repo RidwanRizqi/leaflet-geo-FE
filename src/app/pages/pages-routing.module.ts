@@ -56,6 +56,10 @@ const routes: Routes = [
     path: 'menu-fungsi',
     loadChildren: () => import('./menu-fungsi/menu-fungsi.module').then(m => m.MenuFungsiModule),
   },
+  {
+    path: 'laporan-dinas',
+    loadChildren: () => import('./laporan-dinas/laporan-dinas.module').then(m => m.LaporanDinasModule),
+  },
 ];
 
 @NgModule({

@@ -126,6 +126,10 @@ export interface LocationDetails {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
+  customerOrderEstimates?: string[];
+  bestSellingMenus?: string[];
+  crowdPeakTimes?: string[];
 }
 
 export interface AssessmentListResponse {
@@ -169,6 +173,10 @@ export interface AssessmentRequest {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
+  customerOrderEstimates?: string[];
+  bestSellingMenus?: string[];
+  crowdPeakTimes?: string[];
     // Menu Based Method
   menuItems?: MenuItem[];
   openingDaysPerMonth?: number;

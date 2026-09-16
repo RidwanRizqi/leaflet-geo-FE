@@ -48,6 +48,63 @@ export class AssessmentListComponent implements OnInit {
   menuItemsEdit: any[] = [];
   openingDaysPerMonthEdit: number = 30;
   savingMenuMethod = false;
+
+  customerOrderEstimatesEdit: string[] = [];
+  bestSellingMenusEdit: string[] = [];
+  crowdPeakTimesEdit: string[] = [''];
+
+  dropdownState = {
+    customerOrders: false,
+    bestSelling: false
+  };
+
+  searchTerms = {
+    customerOrders: '',
+    bestSelling: ''
+  };
+
+  getFilteredMenuItems(searchTerm: string): any[] {
+    const term = searchTerm.toLowerCase();
+    const items = this.menuItemsEdit.filter((i: any) => i.name && i.name.trim() !== '');
+    if (!term) return items;
+    return items.filter((i: any) => i.name.toLowerCase().includes(term));
+  }
+
+  toggleMenuSelection(type: 'customerOrderEstimatesEdit' | 'bestSellingMenusEdit', menuName: string, event: any): void {
+    event.stopPropagation();
+    const currentValues = this[type] || [];
+    const index = currentValues.indexOf(menuName);
+    
+    if (index === -1) {
+      this[type] = [...currentValues, menuName];
+    } else {
+      const newValues = [...currentValues];
+      newValues.splice(index, 1);
+      this[type] = newValues;
+    }
+  }
+
+  hasMenuData(): boolean {
+    return this.menuItemsEdit && this.menuItemsEdit.length > 0 && this.menuItemsEdit.some((i: any) => i.name && i.name.trim() !== '');
+  }
+
+  closeDropdowns(): void {
+    this.dropdownState.customerOrders = false;
+    this.dropdownState.bestSelling = false;
+  }
+
+  addCrowdPeakTimeEdit(): void {
+    this.crowdPeakTimesEdit.push('');
+  }
+
+  removeCrowdPeakTimeEdit(index: number): void {
+    this.crowdPeakTimesEdit.splice(index, 1);
+  }
+  
+  trackByIndex(index: number, obj: any): any {
+    return index;
+  }
+
   menuObservations: any[] = [];
   showMenuForm: boolean = false;
 
@@ -544,6 +601,11 @@ export class AssessmentListComponent implements OnInit {
   openMenuForm(): void {
     this.showMenuForm = true;
     this.menuObservationDate = '';
+    
+    this.customerOrderEstimatesEdit = this.selectedAssessmentForObservation?.customerOrderEstimates ? [...this.selectedAssessmentForObservation.customerOrderEstimates] : [];
+    this.bestSellingMenusEdit = this.selectedAssessmentForObservation?.bestSellingMenus ? [...this.selectedAssessmentForObservation.bestSellingMenus] : [];
+    this.crowdPeakTimesEdit = (this.selectedAssessmentForObservation?.crowdPeakTimes && this.selectedAssessmentForObservation.crowdPeakTimes.length > 0) 
+                              ? [...this.selectedAssessmentForObservation.crowdPeakTimes] : [''];
   }
 
   cancelMenuForm(): void {
@@ -573,7 +635,10 @@ export class AssessmentListComponent implements OnInit {
     const payload = {
       observationDate: this.menuObservationDate,
       openingDaysPerMonth: this.openingDaysPerMonthEdit,
-      menuItems: this.menuItemsEdit
+      menuItems: this.menuItemsEdit,
+      customerOrderEstimates: this.customerOrderEstimatesEdit,
+      bestSellingMenus: this.bestSellingMenusEdit,
+      crowdPeakTimes: this.crowdPeakTimesEdit.filter(t => t && t.trim() !== '')
     };
 
     this.assessmentService.updateMenuMethod(this.selectedAssessmentForObservation.id, payload).subscribe({

@@ -252,6 +252,15 @@
             </div>
 
             <div class="mb-3">
+              <label class="form-label">Tingkat Keramaian Pengunjung <span class="text-danger">*</span></label>
+              <select class="form-select" formControlName="crowdLevel">
+                <option value="SEPI">Sepi (&lt; 10 Pengunjung / &lt; 50% Standar)</option>
+                <option value="NORMAL">Normal (10 - 15 Pengunjung / 100% Standar)</option>
+                <option value="RAMAI">Ramai (&gt; 15 Pengunjung / &gt; 150% Standar)</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
               <label class="form-label">Surveyor ID <span class="text-danger">*</span></label>
               <input type="text" class="form-control" formControlName="surveyorId" placeholder="ID Petugas Survey"
                 [class.is-invalid]="submitted && f2['surveyorId'].errors">
@@ -473,6 +482,110 @@
 
             <div *ngIf="observations.length === 0" class="alert alert-info">
               <i class="ri-information-line"></i> Belum ada data observasi. Klik "Tambah Observasi" untuk menambah data.
+            </div>
+
+            <!-- Faktor Keramaian (Moved here from Step 2) -->
+            <div class="card mt-4 border-info">
+              <div class="card-header bg-info-subtle text-info">
+                <h6 class="mb-0"><i class="ri-group-line mt-3"></i>   Faktor Keramaian Khusus</h6>
+              </div>
+              <div class="card-body" (click)="closeDropdowns()">
+                
+                <div *ngIf="!hasMenuData()" class="alert alert-warning">
+                  <i class="ri-alert-line"></i> Anda belum mengisi data Menu di Step 3. Anda tidak bisa memilih perkiraan pesanan.
+                </div>
+
+                <div class="row">
+                  <!-- Perkiraan Pesanan -->
+                  <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Perkiraan Pesanan yang Dipesan Pelanggan</label>
+                    
+                    <div class="dropdown-wrapper">
+                      <div class="form-control d-flex justify-content-between align-items-center cursor-pointer" 
+                           (click)="$event.stopPropagation(); dropdownState.customerOrders = !dropdownState.customerOrders; dropdownState.bestSelling = false"
+                           [class.disabled]="!hasMenuData()">
+                        <span class="text-truncate">
+                          {{ step3Form.get('customerOrderEstimates')?.value?.length ? step3Form.get('customerOrderEstimates')?.value.join(', ') : 'Pilih menu...' }}
+                        </span>
+                        <i class="ri-arrow-down-s-line"></i>
+                      </div>
+
+                      <div class="custom-dropdown-menu" *ngIf="dropdownState.customerOrders && hasMenuData()" (click)="$event.stopPropagation()">
+                        <div class="p-2 border-bottom">
+                          <input type="text" class="form-control form-control-sm" placeholder="Cari menu..." 
+                                 [(ngModel)]="searchTerms.customerOrders" [ngModelOptions]="{standalone: true}">
+                        </div>
+                        <div class="dropdown-list">
+                          <div class="dropdown-item" *ngFor="let item of getFilteredMenuItems(searchTerms.customerOrders)"
+                               (click)="toggleMenuSelection('customerOrderEstimates', item.name, $event)">
+                            <div class="form-check m-0 pointer-events-none">
+                              <input class="form-check-input" type="checkbox" [checked]="step3Form.get('customerOrderEstimates')?.value?.includes(item.name)">
+                              <label class="form-check-label">{{ item.name }}</label>
+                            </div>
+                          </div>
+                          <div class="p-2 text-center text-muted small" *ngIf="getFilteredMenuItems(searchTerms.customerOrders).length === 0">
+                            Menu tidak ditemukan
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Menu Terlaris -->
+                  <div class="col-md-6 mb-3 position-relative">
+                    <label class="form-label">Menu Terlaris Bulan Ini</label>
+                    
+                    <div class="dropdown-wrapper">
+                      <div class="form-control d-flex justify-content-between align-items-center cursor-pointer" 
+                           (click)="$event.stopPropagation(); dropdownState.bestSelling = !dropdownState.bestSelling; dropdownState.customerOrders = false"
+                           [class.disabled]="!hasMenuData()">
+                        <span class="text-truncate">
+                          {{ step3Form.get('bestSellingMenus')?.value?.length ? step3Form.get('bestSellingMenus')?.value.join(', ') : 'Pilih menu...' }}
+                        </span>
+                        <i class="ri-arrow-down-s-line"></i>
+                      </div>
+
+                      <div class="custom-dropdown-menu" *ngIf="dropdownState.bestSelling && hasMenuData()" (click)="$event.stopPropagation()">
+                        <div class="p-2 border-bottom">
+                          <input type="text" class="form-control form-control-sm" placeholder="Cari menu..." 
+                                 [(ngModel)]="searchTerms.bestSelling" [ngModelOptions]="{standalone: true}">
+                        </div>
+                        <div class="dropdown-list">
+                          <div class="dropdown-item" *ngFor="let item of getFilteredMenuItems(searchTerms.bestSelling)"
+                               (click)="toggleMenuSelection('bestSellingMenus', item.name, $event)">
+                            <div class="form-check m-0 pointer-events-none">
+                              <input class="form-check-input" type="checkbox" [checked]="step3Form.get('bestSellingMenus')?.value?.includes(item.name)">
+                              <label class="form-check-label">{{ item.name }}</label>
+                            </div>
+                          </div>
+                          <div class="p-2 text-center text-muted small" *ngIf="getFilteredMenuItems(searchTerms.bestSelling).length === 0">
+                            Menu tidak ditemukan
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Waktu Keramaian -->
+                <div class="mb-3 mt-2">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label mb-0">Estimasi Waktu Keramaian Pengunjung</label>
+                    <button type="button" class="btn btn-sm btn-primary" (click)="addCrowdPeakTime()">
+                      <i class="ri-add-line"></i> Tambah Jam
+                    </button>
+                  </div>
+                  <div formArrayName="crowdPeakTimes">
+                    <div class="d-flex align-items-center mb-2" *ngFor="let time of crowdPeakTimes.controls; let i = index">
+                      <input type="text" class="form-control" [formControlName]="i" placeholder="Contoh: 12:00 - 14:00">
+                      <button type="button" class="btn btn-danger ms-2" (click)="removeCrowdPeakTime(i)" *ngIf="crowdPeakTimes.length > 1">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
           <div class="card-footer">

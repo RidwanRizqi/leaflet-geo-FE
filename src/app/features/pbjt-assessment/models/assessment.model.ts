@@ -126,6 +126,7 @@ export interface LocationDetails {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
 }
 
 export interface AssessmentListResponse {
@@ -169,6 +170,7 @@ export interface AssessmentRequest {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
     // Menu Based Method
   menuItems?: MenuItem[];
   openingDaysPerMonth?: number;

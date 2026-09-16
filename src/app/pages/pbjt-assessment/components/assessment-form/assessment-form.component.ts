@@ -141,7 +141,8 @@ export class AssessmentFormComponent implements OnInit {
       roadType: ['LOKAL'],        // Default road type
       nearSchool: [false],
       nearOffice: [false],
-      nearMarket: [false]
+      nearMarket: [false],
+      crowdLevel: ['NORMAL']
     });
 
     // Step 3: Menu Items
@@ -149,10 +150,68 @@ export class AssessmentFormComponent implements OnInit {
       menuItems: this.fb.array([])
     });
 
-    // Step 4: Observations
+    // Step 4: Observations & Crowd Factors
     this.step3Form = this.fb.group({
-      observations: this.fb.array([], [Validators.required, Validators.minLength(2)])
+      observations: this.fb.array([], [Validators.required, Validators.minLength(2)]),
+      customerOrderEstimates: [[]],
+      bestSellingMenus: [[]],
+      crowdPeakTimes: this.fb.array([])
     });
+  }
+
+  // ============ CROWD FACTORS METHODS ============
+  get crowdPeakTimes(): FormArray {
+    return this.step3Form.get('crowdPeakTimes') as FormArray;
+  }
+
+  addCrowdPeakTime(value: string = ''): void {
+    this.crowdPeakTimes.push(this.fb.control(value, Validators.required));
+  }
+
+  removeCrowdPeakTime(index: number): void {
+    this.crowdPeakTimes.removeAt(index);
+  }
+
+  // Dropdown states for factors
+  dropdownState = {
+    customerOrders: false,
+    bestSelling: false
+  };
+  
+  searchTerms = {
+    customerOrders: '',
+    bestSelling: ''
+  };
+
+  getFilteredMenuItems(searchTerm: string): any[] {
+    const term = searchTerm.toLowerCase();
+    const items = this.menuForm.value.menuItems.filter((i: any) => i.name && i.name.trim() !== '');
+    if (!term) return items;
+    return items.filter((i: any) => i.name.toLowerCase().includes(term));
+  }
+
+  toggleMenuSelection(type: 'customerOrderEstimates' | 'bestSellingMenus', menuName: string, event: any): void {
+    event.stopPropagation();
+    const currentValues = this.step3Form.get(type)?.value || [];
+    const index = currentValues.indexOf(menuName);
+    
+    if (index === -1) {
+      this.step3Form.get(type)?.setValue([...currentValues, menuName]);
+    } else {
+      const newValues = [...currentValues];
+      newValues.splice(index, 1);
+      this.step3Form.get(type)?.setValue(newValues);
+    }
+  }
+
+  hasMenuData(): boolean {
+    const items = this.menuForm.value.menuItems;
+    return items && items.length > 0 && items.some((i: any) => i.name && i.name.trim() !== '');
+  }
+
+  closeDropdowns(): void {
+    this.dropdownState.customerOrders = false;
+    this.dropdownState.bestSelling = false;
   }
 
   // ============ MENU ITEM METHODS ============
@@ -307,7 +366,8 @@ export class AssessmentFormComponent implements OnInit {
               roadType: assessment.location.roadType || 'LOKAL',
               nearSchool: assessment.location.nearSchool || false,
               nearOffice: assessment.location.nearOffice || false,
-              nearMarket: assessment.location.nearMarket || false
+              nearMarket: assessment.location.nearMarket || false,
+              crowdLevel: assessment.location.crowdLevel || 'NORMAL'
             });
           }
 
@@ -365,6 +425,22 @@ export class AssessmentFormComponent implements OnInit {
 
               this.observations.push(obsGroup);
             });
+          }
+
+          // Patch Crowd Factors
+          if (assessment.customerOrderEstimates) {
+            this.step3Form.patchValue({ customerOrderEstimates: assessment.customerOrderEstimates });
+          }
+          if (assessment.bestSellingMenus) {
+            this.step3Form.patchValue({ bestSellingMenus: assessment.bestSellingMenus });
+          }
+          if (assessment.crowdPeakTimes && assessment.crowdPeakTimes.length > 0) {
+            assessment.crowdPeakTimes.forEach((time: string) => {
+              this.addCrowdPeakTime(time);
+            });
+          } else {
+             // Add one empty time by default if none exists but we are creating
+             if (!this.isEditMode) this.addCrowdPeakTime();
           }
         }
         this.loading = false;
@@ -524,6 +600,12 @@ export class AssessmentFormComponent implements OnInit {
       nearSchool: step2Value.nearSchool || false,
       nearOffice: step2Value.nearOffice || false,
       nearMarket: step2Value.nearMarket || false,
+      crowdLevel: step2Value.crowdLevel || 'NORMAL',
+
+      // Crowd Factors from Step 3 Form (Step 4 UI)
+      customerOrderEstimates: step3Value.customerOrderEstimates || [],
+      bestSellingMenus: step3Value.bestSellingMenus || [],
+      crowdPeakTimes: (step3Value.crowdPeakTimes || []).filter((t: string) => t && t.trim() !== ''),
 
       // Surveyor
       surveyorId: step2Value.surveyorId,

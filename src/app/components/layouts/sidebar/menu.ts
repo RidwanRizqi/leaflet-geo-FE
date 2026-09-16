@@ -373,6 +373,18 @@ export const MENU: MenuItem[] = [
     isLayout: false,
   },
   {
+    id: 90,
+    label: 'Laporan Dinas',
+    icon: 'ri-file-word-2-line',
+    isCollapsed: true,
+    link: '/laporan-dinas',
+    subItems: [],
+    isTitle: false,
+    badge: null,
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 9,
     label: 'MENUITEMS.SETTING.TEXT',
     icon: 'ri-settings-3-line',
