@@ -837,6 +837,17 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
+    id: 90,
+    label: 'Laporan Dinas',
+    icon: 'ri-file-word-2-line',
+    link: '/laporan-dinas',
+    subItems: [],
+    isTitle: false,
+    badge: null,
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 131,
     label: 'MENUITEMS.LANDING.TEXT',
     icon: 'ri-rocket-line',

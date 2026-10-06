@@ -19,6 +19,7 @@ const routes: Routes = [
       { path: 'pbjt-assessment', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-hotel', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-makanan', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
+      { path: 'laporan-dinas', loadChildren: () => import('./pages/laporan-dinas/laporan-dinas.module').then(m => m.LaporanDinasModule) },
       { path: '', loadChildren: () => import('./features/pages.module').then(m => m.PagesModule) }
     ]
   },

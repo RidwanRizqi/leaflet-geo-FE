@@ -1,3 +1,4 @@
+import { text } from 'd3';
 import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
@@ -326,6 +327,18 @@ export const MENU: MenuItem[] = [
     isLayout: false,
   },
   {
+    id: 90,
+    label: 'Laporan Dinas',
+    icon: 'ri-file-word-2-line',
+    isCollapsed: true,
+    link: '/laporan-dinas',
+    subItems: [],
+    isTitle: false,
+    badge: null,
+    parentId: 0,
+    isLayout: false,
+  },
+  {
     id: 9,
     label: 'MENUITEMS.SETTING.TEXT',
     icon: 'ri-settings-3-line',
@@ -374,6 +387,21 @@ export const MENU: MenuItem[] = [
         icon: 'ri-money-dollar-circle-line',
         isCollapsed: true,
         link: '/setting/anggaran',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'success',
+          text: 'New'
+        },
+        parentId: 9,
+        isLayout: false,
+      },
+      {
+        id: 95,
+        label: 'MENUITEMS.SETTING.OPSEN.TEXT',
+        icon: 'ri-exchange-dollar-line',
+        isCollapsed: true,
+        link: '/setting/opsen',
         subItems: [],
         isTitle: false,
         badge: {

@@ -64,20 +64,30 @@ export interface PaginatedResponse<T> {
     totalPages: number;
 }
 
+export interface OpsenData {
+    id?: number;
+    tahun: number;
+    bulan: number;
+    jenis_opsen: string;
+    nilai_realisasi: number;
+    keterangan?: string;
+    created_at?: string;
+    updated_at?: string;
+}
+
 @Injectable({
     providedIn: 'root'
 })
+
 export class SettingService {
     // Remove trailing slash to prevent double slash in URLs
     private apiUrl = environment.apiUrl.replace(/\/$/, '');
 
     constructor(private http: HttpClient) { }
 
-    // ============ KECAMATAN ============
+    // Get paginated list of kecamatan with filtering
 
-    /**
-     * Get paginated list of kecamatan with filtering
-     */
+    // Get paginated list of kecamatan with filtering
     getKecamatanPaginated(
         page: number = 0,
         size: number = 10,
@@ -256,11 +266,7 @@ export class SettingService {
         return this.http.patch(`${this.apiUrl}/api/blok/${id}/recover`, {});
     }
 
-    // ============ ANGGARAN ============
-
-    /**
-     * Get paginated list of anggaran
-     */
+    // Get paginated list of anggaran
     getAnggaranPaginated(
         page: number = 0,
         size: number = 10,
@@ -280,38 +286,74 @@ export class SettingService {
         return this.http.get<PaginatedResponse<AnggaranData>>(`${this.apiUrl}/api/anggaran`, { params });
     }
 
-    /**
-     * Get jenis pajak options for dropdown
-     */
+    // Get jenis pajak options for dropdown
     getJenisPajakOptions(): Observable<JenisPajakOption[]> {
         return this.http.get<JenisPajakOption[]>(`${this.apiUrl}/api/anggaran/jenis-pajak`);
     }
 
-    /**
-     * Get single anggaran by composite key
-     */
+    // Get single anggaran by composite key
     getAnggaranById(tahun: number, jenis: string): Observable<AnggaranData> {
         return this.http.get<AnggaranData>(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`);
     }
 
-    /**
-     * Create new anggaran
-     */
+    // Create new anggaran
     createAnggaran(data: AnggaranData): Observable<any> {
         return this.http.post(`${this.apiUrl}/api/anggaran`, data);
     }
 
-    /**
-     * Update anggaran
-     */
+    // Update anggaran
     updateAnggaran(tahun: number, jenis: string, data: AnggaranData): Observable<any> {
         return this.http.put(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`, data);
     }
 
-    /**
-     * Delete anggaran
-     */
+    // Delete anggaran
     deleteAnggaran(tahun: number, jenis: string): Observable<any> {
         return this.http.delete(`${this.apiUrl}/api/anggaran/${tahun}/${jenis}`);
     }
+
+    // Get paginated list of opsen
+    getOpsenPaginated(
+
+        page: number = 0,
+        size: number = 10,
+        filters?: { tahun?: number; bulan?: number; jenis_opsen?: string }
+
+    ): Observable<PaginatedResponse<OpsenData>> {
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+
+        if (filters?.tahun) {
+            params = params.set('tahun', filters.tahun.toString());
+        }
+        if (filters?.bulan) {
+            params = params.set('bulan', filters.bulan.toString());
+        }
+        if (filters?.jenis_opsen) {
+            params = params.set('jenis_opsen', filters.jenis_opsen);
+        }
+
+        return this.http.get<PaginatedResponse<OpsenData>>(`${this.apiUrl}/api/opsen`, { params });
+    }
+
+     // Get jenis opsen options for dropdown     
+    getJenisOpsenOptions(): Observable<JenisPajakOption[]> {
+        return this.http.get<JenisPajakOption[]>(`${this.apiUrl}/api/opsen/jenis-opsen`);
+    }
+
+    //  Create new opsen realisasi
+    createOpsen(data: OpsenData): Observable<any> {
+        return this.http.post(`${this.apiUrl}/api/opsen`, data);
+    }
+
+    //   Update opsen realisasi
+    updateOpsen(id: number, data: OpsenData): Observable<any> {
+        return this.http.put(`${this.apiUrl}/api/opsen/${id}`, data);
+    }
+    
+    //  Delete opsen realisasi
+    deleteOpsen(id: number): Observable<any> {
+        return this.http.delete(`${this.apiUrl}/api/opsen/${id}`);
+    }
+
 }

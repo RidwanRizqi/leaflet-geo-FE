@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexStroke, ApexYAxis, ApexGrid, ApexLegend, ChartComponent } from 'ng-apexcharts';
 import { PajakService, PajakData } from '../../services/pajak.service';
 import { TargetRealisasi } from '../../models/pendapatan.model';
@@ -21,7 +21,7 @@ export type ChartOptions = {
   templateUrl: './dashboard-pajak.component.html',
   styleUrls: ['./dashboard-pajak.component.scss']
 })
-export class DashboardPajakComponent implements OnInit {
+export class DashboardPajakComponent implements OnInit, OnDestroy {
   pajakData: PajakData[] = [];
   targetData: TargetRealisasi[] = [];
   kategoris: string[] = [];
@@ -50,16 +50,63 @@ export class DashboardPajakComponent implements OnInit {
     '#667eea', // Purple Blue
     '#f093fb', // Pink
     '#4facfe', // Sky Blue
-    '#43e97b', // Green
+    '#02fa55ff', // Green
     '#fa709a', // Coral
     '#764ba2', // Deep Purple
     '#f5576c', // Red
-    '#00f2fe', // Cyan
-    '#38f9d7', // Turquoise
+    '#009fb4ff', // Cyan
+    '#00caa5ff', // Turquoise
     '#fee140'  // Yellow
   ];
 
+  // --- Obfuscator / Randomizer ---
+  isObfuscated: boolean = true; // Set to true to hide real values
+  obfuscationInterval: any;
+  randomValues: { [key: string]: { total: number, target: number } } = {};
+
   constructor(private pajakService: PajakService) { }
+
+  ngOnDestroy(): void {
+    this.stopObfuscator();
+  }
+
+  toggleObfuscator(): void {
+    if (this.isObfuscated) {
+      this.stopObfuscator();
+    } else {
+      this.startObfuscator();
+    }
+  }
+
+  startObfuscator(): void {
+    this.isObfuscated = true;
+    this.obfuscationInterval = setInterval(() => {
+      this.kategoris.forEach(kategori => {
+        const realTotal = this.getTotalByCategoryReal(kategori);
+        const realTarget = this.getTargetValueReal(kategori);
+        
+        // Generate wild random values
+        const randomize = (val: number) => {
+          const base = val === 0 ? 1000000000 : val;
+          const variance = base * 0.8; // +/- 80% variance
+          return base + (Math.random() * variance * 2 - variance);
+        };
+
+        this.randomValues[kategori] = {
+          total: Math.max(0, randomize(realTotal)),
+          target: Math.max(0, randomize(realTarget))
+        };
+      });
+    }, 80); // Update every 80ms
+  }
+
+  stopObfuscator(): void {
+    this.isObfuscated = false;
+    if (this.obfuscationInterval) {
+      clearInterval(this.obfuscationInterval);
+      this.obfuscationInterval = null;
+    }
+  }
 
   ngOnInit(): void {
     this.loadPajakData();
@@ -104,6 +151,11 @@ export class DashboardPajakComponent implements OnInit {
   processData(): void {
     // Get unique categories
     this.kategoris = [...new Set(this.pajakData.map(item => item.kategori))];
+
+    // Start obfuscator if enabled
+    if (this.isObfuscated) {
+      this.startObfuscator();
+    }
 
     // Create chart options for each category
     this.updateCharts();
@@ -352,6 +404,13 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   getTotalByCategory(kategori: string): number {
+    if (this.isObfuscated && this.randomValues[kategori]) {
+      return this.randomValues[kategori].total;
+    }
+    return this.getTotalByCategoryReal(kategori);
+  }
+
+  getTotalByCategoryReal(kategori: string): number {
     return this.pajakData
       .filter(item => item.kategori === kategori && item.tahun == this.selectedYear)
       .reduce((sum, item) => sum + item.value, 0);
@@ -397,6 +456,13 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   getTargetValue(kategori: string): number {
+    if (this.isObfuscated && this.randomValues[kategori]) {
+      return this.randomValues[kategori].target;
+    }
+    return this.getTargetValueReal(kategori);
+  }
+
+  getTargetValueReal(kategori: string): number {
     const t = this.findTarget(kategori);
     return t?.target ?? 0;
   }
