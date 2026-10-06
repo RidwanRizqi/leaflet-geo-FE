@@ -50,12 +50,12 @@ export class DashboardPajakComponent implements OnInit, OnDestroy {
     '#667eea', // Purple Blue
     '#f093fb', // Pink
     '#4facfe', // Sky Blue
-    '#43e97b', // Green
+    '#02fa55ff', // Green
     '#fa709a', // Coral
     '#764ba2', // Deep Purple
     '#f5576c', // Red
-    '#00f2fe', // Cyan
-    '#38f9d7', // Turquoise
+    '#009fb4ff', // Cyan
+    '#00caa5ff', // Turquoise
     '#fee140'  // Yellow
   ];
 

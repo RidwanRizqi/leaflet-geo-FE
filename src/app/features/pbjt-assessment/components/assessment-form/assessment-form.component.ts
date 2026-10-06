@@ -5,6 +5,8 @@ import { PbjtAssessmentService } from '../../services/pbjt-assessment.service';
 import { AssessmentRequest } from '../../models/assessment.model';
 import { BprdApiService } from '../../../../core/services/bprd-api.service';
 import { RestApiService } from '../../../../core/services/rest-api.service';
+import { Store } from '@ngrx/store';
+import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
 
 interface DropdownOption {
   value: string;
@@ -44,6 +46,7 @@ export class AssessmentFormComponent implements OnInit {
   isLoadingKelurahan = false;
   selectedKdKec: string | null = null;
   currentAssessment: any = null;
+  currentUser: any = null;
 
   // Image upload
   uploadedImages: ImagePreview[] = [];
@@ -84,11 +87,15 @@ export class AssessmentFormComponent implements OnInit {
     private route: ActivatedRoute,
     private assessmentService: PbjtAssessmentService,
     private bprdApiService: BprdApiService,
-    private restApiService: RestApiService
+    private restApiService: RestApiService,
+    private store: Store
   ) {}
 
   ngOnInit(): void {
     console.log('🔄 Assessment form ngOnInit called');
+    this.store.select(selectCurrentUser).subscribe(user => {
+      this.currentUser = user;
+    });
     this.initializeForms();
 
     this.route.params.subscribe(params => {
@@ -127,7 +134,8 @@ export class AssessmentFormComponent implements OnInit {
       buildingArea: [null],
       operatingHoursStart: ['09:00', Validators.required],
       operatingHoursEnd: ['22:00', Validators.required],
-      assessmentDate: [todayStr, Validators.required]
+      assessmentDate: [todayStr, Validators.required],
+      justifikasiOmzet: ['']
     });
 
     // Step 2: Location + Surveyor
@@ -169,7 +177,8 @@ export class AssessmentFormComponent implements OnInit {
             buildingArea: assessment.buildingArea,
             operatingHoursStart: assessment.operatingHoursStart,
             operatingHoursEnd: assessment.operatingHoursEnd,
-            assessmentDate: assessment.assessmentDate?.split('T')[0]
+            assessmentDate: assessment.assessmentDate?.split('T')[0],
+            justifikasiOmzet: assessment.justifikasiOmzet || '',
           });
 
           // Load existing images if any
@@ -346,6 +355,7 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursStart: step1Value.operatingHoursStart,
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
+      justifikasiOmzet: step1Value.justifikasiOmzet,
       menuItems: this.currentAssessment?.menuItems || [],
       openingDaysPerMonth: this.currentAssessment?.openingDaysPerMonth || 30,
 
@@ -371,7 +381,9 @@ export class AssessmentFormComponent implements OnInit {
       photoUrls: imageUrls,
 
       // Observations with sampleTransactions
-      observations: this.currentAssessment?.observations || []
+      observations: this.currentAssessment?.observations || [],
+      
+      updatedBy: this.currentUser ? (this.currentUser.nama || this.currentUser.name || this.currentUser.username || 'System') : undefined
     };
   }
 

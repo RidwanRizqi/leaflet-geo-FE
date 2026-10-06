@@ -147,6 +147,21 @@ export class AssessmentListComponent implements OnInit {
   petugasSignaturePad!: SignaturePad;
   selectedAssessmentForPrint: any = null;
 
+  // Berita Acara form fields
+  baNoSuratPerintah: string = '';
+  baTanggal: string = '';
+  baNip: string = '';
+  baNik: string = '';
+  baTelp: string = '';
+  baBertindakSelaku: string = 'Wajib Pajak';
+  baTarifMenu: number = 0;
+  baPengunjungWeekend: number = 0;
+  baPengunjungBiasa: number = 0;
+  baPengunjungRata: number = 0;
+  baSudahPbjt: boolean = false;
+  baSetujuPajak: boolean = true;
+  baAlasanTidakSetuju: string = '';
+
   @ViewChild('observationModalTemplate') observationModalTemplate!: TemplateRef<any>;
   currentUser: any = null;
 
@@ -723,9 +738,58 @@ export class AssessmentListComponent implements OnInit {
         this.petugasName = assessment.surveyorId || '';
     }
 
+    // Initialize Berita Acara Form fields from validationData if exists
+    const vd = assessment.validationData || {};
+    this.baNoSuratPerintah = vd.baNoSuratPerintah || '';
+    this.baTanggal = vd.baTanggal || (assessment.assessmentDate ? assessment.assessmentDate.substring(0,10) : '');
+    this.baNip = vd.baNip || '';
+    this.baNik = vd.baNik || '';
+    this.baTelp = vd.baTelp || '';
+    this.baBertindakSelaku = vd.baBertindakSelaku || 'Wajib Pajak';
+    this.baTarifMenu = vd.baTarifMenu || (assessment.observations && assessment.observations.length > 0 ? assessment.observations[0].avgTransaction : 0);
+    this.baPengunjungWeekend = vd.baPengunjungWeekend || 0;
+    this.baPengunjungBiasa = vd.baPengunjungBiasa || 0;
+    this.baPengunjungRata = vd.baPengunjungRata || 0;
+    this.baSudahPbjt = vd.baSudahPbjt || false;
+    this.baSetujuPajak = vd.baSetujuPajak !== undefined ? vd.baSetujuPajak : true;
+    this.baAlasanTidakSetuju = vd.baAlasanTidakSetuju || '';
+
     this.modalService.open(modalTemplate, { size: 'lg', backdrop: 'static'}).result.then(
       (result) => {
         if (result === 'generate'){
+          // Save back to backend
+          const newValidationData = {
+            ...(this.selectedAssessmentForPrint.validationData || {}),
+            baNoSuratPerintah: this.baNoSuratPerintah,
+            baTanggal: this.baTanggal,
+            baNip: this.baNip,
+            baNik: this.baNik,
+            baTelp: this.baTelp,
+            baBertindakSelaku: this.baBertindakSelaku,
+            baTarifMenu: this.baTarifMenu,
+            baPengunjungWeekend: this.baPengunjungWeekend,
+            baPengunjungBiasa: this.baPengunjungBiasa,
+            baPengunjungRata: this.baPengunjungRata,
+            baSudahPbjt: this.baSudahPbjt,
+            baSetujuPajak: this.baSetujuPajak,
+            baAlasanTidakSetuju: this.baAlasanTidakSetuju
+          };
+          
+          this.selectedAssessmentForPrint.validationData = newValidationData;
+          
+          // Request payload to update assessment
+          const request = {
+            ...this.selectedAssessmentForPrint,
+            validationData: newValidationData
+          };
+
+          this.assessmentService.updateAssessment(this.selectedAssessmentForPrint.id, request).subscribe({
+            next: () => {
+              console.log('Berita acara data saved successfully');
+            },
+            error: (err) => console.error('Failed to save BA data', err)
+          });
+
           const wpCanvas = document.getElementById('wpCanvas') as HTMLCanvasElement;
           const petugasCanvas = document.getElementById('petugasCanvas') as HTMLCanvasElement;
           
@@ -911,7 +975,7 @@ export class AssessmentListComponent implements OnInit {
           <!-- PARAGRAF PEMBUKA -->
           <p style="text-indent: 40px; text-align: justify; margin-bottom: 5px;">
             Pada hari ini <strong>${tglInfo.hari}</strong>, tanggal <strong>${tglInfo.tgl}</strong> bulan <strong>${tglInfo.bln}</strong> tahun <strong>${tglInfo.thn}</strong> berdasarkan Surat Perintah
-            Nomor: 000.1.2.3 / ............................ / 427.74/${tglInfo.thn} tanggal ............................ ${tglInfo.thn}, kami yang tersebut di bawah ini :
+            Nomor: ${this.baNoSuratPerintah || '000.1.2.3 / ............................ / 427.74/' + tglInfo.thn} tanggal ${this.baTanggal ? new Date(this.baTanggal).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) : '............................ ' + tglInfo.thn}, kami yang tersebut di bawah ini :
           </p>
 
           <!-- TABEL PETUGAS -->
@@ -933,17 +997,18 @@ export class AssessmentListComponent implements OnInit {
           <!-- DATA WAJIB PAJAK -->
           <table class="info-mejo">
             <tr><td class="col-label">Nama</td><td class="col-colan">:</td><td>${this.wpName || '.........................................................................................'}</td></tr>
-            <tr><td>N.I.K</td><td>:</td><td>.........................................................................................</td></tr>
+            ${this.baNip ? `<tr><td>N.I.K / N.I.P</td><td>:</td><td>${this.baNip}</td></tr>` : ''}
+            ${this.baNik ? `<tr><td>N.I.K / N.I.P</td><td>:</td><td>${this.baNik}</td></tr>` : ''}
             <tr><td>Nama Obyek Usaha</td><td>:</td><td>${assessment.businessName || '.........................................................................................'}</td></tr>
             <tr><td>Alamat obyek Usaha</td><td>:</td><td>${assessment.location?.address || '.........................................................................................'}</td></tr>
-            <tr><td>Nomor Telp</td><td>:</td><td>.........................................................................................</td></tr>
+            <tr><td>Nomor Telp</td><td>:</td><td>${this.baTelp || '.........................................................................................'}</td></tr>
           </table>
 
           <div class="checkbox-group">
             <span style="margin-right: 15px;">Dalam hal ini bertindak selaku :</span>
-            <div class="checkbox-item"><span class="checkbox-box"></span> Wajib Pajak</div>
-            <div class="checkbox-item"><span class="checkbox-box"></span> Wakil</div>
-            <div class="checkbox-item"><span class="checkbox-box"></span> Kuasa</div>
+            <div class="checkbox-item"><span class="checkbox-box">${this.baBertindakSelaku === 'Wajib Pajak' ? 'v' : ' '}</span> Wajib Pajak</div>
+            <div class="checkbox-item"><span class="checkbox-box">${this.baBertindakSelaku === 'Wakil' ? 'v' : ' '}</span> Wakil</div>
+            <div class="checkbox-item"><span class="checkbox-box">${this.baBertindakSelaku === 'Kuasa' ? 'v' : ' '}</span> Kuasa</div>
           </div>
 
           <p style="margin-bottom: 5px;">untuk :</p>
@@ -955,24 +1020,24 @@ export class AssessmentListComponent implements OnInit {
                 <li class="no-bullet"><span class="checkbox-box">v</span> Restoran/Rumah Makan/Warung/Kafe/Kantin</li>
                 <li class="no-bullet"><span class="checkbox-box"></span> Penyedia Jasa Boga / Katering</li>
                 <li>Jumlah fasilitas Meja/Kursi/Kapasitas duduk : <strong>${assessment.seatingCapacity || '......'}</strong> orang/meja/kursi</li>
-                <li>Tarif menu makanan/minuman rata-rata sebesar Rp. <strong>${formatCurrency(avgTarif)}</strong></li>
+                <li>Tarif menu makanan/minuman rata-rata sebesar Rp. <strong>${formatCurrency(this.baTarifMenu)}</strong></li>
                 <li>Jumlah hari operasional usaha dalam sebulan : <strong>${assessment.openingDaysPerMonth || '......'}</strong> hari</li>
                 <li>Transaksi penjualan dan / atau jumlah pengunjung 1 (satu) bulan, sebagai berikut :
                   <table class="info-mejo" style="margin-top: 5px; width: 95%;">
-                    <tr><td style="width: 75%;">- Jumlah pengunjung pada hari weekend dan hari libur nasional</td><td style="width: 2%;">:</td><td>.................. orang</td></tr>
-                    <tr><td>- Jumlah pengunjung pada hari biasa</td><td>:</td><td>.................. orang</td></tr>
-                    <tr><td>- Jumlah rata-rata pengunjung dalam 1 (satu) bulan</td><td>:</td><td>.................. orang</td></tr>
+                    <tr><td style="width: 75%;">- Jumlah pengunjung pada hari weekend dan hari libur nasional</td><td style="width: 2%;">:</td><td>${this.baPengunjungWeekend || '..................'} orang</td></tr>
+                    <tr><td>- Jumlah pengunjung pada hari biasa</td><td>:</td><td>${this.baPengunjungBiasa || '..................'} orang</td></tr>
+                    <tr><td>- Jumlah rata-rata pengunjung dalam 1 (satu) bulan</td><td>:</td><td>${this.baPengunjungRata || '..................'} orang</td></tr>
                   </table>
                 </li>
                 <li>Pemilik usaha dan pengelola sudah menerapkan PBJT 10% :
                   <div class="checkbox-group" style="margin-top: 5px; margin-bottom: 0;">
-                    <div class="checkbox-item"><span class="checkbox-box"></span> Sudah</div>
-                    <div class="checkbox-item"><span class="checkbox-box"></span> Belum</div>
+                    <div class="checkbox-item"><span class="checkbox-box">${this.baSudahPbjt ? 'v' : ' '}</span> Sudah</div>
+                    <div class="checkbox-item"><span class="checkbox-box">${!this.baSudahPbjt ? 'v' : ' '}</span> Belum</div>
                   </div>
                 </li>
-                <li>Wajib Pajak telah MENYETUJUI dan/atau BERSEDIA dipungut pajak mulai bulan ................................ tahun 2026.</li>
+                <li>Wajib Pajak telah ${this.baSetujuPajak ? 'MENYETUJUI' : '<del>MENYETUJUI</del>'} dan/atau ${this.baSetujuPajak ? 'BERSEDIA' : '<del>BERSEDIA</del>'} dipungut pajak mulai bulan ................................ tahun 2026.</li>
                 <li>Jika TIDAK SETUJU dan/atau TIDAK BERSEDIA dipungut pajak daerah, dengan alasan sebagai berikut:<br>
-                    ...........................................................................................................................................................................<br>
+                    ${this.baAlasanTidakSetuju ? '<strong>' + this.baAlasanTidakSetuju + '</strong>' : '...........................................................................................................................................................................'}<br>
                     dan bersedia menanggung sanksi sesuai peraturan perundang-undangan yang berlaku.
                 </li>
               </ol>

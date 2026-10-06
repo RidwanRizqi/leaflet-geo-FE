@@ -68,6 +68,9 @@ export interface Assessment {
   // Timestamps
   createdAt?: string;
   updatedAt?: string;
+
+  // Omzet Justification
+  justifikasiOmzet?: number;
 }
 
 export interface RealisasiHistoryItem {
@@ -195,6 +198,9 @@ export interface AssessmentRequest {
   taxRate?: number;
   inflationRate?: number;
   operationalRate?: number;
+  
+  // Omzet Justification
+  justifikasiOmzet?: number;
 }
 
 export interface ObservationRequest {

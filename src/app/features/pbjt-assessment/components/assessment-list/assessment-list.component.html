@@ -84,6 +84,7 @@
                     <small class="text-warning fw-normal">(Omzet WP)</small>
                   </th>
                   <th>Tanggal</th>
+                  <th *ngIf="!isUserRole()">Tracking Update</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -161,6 +162,16 @@
                   </td>
                   <td>
                     <small>{{ assessment.assessmentDate | date:'dd/MM/yyyy' }}</small>
+                  </td>
+                  <td *ngIf="!isUserRole()">
+                    <div *ngIf="assessment.updatedBy">
+                      <small class="d-block fw-bold text-primary">{{ assessment.updatedBy }}</small>
+                      <small class="text-muted">{{ assessment.updatedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                    </div>
+                    <div *ngIf="!assessment.updatedBy">
+                      <small class="text-muted">-</small>
+                    </div>
+                  </td>
                   <td>
                     <div class="btn-group btn-group-sm" role="group">
                       <button
@@ -628,7 +639,91 @@
     <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
   </div>
   <div class="modal-body p-4 bg-light bg-opacity-50">
-    <div class="row">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white py-2">
+        <h6 class="mb-0"><i class="ri-file-list-3-line me-1"></i> Data Tambahan Berita Acara</h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Nomor Surat Perintah</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNoSuratPerintah" placeholder="Contoh: 000.1.2.3 / ... / 427.74/2026">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Tanggal</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="baTanggal">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">NIP Pegawai</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNip" placeholder="(Kosongkan jika tidak ada)">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">NIK WP</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNik" placeholder="(Kosongkan jika tidak ada)">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Nomor Telp.</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baTelp" placeholder="Contoh: 08..">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Bertindak Selaku</label>
+            <div class="mt-1">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="b1" value="Wajib Pajak" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label" for="b1">Wajib Pajak</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="b2" value="Wakil" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label" for="b2">Wakil</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="b3" value="Kuasa" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label" for="b3">Kuasa</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Tarif Menu (Rata-rata)</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Rp</span>
+              <input type="number" class="form-control" [(ngModel)]="baTarifMenu">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Pengunjung Weekend/Libur</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungWeekend">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Pengunjung Hari Biasa</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungBiasa">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Rata-rata Pengunjung / Bulan</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungRata">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold d-block">Pemilik Usaha sudah menerapkan PBJT 10%</label>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="sudahPbjt" [(ngModel)]="baSudahPbjt">
+              <label class="form-check-label" for="sudahPbjt">{{ baSudahPbjt ? 'Sudah' : 'Belum' }}</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold d-block">Menyetujui / Bersedia dipungut pajak</label>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="setujuPajak" [(ngModel)]="baSetujuPajak">
+              <label class="form-check-label" for="setujuPajak">{{ baSetujuPajak ? 'Setuju & Bersedia' : 'Tidak Setuju' }}</label>
+            </div>
+          </div>
+          <div class="col-md-12" *ngIf="!baSetujuPajak">
+            <label class="form-label small fw-bold text-danger">Alasan Tidak Setuju</label>
+            <textarea class="form-control form-control-sm border-danger" rows="2" [(ngModel)]="baAlasanTidakSetuju" placeholder="Masukkan alasan mengapa tidak setuju..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-2">
       <!-- Wajib Pajak (Disembunyikan jika role adalah USER) -->
       <div class="col-md-6 mb-3 text-center" *ngIf="!isUserRole()">
         <label class="form-label fw-bold">Wajib Pajak / Penanggung Jawab</label>

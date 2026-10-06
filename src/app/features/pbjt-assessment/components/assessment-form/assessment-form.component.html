@@ -138,7 +138,15 @@
               <input type="date" class="form-control" formControlName="assessmentDate"
                      [class.is-invalid]="submitted && f1['assessmentDate'].errors">
             </div>
-
+            <div class="mb-3">
+              <label class="form-label">Nominal Justifikasi Omzet (Rp)</label>
+              <div class="input-group">
+                <span class="input-group-text">Rp</span>
+                <input type="number" class="form-control" formControlName="justifikasiOmzet"
+                       placeholder="Masukkan nominal omzet dari Wajib Pajak...">
+              </div>
+              <small class="text-muted">Nominal omzet berdasarkan pengakuan Wajib Pajak (Opsional)</small>
+            </div>
           </div>
           <div class="card-footer">
             <div class="d-flex justify-content-between">

@@ -126,7 +126,8 @@ export class AssessmentFormComponent implements OnInit {
       buildingArea: [null],
       operatingHoursStart: ['09:00', Validators.required],
       operatingHoursEnd: ['22:00', Validators.required],
-      assessmentDate: [todayStr, Validators.required]
+      assessmentDate: [todayStr, Validators.required],
+      justifikasiOmzet: ['']
     });
 
     // Step 2: Location + Surveyor
@@ -337,7 +338,8 @@ export class AssessmentFormComponent implements OnInit {
             buildingArea: assessment.buildingArea,
             operatingHoursStart: assessment.operatingHoursStart,
             operatingHoursEnd: assessment.operatingHoursEnd,
-            assessmentDate: assessment.assessmentDate?.split('T')[0]
+            assessmentDate: assessment.assessmentDate?.split('T')[0],
+            justifikasiOmzet: assessment.justifikasiOmzet || ''
           });
 
           // Load existing images if any
@@ -588,6 +590,7 @@ export class AssessmentFormComponent implements OnInit {
       operatingHoursStart: step1Value.operatingHoursStart,
       operatingHoursEnd: step1Value.operatingHoursEnd,
       assessmentDate: step1Value.assessmentDate,
+      justifikasiOmzet: step1Value.justifikasiOmzet,
 
       // Location - FLAT (not nested)
       address: step2Value.address,

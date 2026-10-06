@@ -78,10 +78,11 @@ $shadow-button: 0 10px 15px -3px rgba(0, 79, 54, 0.3), 0 4px 6px -2px rgba(0, 79
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 
   &.logo-asn {
-    height: 130px; /* Silakan ubah nilai ini untuk mengatur ukuran logo ASN Berakhlak */
-    margin-left: 15px; /* Memberikan sedikit jarak tambahan jika diperlukan */
+    height: 170px; /* Silakan ubah nilai ini untuk mengatur ukuran logo ASN Berakhlak */
+    margin-right: auto; /* Memberikan sedikit jarak tambahan jika diperlukan */
   }
 }
+
 
 .logo-title {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);

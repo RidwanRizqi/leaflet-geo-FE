@@ -140,7 +140,18 @@ export class DashboardPendapatanComponent implements OnInit {
       this.chartOptions = null;
       return;
     }
-    const categories = data.map(d => d.jenisPajak);
+    const categories = data.map(d => {
+      if (d.jenisPajak === 'Bea Perolehan Hak Atas Tanah dan Bangunan (BPHTB)') {
+        return ['Bea Perolehan Hak Atas', 'Tanah & Bangunan (BPHTB)'];
+      }
+      if (d.jenisPajak === 'Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBBP2)') {
+        return ['Pajak Bumi & Bangunan', 'Perdesaan & Perkotaan (PBBP2)'];
+      }
+      if (d.jenisPajak === 'Pajak Mineral Bukan Logam dan Batuan') {
+        return ['Pajak Mineral Bukan', 'Logam dan Batuan'];
+      }
+      return d.jenisPajak;
+    });
     const rawTarget = data.map(d => d.target / 1000000); // in millions
     const rawRealisasi = data.map(d => d.realisasi / 1000000);
 
