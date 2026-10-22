@@ -106,6 +106,21 @@ export const MENU: MenuItem[] = [
         isLayout: false,
       },
       {
+        id: 118,
+        label: 'Potensi PBJT',
+        icon: 'ri-money-dollar-circle-line',
+        isCollapsed: true,
+        link: '/pbjt-makanan/potensi',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'success',
+          text: 'New'
+        },
+        parentId: 11,
+        isLayout: false,
+      },
+      {
         id: 113,
         label: 'Hotel Dashboard',
         icon: 'ri-hotel-line',
@@ -410,12 +425,70 @@ export const MENU: MenuItem[] = [
         },
         parentId: 9,
         isLayout: false,
+      },
+      {
+        id: 96,
+        label: 'Menu Fungsi',
+        icon: 'ri-shield-keyhole-line',
+        isCollapsed: true,
+        link: '/menu-fungsi',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'primary',
+          text: 'RBAC'
+        },
+        parentId: 9,
+        isLayout: false,
       }
     ],
     isTitle: false,
     badge: {
       variant: 'primary',
       text: 'Admin'
+    },
+    parentId: 0,
+    isLayout: false,
+  },
+  {
+    id: 12,
+    label: 'Absensi',
+    icon: 'ri-calendar-check-line',
+    isCollapsed: true,
+    link: '#',
+    subItems: [
+      {
+        id: 121,
+        label: 'Absensi Saya',
+        icon: 'ri-user-follow-line',
+        isCollapsed: true,
+        link: '/absensi',
+        subItems: [],
+        isTitle: false,
+        badge: null,
+        parentId: 12,
+        isLayout: false,
+      },
+      {
+        id: 122,
+        label: 'Dashboard & Tracking Admin',
+        icon: 'ri-map-pin-user-line',
+        isCollapsed: true,
+        link: '/absensi/admin',
+        subItems: [],
+        isTitle: false,
+        badge: {
+          variant: 'success',
+          text: 'Admin'
+        },
+        parentId: 12,
+        isLayout: false,
+      }
+    ],
+    isTitle: false,
+    badge: {
+      variant: 'success',
+      text: 'Baru'
     },
     parentId: 0,
     isLayout: false,

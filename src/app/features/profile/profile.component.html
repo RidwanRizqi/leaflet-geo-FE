@@ -1,0 +1,148 @@
+<div class="container-fluid">
+  <!-- Page Title Header -->
+  <div class="row">
+    <div class="col-12">
+      <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+        <div>
+          <h4 class="mb-sm-0 text-dark fw-bold">
+            <i class="ri-user-settings-line text-primary me-2"></i>Profil Pengguna
+          </h4>
+          <ol class="breadcrumb m-0 fs-12 mt-1">
+            <li class="breadcrumb-item"><a href="javascript:void(0);">Dashboard</a></li>
+            <li class="breadcrumb-item active">Profil Saya</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Banner -->
+  <div *ngIf="savedSuccess" class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+    <i class="ri-checkbox-circle-line me-2 align-middle fs-16"></i>
+    <strong>Berhasil!</strong> Foto profil berhasil diperbarui.
+    <button type="button" class="btn-close" (click)="savedSuccess = false"></button>
+  </div>
+
+  <div class="row justify-content-center">
+    <!-- Main Profile Card -->
+    <div class="col-xl-6 col-lg-8 col-md-10">
+      <div class="card border-0 shadow-sm overflow-hidden">
+        <!-- Card Header Background Banner (Velzon style) -->
+        <div class="profile-header-banner p-4 bg-primary text-white text-center position-relative">
+          <div class="banner-overlay"></div>
+          <h5 class="text-white fw-bold mb-1 position-relative z-1">Informasi Akun</h5>
+          <p class="text-white-50 small mb-0 position-relative z-1">Kelola data profil dan kontak bantuan admin</p>
+        </div>
+
+        <div class="card-body p-4 text-center">
+          <!-- Profile Avatar Wrapper -->
+          <div class="avatar-profile-wrapper mx-auto mb-3 position-relative">
+            <!-- Active Image / Preview Image -->
+            <img
+              *ngIf="previewPhoto || userPhoto"
+              [src]="previewPhoto || userPhoto"
+              alt="Foto Profil"
+              class="rounded-circle profile-img-avatar border border-4 border-white shadow" />
+
+            <!-- Default Initials Avatar -->
+            <div
+              *ngIf="!previewPhoto && !userPhoto"
+              class="rounded-circle profile-img-avatar border border-4 border-white shadow d-flex align-items-center justify-content-center text-white fw-bold fs-28"
+              [ngClass]="avatarClass">
+              {{ userInitials }}
+            </div>
+
+            <!-- Upload Camera Icon Button -->
+            <label
+              for="profilePhotoInput"
+              class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 m-1 p-2 shadow upload-photo-btn"
+              title="Ganti Foto Profil">
+              <i class="ri-camera-fill fs-16"></i>
+            </label>
+            <input
+              type="file"
+              id="profilePhotoInput"
+              class="d-none"
+              accept="image/*"
+              (change)="onPhotoSelected($event)" />
+          </div>
+
+          <!-- Preview Action Confirmation -->
+          <div *ngIf="previewPhoto" class="mb-3 p-2 bg-light-subtle rounded border border-warning d-inline-block">
+            <span class="small text-muted d-block mb-2">Simpan foto profil baru ini?</span>
+            <div class="d-flex justify-content-center gap-2">
+              <button type="button" class="btn btn-sm btn-light" (click)="cancelPreview()">
+                <i class="ri-close-line me-1"></i> Batal
+              </button>
+              <button type="button" class="btn btn-sm btn-success" (click)="saveProfilePhoto()">
+                <i class="ri-check-line me-1"></i> Simpan Foto
+              </button>
+            </div>
+          </div>
+
+          <!-- User Full Name -->
+          <h4 class="fw-bold text-dark mb-1">{{ displayName }}</h4>
+
+          <!-- User Role Badge -->
+          <div class="mb-4">
+            <span
+              class="badge px-3 py-2 fs-12 fw-semibold"
+              [ngClass]="userRole === 'ADMIN' ? 'bg-danger-subtle text-danger' : 'bg-primary-subtle text-primary'">
+              <i [class]="userRole === 'ADMIN' ? 'ri-shield-user-line me-1' : 'ri-user-line me-1'"></i>
+              ROLE: {{ userRole }}
+            </span>
+          </div>
+
+          <!-- Detail Akun Table / Info List -->
+          <div class="bg-light-subtle p-3 rounded-3 border text-start mb-4">
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <span class="text-muted fs-12 d-block">Nama Lengkap</span>
+                <strong class="text-dark fs-14">{{ displayName }}</strong>
+              </div>
+              <div class="col-sm-6">
+                <span class="text-muted fs-12 d-block">Hak Akses (Role)</span>
+                <strong class="text-dark fs-14">{{ userRole }}</strong>
+              </div>
+              <div class="col-sm-6" *ngIf="userData?.idUnit">
+                <span class="text-muted fs-12 d-block">ID Unit / Wilayah</span>
+                <strong class="text-dark fs-14">{{ userData.idUnit }}</strong>
+              </div>
+              <div class="col-sm-6">
+                <span class="text-muted fs-12 d-block">Status Akun</span>
+                <span class="badge bg-success-subtle text-success fs-11">
+                  <i class="ri-checkbox-circle-fill me-1"></i>Aktif
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reset Photo Option -->
+          <div class="mb-4" *ngIf="userPhoto">
+            <button
+              type="button"
+              class="btn btn-sm btn-ghost-secondary text-muted"
+              (click)="resetToDefaultAvatar()">
+              <i class="ri-refresh-line me-1"></i> Gunakan Avatar Default
+            </button>
+          </div>
+
+          <!-- Action WhatsApp Button -->
+          <div class="pt-3 border-top">
+            <h6 class="text-muted fs-13 mb-3">Butuh bantuan atau kendala pada ?</h6>
+            <button
+              type="button"
+              class="btn btn-success btn-lg px-4 shadow-sm wa-contact-btn w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+              (click)="contactAdminWhatsapp()">
+              <i class="ri-whatsapp-fill fs-22"></i>
+              <span class="fw-semibold fs-15">Hubungi Admin</span>
+            </button>
+            <small class="text-muted d-block mt-2">
+              Klik untuk langsung terhubung dengan WhatsApp Administrator
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

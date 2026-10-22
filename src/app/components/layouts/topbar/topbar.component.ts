@@ -50,8 +50,16 @@ export class TopbarComponent implements OnInit {
     public _cookiesService: CookieService, public translate: TranslateService, private authService: AuthenticationService,
     private router: Router, private store: Store, private translationSyncService: TranslationSyncService, private utilitiesService: UtilitiesService) { }
 
-  async ngOnInit(): Promise<void> {
-    this.userData = await firstValueFrom(this.store.select((state: any) => state.auth.user));
+  ngOnInit(): void {
+    this.store.select((state: any) => state.auth.user).subscribe((user) => {
+      if (user) {
+        const cachedPhoto = localStorage.getItem('user_profile_custom_photo_' + (user.username || user.nama || 'default'));
+        this.userData = {
+          ...user,
+          photo: cachedPhoto || user.photo || null
+        };
+      }
+    });
     this.element = document.documentElement;
 
     // Cookies wise Language set

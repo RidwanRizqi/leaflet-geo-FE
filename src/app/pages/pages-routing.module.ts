@@ -10,8 +10,17 @@ import { SectionComponent } from './master-data/section/section.component';
 import { SubSectionComponent } from './master-data/sub-section/sub-section.component';
 import { OrganizationComponent } from './master-data/organization/organization.component';
 import { EmailRecipientComponent } from './master-data/email-recipient/email-recipient.component';
+import { ProfileComponent } from '../features/profile/profile.component';
 
 const routes: Routes = [
+  {
+    path: 'profile',
+    component: ProfileComponent,
+  },
+  {
+    path: 'pages/profile',
+    component: ProfileComponent,
+  },
   {
     path: 'application-list',
     component: AppListComponent,

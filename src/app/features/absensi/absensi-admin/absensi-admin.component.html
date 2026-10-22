@@ -1,0 +1,404 @@
+<div class="container-fluid absensi-admin-page">
+  <!-- PAGE HEADER & CONTROLS -->
+  <div class="row mb-3 align-items-center">
+    <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+      <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+        <i class="ri-dashboard-3-line text-primary"></i>
+        <span>Dashboard Tracking Absensi</span>
+      </h4>
+      <p class="text-muted mb-0 fs-13">
+        Pantau riwayat kehadiran, dokumentasi foto selfie, dan pelacakan lokasi seluruh pengguna.
+      </p>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="col-12 col-lg-7 d-flex flex-wrap justify-content-lg-end gap-2 align-items-center">
+      <!-- QUICK FILTER BUTTONS -->
+      <div class="btn-group btn-group-sm shadow-sm" role="group">
+        <button type="button" class="btn" [ngClass]="quickFilter === 'ALL' ? 'btn-primary' : 'btn-outline-secondary bg-white'" (click)="setFilterAll()">
+          <i class="ri-archive-line me-1"></i> Semua Data
+        </button>
+        <button type="button" class="btn" [ngClass]="quickFilter === 'TODAY' ? 'btn-primary' : 'btn-outline-secondary bg-white'" (click)="setFilterToday()">
+          <i class="ri-calendar-check-line me-1"></i> Hari Ini
+        </button>
+      </div>
+
+      <!-- DATE PICKER FILTER -->
+      <div class="d-flex align-items-center gap-1 bg-white px-2 py-1 rounded border shadow-sm date-picker-box">
+        <i class="ri-calendar-2-line text-muted"></i>
+        <input type="date" class="form-control form-control-sm border-0 p-0" [(ngModel)]="selectedDate" (change)="onDateChange()" title="Pilih tanggal tertentu">
+        <button *ngIf="selectedDate" type="button" class="btn btn-sm btn-link text-muted p-0 ms-1" (click)="setFilterAll()" title="Hapus filter tanggal (Tampilkan Semua)">
+          <i class="ri-close-circle-fill"></i>
+        </button>
+      </div>
+
+      <!-- ROLE FILTER -->
+      <div class="bg-white px-2 py-1 rounded border shadow-sm">
+        <select class="form-select form-select-sm border-0 p-0" [(ngModel)]="selectedRole" (change)="onRoleChange()">
+          <option value="">Semua Role</option>
+          <option value="MAGANG">Role MAGANG</option>
+          <option value="STAFF">Role STAFF</option>
+          <option value="KEPALA_BIDANG">Role KABID</option>
+          <option value="ADMIN">Role ADMIN</option>
+        </select>
+      </div>
+
+      <!-- REFRESH BUTTON -->
+      <button type="button" class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 shadow-sm" (click)="loadAllData()" title="Segarkan Data">
+        <i class="ri-refresh-line" [ngClass]="{'spin': isLoading}"></i>
+        <span class="d-none d-sm-inline">Refresh</span>
+      </button>
+
+      <!-- EXPORT CSV BUTTON -->
+      <button type="button" class="btn btn-sm btn-success d-flex align-items-center gap-1 shadow-sm" (click)="exportCsv()" title="Ekspor Data ke CSV">
+        <i class="ri-file-excel-2-line"></i>
+        <span class="d-none d-sm-inline">Export CSV</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ACTIVE FILTER NOTICE -->
+  <div class="mb-3 d-flex align-items-center gap-2">
+    <span class="text-muted fs-12">Filter Aktif:</span>
+    <span *ngIf="!selectedDate" class="badge bg-primary-subtle text-primary border border-primary-subtle fs-12 py-1 px-2">
+      <i class="ri-earth-line me-1"></i> Menampilkan Seluruh Riwayat Absensi
+    </span>
+    <span *ngIf="selectedDate" class="badge bg-info-subtle text-info border border-info-subtle fs-12 py-1 px-2">
+      <i class="ri-calendar-line me-1"></i> Tanggal: {{ selectedDate | date:'dd MMMM yyyy' }}
+    </span>
+    <span *ngIf="selectedRole" class="badge bg-secondary-subtle text-dark border border-secondary-subtle fs-12 py-1 px-2">
+      <i class="ri-shield-user-line me-1"></i> Role: {{ selectedRole }}
+    </span>
+  </div>
+
+  <!-- SUMMARY KPI CARDS -->
+  <div class="row g-3 mb-4">
+    <!-- TOTAL HADIR -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm kpi-card border-start border-4 border-success h-100">
+        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted fs-12 fw-semibold text-uppercase">Total Hadir</span>
+            <h3 class="mb-0 fw-bold text-success mt-1">{{ summary?.totalHadir || 0 }}</h3>
+            <small class="text-muted fs-11">
+              {{ selectedDate ? 'Pada tanggal filter' : 'Seluruh riwayat tercatat' }}
+            </small>
+          </div>
+          <div class="kpi-icon bg-success-subtle text-success rounded-circle">
+            <i class="ri-user-follow-line fs-22"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BELUM HADIR -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm kpi-card border-start border-4 border-danger h-100">
+        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted fs-12 fw-semibold text-uppercase">Belum Absen Hari Ini</span>
+            <h3 class="mb-0 fw-bold text-danger mt-1">{{ summary?.totalBelumHadir || 0 }}</h3>
+            <small class="text-muted fs-11">Dari {{ summary?.totalUser || 0 }} total akun pengguna</small>
+          </div>
+          <div class="kpi-icon bg-danger-subtle text-danger rounded-circle">
+            <i class="ri-user-unfollow-line fs-22"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DI KANTOR -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm kpi-card border-start border-4 border-primary h-100">
+        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted fs-12 fw-semibold text-uppercase">Di Kantor</span>
+            <h3 class="mb-0 fw-bold text-primary mt-1">{{ summary?.totalDiKantor || 0 }}</h3>
+            <small class="text-muted fs-11">Di dalam radius 150 meter</small>
+          </div>
+          <div class="kpi-icon bg-primary-subtle text-primary rounded-circle">
+            <i class="ri-building-line fs-22"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DI LUAR KANTOR -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm kpi-card border-start border-4 border-warning h-100">
+        <div class="card-body p-3 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted fs-12 fw-semibold text-uppercase">Di Luar Kantor</span>
+            <h3 class="mb-0 fw-bold text-warning mt-1">{{ summary?.totalDiLuarKantor || 0 }}</h3>
+            <small class="text-muted fs-11">Di luar batas koordinat kantor</small>
+          </div>
+          <div class="kpi-icon bg-warning-subtle text-warning rounded-circle">
+            <i class="ri-map-pin-user-line fs-22"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PETA TRACKING MAP (LEAFLET) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0 d-flex flex-wrap justify-content-between align-items-center pt-3 pb-2 gap-2">
+          <h5 class="card-title mb-0 fw-bold text-dark">
+            <i class="ri-map-2-line text-primary me-2"></i> Peta Pelacakan Lokasi Absensi
+          </h5>
+          <div class="d-flex flex-wrap align-items-center gap-3 fs-12">
+            <span class="d-flex align-items-center gap-1">
+              <span class="legend-dot bg-success"></span> Absen Di Kantor
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span class="legend-dot bg-danger"></span> Absen Di Luar Kantor
+            </span>
+            <span class="d-flex align-items-center gap-1">
+              <span class="legend-dot bg-primary"></span> Kantor BPRD (Radius 150m)
+            </span>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <div id="adminTrackingMap" class="rounded border" style="height: 400px; width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABEL REKAP KEHADIRAN -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent border-0 d-flex flex-wrap justify-content-between align-items-center pt-3 pb-2 gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <h5 class="card-title mb-0 fw-bold text-dark">
+              <i class="ri-table-line text-primary me-2"></i> Tabel Seluruh Kehadiran Pengguna
+            </h5>
+            <span class="badge bg-light text-dark border">
+              Total: {{ filteredList.length }} Data
+            </span>
+          </div>
+
+          <!-- SEARCH INPUT -->
+          <div class="search-box" style="width: 280px;">
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-light border-end-0"><i class="ri-search-line text-muted"></i></span>
+              <input type="text" class="form-control border-start-0 bg-light" placeholder="Cari nama, role, tanggal..." [(ngModel)]="searchKeyword" (input)="filterTable()">
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-3" style="width: 50px;">No</th>
+                  <th style="min-width: 140px;">Foto Masuk / Pulang</th>
+                  <th style="min-width: 180px;">Nama Pengguna</th>
+                  <th>Role</th>
+                  <th style="min-width: 110px;">Tanggal</th>
+                  <th>Jam Masuk</th>
+                  <th>Jam Pulang</th>
+                  <th>Status Lokasi</th>
+                  <th>Jarak</th>
+                  <th class="pe-3">Status Kehadiran</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isLoading">
+                  <td colspan="10" class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-primary me-2"></div>
+                    Memuat data seluruh kehadiran...
+                  </td>
+                </tr>
+                <tr *ngIf="!isLoading && filteredList.length === 0">
+                  <td colspan="10" class="text-center py-5 text-muted">
+                    <i class="ri-inbox-line fs-32 text-muted d-block mb-2"></i>
+                    Tidak ada data kehadiran yang ditemukan.
+                  </td>
+                </tr>
+                <tr *ngFor="let item of filteredList; let i = index">
+                  <td class="ps-3 text-muted">{{ i + 1 }}</td>
+
+                  <!-- KOLOM FOTO MASUK & PULANG DENGAN ZOOM CLICK -->
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <!-- FOTO MASUK -->
+                      <div class="photo-thumbnail-wrapper"
+                           *ngIf="item.fotoMasuk"
+                           (click)="viewPhotoModal(item, 'MASUK')"
+                           title="Klik untuk zoom Foto Masuk">
+                        <img [src]="getPhotoUrl(item.fotoMasuk)" class="photo-thumb rounded border" alt="Foto Masuk">
+                        <span class="badge-photo-label bg-success">Masuk</span>
+                        <div class="photo-zoom-hint"><i class="ri-zoom-in-line"></i></div>
+                      </div>
+                      <div *ngIf="!item.fotoMasuk" class="no-photo-box" title="Foto Masuk Tidak Tersedia">
+                        <i class="ri-image-line text-muted"></i>
+                        <span class="fs-10 text-muted">Masuk</span>
+                      </div>
+
+                      <!-- FOTO PULANG -->
+                      <div class="photo-thumbnail-wrapper"
+                           *ngIf="item.fotoPulang"
+                           (click)="viewPhotoModal(item, 'PULANG')"
+                           title="Klik untuk zoom Foto Pulang">
+                        <img [src]="getPhotoUrl(item.fotoPulang)" class="photo-thumb rounded border" alt="Foto Pulang">
+                        <span class="badge-photo-label bg-info">Pulang</span>
+                        <div class="photo-zoom-hint"><i class="ri-zoom-in-line"></i></div>
+                      </div>
+                      <div *ngIf="!item.fotoPulang && item.jamMasuk" class="no-photo-box" title="Belum Absen Pulang">
+                        <i class="ri-time-line text-muted"></i>
+                        <span class="fs-10 text-muted">-</span>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- NAMA & DEVICE -->
+                  <td>
+                    <div class="fw-bold text-dark">{{ item.userName || 'User #' + item.userId }}</div>
+                    <small class="text-muted d-block" style="font-size: 11px;">
+                      {{ item.deviceInfo ? (item.deviceInfo | slice:0:30) + '...' : 'Device: -' }}
+                    </small>
+                  </td>
+
+                  <!-- ROLE -->
+                  <td>
+                    <span class="badge bg-light text-dark border fs-11 text-uppercase">{{ item.userRole || '-' }}</span>
+                  </td>
+
+                  <!-- TANGGAL -->
+                  <td>
+                    <div class="fw-semibold text-dark">{{ item.tanggal | date:'dd MMM yyyy' }}</div>
+                  </td>
+
+                  <!-- JAM MASUK -->
+                  <td>
+                    <span *ngIf="item.jamMasuk" class="fw-bold text-success">{{ item.jamMasuk | date:'HH:mm' }} WIB</span>
+                    <span *ngIf="!item.jamMasuk" class="text-muted">-</span>
+                  </td>
+
+                  <!-- JAM PULANG -->
+                  <td>
+                    <span *ngIf="item.jamPulang" class="fw-bold text-info">{{ item.jamPulang | date:'HH:mm' }} WIB</span>
+                    <span *ngIf="!item.jamPulang" class="text-muted">-</span>
+                  </td>
+
+                  <!-- STATUS LOKASI -->
+                  <td>
+                    <span class="badge" [ngClass]="item.lokasiStatus === 'DI_KANTOR' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-warning border border-warning-subtle'">
+                      {{ item.lokasiStatus === 'DI_KANTOR' ? '🏢 Di Kantor' : '📍 Di Luar' }}
+                    </span>
+                  </td>
+
+                  <!-- JARAK -->
+                  <td class="text-muted fs-13">{{ item.jarakMeter ? (item.jarakMeter | number:'1.0-0') + ' m' : '-' }}</td>
+
+                  <!-- STATUS KEHADIRAN -->
+                  <td class="pe-3">
+                    <span *ngIf="item.isCompleted" class="badge bg-success fs-11">
+                      <i class="ri-checkbox-circle-line me-1"></i> Lengkap
+                    </span>
+                    <span *ngIf="!item.isCompleted && item.jamMasuk" class="badge bg-warning fs-11">
+                      <i class="ri-time-line me-1"></i> Masuk Saja
+                    </span>
+                    <span *ngIf="!item.jamMasuk" class="badge bg-danger fs-11">
+                      <i class="ri-close-circle-line me-1"></i> Belum Absen
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL VIEWER FOTO INTERAKTIF DENGAN ZOOM & PAN          -->
+<!-- ======================================================== -->
+<div class="photo-modal-backdrop" *ngIf="selectedPhotoUrl" (click)="closePhotoModal()">
+  <div class="photo-modal-dialog" (click)="$event.stopPropagation()">
+    <!-- MODAL HEADER -->
+    <div class="photo-modal-header d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
+      <div>
+        <div class="d-flex align-items-center gap-2">
+          <h6 class="mb-0 fw-bold text-dark">{{ selectedPhotoTitle }}</h6>
+          <span class="badge" [ngClass]="selectedPhotoType === 'MASUK' ? 'bg-success' : 'bg-info'">
+            {{ selectedPhotoType === 'MASUK' ? 'Foto Masuk' : 'Foto Pulang' }}
+          </span>
+        </div>
+        <small class="text-muted fs-12">{{ selectedPhotoSubtitle }}</small>
+      </div>
+
+      <button type="button" class="btn-close" aria-label="Tutup" (click)="closePhotoModal()"></button>
+    </div>
+
+    <!-- ZOOM CONTROLS TOOLBAR -->
+    <div class="photo-modal-toolbar d-flex justify-content-between align-items-center px-3 py-2 bg-light border-bottom">
+      <div class="d-flex align-items-center gap-1">
+        <!-- ZOOM OUT -->
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="zoomOut()" title="Perkecil (-)">
+          <i class="ri-zoom-out-line"></i>
+        </button>
+
+        <!-- ZOOM LEVEL BADGE -->
+        <span class="zoom-level-badge badge bg-secondary px-2 py-1 fs-12">
+          {{ (photoZoom * 100) | number:'1.0-0' }}%
+        </span>
+
+        <!-- ZOOM IN -->
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="zoomIn()" title="Perbesar (+)">
+          <i class="ri-zoom-in-line"></i>
+        </button>
+
+        <!-- RESET ZOOM -->
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" (click)="resetZoom()" title="Reset Ukuran (0)">
+          <i class="ri-restart-line"></i> Reset
+        </button>
+
+        <!-- ROTATE -->
+        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" (click)="rotatePhoto()" title="Putar 90 Derajat">
+          <i class="ri-clockwise-line"></i>
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <a [href]="selectedPhotoUrl" target="_blank" class="btn btn-sm btn-outline-primary" title="Buka Gambar Asli di Tab Baru">
+          <i class="ri-external-link-line me-1"></i> Buka Asli
+        </a>
+      </div>
+    </div>
+
+    <!-- IMAGE VIEWPORT CONTAINER (ZOOMABLE & DRAGGABLE) -->
+    <div class="photo-modal-viewport"
+         (wheel)="onPhotoWheel($event)"
+         (mousedown)="startDrag($event)"
+         (mousemove)="onDrag($event)"
+         (mouseup)="stopDrag()"
+         (mouseleave)="stopDrag()"
+         (dblclick)="toggleZoom()"
+         [style.cursor]="photoZoom > 1.0 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in'">
+
+      <div class="photo-transform-box"
+           [style.transform]="getTransformStyle()">
+        <img [src]="selectedPhotoUrl"
+             class="photo-full-img"
+             alt="Foto Absensi"
+             draggable="false">
+      </div>
+    </div>
+
+    <!-- MODAL FOOTER INFO -->
+    <div class="photo-modal-footer text-center p-2 bg-light border-top">
+      <small class="text-muted fs-11">
+        <i class="ri-information-line me-1"></i>
+        Scroll mouse atau tombol <strong>+/-</strong> untuk zoom. Dobel-klik untuk toggle zoom 2x. Drag untuk menggeser. Tekan <strong>ESC</strong> untuk menutup.
+      </small>
+    </div>
+  </div>
+</div>
