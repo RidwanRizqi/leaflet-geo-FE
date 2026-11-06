@@ -80,7 +80,7 @@ export class PotensiPendataanComponent implements OnInit {
     private route: ActivatedRoute,
     private potensiService: PbjtPotensiService,
     private store: Store
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.store.select(selectCurrentUser).subscribe(user => {
@@ -228,6 +228,15 @@ export class PotensiPendataanComponent implements OnInit {
   }
 
   onQtyChange(index: number): void {
+    const row = this.orderItems.at(index);
+    const rawQty = row.get('qty')?.value;
+    const qty = Number(rawQty) || 0;
+    const price = Number(row.get('price')?.value) || 0;
+    row.patchValue({ subtotal: price * qty }, { emitEvent: false });
+    this.recalculate();
+  }
+
+  onQtyBlur(index: number): void {
     const row = this.orderItems.at(index);
     const qty = Math.max(1, Number(row.get('qty')?.value) || 1);
     const price = Number(row.get('price')?.value) || 0;

@@ -3,9 +3,7 @@
   <div class="row">
     <div class="col-12">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <app-breadcrumbs
-          [title]="breadCrumbTitle"
-          [breadcrumbItems]="breadCrumbItems">
+        <app-breadcrumbs [title]="breadCrumbTitle" [breadcrumbItems]="breadCrumbItems">
         </app-breadcrumbs>
         <div>
           <button type="button" class="btn btn-soft-secondary btn-sm" (click)="cancel()">
@@ -29,7 +27,8 @@
   </div>
 
   <!-- Error Alert -->
-  <div *ngIf="potensiLoadError" class="alert alert-danger alert-border-left alert-dismissible fade show shadow-sm mb-4" role="alert">
+  <div *ngIf="potensiLoadError" class="alert alert-danger alert-border-left alert-dismissible fade show shadow-sm mb-4"
+    role="alert">
     <i class="ri-error-warning-line me-2 align-middle fs-16"></i>
     <strong>Terjadi Kesalahan:</strong> {{ potensiLoadError }}
     <button type="button" class="btn btn-sm btn-outline-danger ms-3" (click)="cancel()">
@@ -70,7 +69,8 @@
   <!-- KARTU IDENTITAS USAHA (Terhubung Otomatis dari Potensi PBJT)               -->
   <!-- ========================================================================= -->
   <div *ngIf="selectedPotensi && !loadingPotensi" class="card mb-4">
-    <div class="card-header border-bottom-dashed py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div
+      class="card-header border-bottom-dashed py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
       <div class="d-flex align-items-center gap-2">
         <span class="badge bg-primary-subtle text-primary font-monospace fs-12 px-2 py-1">
           <i class="ri-hashtag me-1"></i>{{ selectedPotensi.kodePotensi }}
@@ -81,7 +81,8 @@
       </div>
       <div>
         <span class="badge bg-light text-muted border fs-12 px-2 py-1">
-          <i class="ri-user-star-line me-1 text-primary"></i> Surveyor: {{ selectedPotensi.surveyorId || currentUsername }}
+          <i class="ri-user-star-line me-1 text-primary"></i> Surveyor: {{ selectedPotensi.surveyorId || currentUsername
+          }}
         </span>
       </div>
     </div>
@@ -105,7 +106,8 @@
                 </span>
               </p>
               <small class="text-muted fs-12" *ngIf="selectedPotensi.latitude && selectedPotensi.longitude">
-                <i class="ri-compass-3-line me-1 text-primary"></i> Koordinat: {{ selectedPotensi.latitude }}, {{ selectedPotensi.longitude }}
+                <i class="ri-compass-3-line me-1 text-primary"></i> Koordinat: {{ selectedPotensi.latitude }}, {{
+                selectedPotensi.longitude }}
               </small>
             </div>
           </div>
@@ -123,7 +125,8 @@
             <div class="col-4">
               <div class="p-2 border rounded bg-light">
                 <small class="text-muted d-block fs-11 text-uppercase fw-semibold">Operasional</small>
-                <span class="fw-bold fs-14 text-dark">{{ selectedPotensi.jamBuka || '08:00' }} - {{ selectedPotensi.jamTutup || '21:00' }}</span>
+                <span class="fw-bold fs-14 text-dark">{{ selectedPotensi.jamBuka || '08:00' }} - {{
+                  selectedPotensi.jamTutup || '21:00' }}</span>
               </div>
             </div>
             <div class="col-4">
@@ -137,16 +140,22 @@
       </div>
 
       <!-- Info Alert Bar: Previous Surveys Info -->
-      <div *ngIf="selectedPotensi.observationCount && selectedPotensi.observationCount > 0" class="alert alert-warning border-0 bg-warning-subtle text-warning-emphasis d-flex align-items-center mb-0 mt-3 py-2 px-3 fs-13 rounded">
+      <div *ngIf="selectedPotensi.observationCount && selectedPotensi.observationCount > 0"
+        class="alert alert-warning border-0 bg-warning-subtle text-warning-emphasis d-flex align-items-center mb-0 mt-3 py-2 px-3 fs-13 rounded">
         <i class="ri-history-line fs-18 me-2 flex-shrink-0 text-warning"></i>
         <div>
-          Objek usaha ini telah disurvei sebanyak <strong>{{ selectedPotensi.observationCount }} kali</strong>. Data observasi yang Anda kirimkan saat ini akan tersimpan sebagai <strong>Survei Ke-{{ (selectedPotensi.observationCount || 0) + 1 }}</strong> tanpa menghapus data survei sebelumnya (tersimpan sebagai riwayat komparasi).
+          Objek usaha ini telah disurvei sebanyak <strong>{{ selectedPotensi.observationCount }} kali</strong>. Data
+          observasi yang Anda kirimkan saat ini akan tersimpan sebagai <strong>Survei Ke-{{
+            (selectedPotensi.observationCount || 0) + 1 }}</strong> tanpa menghapus data survei sebelumnya (tersimpan
+          sebagai riwayat komparasi).
         </div>
       </div>
-      <div *ngIf="!selectedPotensi.observationCount || selectedPotensi.observationCount === 0" class="alert alert-info border-0 bg-info-subtle text-info d-flex align-items-center mb-0 mt-3 py-2 px-3 fs-13 rounded">
+      <div *ngIf="!selectedPotensi.observationCount || selectedPotensi.observationCount === 0"
+        class="alert alert-info border-0 bg-info-subtle text-info d-flex align-items-center mb-0 mt-3 py-2 px-3 fs-13 rounded">
         <i class="ri-information-line fs-18 me-2 flex-shrink-0"></i>
         <div>
-          Data profil dan lokasi usaha telah dimuat dari Potensi PBJT. Belum ada riwayat survei lapangan. Data ini akan tersimpan sebagai <strong>Survei Ke-1 (Baseline)</strong>.
+          Data profil dan lokasi usaha telah dimuat dari Potensi PBJT. Belum ada riwayat survei lapangan. Data ini akan
+          tersimpan sebagai <strong>Survei Ke-1 (Baseline)</strong>.
         </div>
       </div>
     </div>
@@ -176,10 +185,7 @@
                 </label>
                 <div class="input-group">
                   <span class="input-group-text bg-light text-muted"><i class="ri-calendar-event-line"></i></span>
-                  <input
-                    type="datetime-local"
-                    class="form-control"
-                    formControlName="tanggalObservasi" />
+                  <input type="datetime-local" class="form-control" formControlName="tanggalObservasi" />
                 </div>
                 <small class="text-muted fs-11">Waktu saat petugas berada di lokasi survei</small>
               </div>
@@ -204,11 +210,7 @@
                 </label>
                 <div class="input-group">
                   <span class="input-group-text bg-light text-muted"><i class="ri-group-line"></i></span>
-                  <input
-                    type="number"
-                    min="1"
-                    class="form-control"
-                    formControlName="jumlahPengunjung"
+                  <input type="number" min="1" class="form-control" formControlName="jumlahPengunjung"
                     placeholder="Contoh: 25" />
                   <span class="input-group-text bg-light fw-medium">Orang</span>
                 </div>
@@ -222,13 +224,7 @@
                 </label>
                 <div class="input-group">
                   <span class="input-group-text bg-light text-muted"><i class="ri-timer-line"></i></span>
-                  <input
-                    type="number"
-                    step="0.25"
-                    min="0.25"
-                    max="12"
-                    class="form-control"
-                    formControlName="durasiJam"
+                  <input type="number" step="0.25" min="0.25" max="12" class="form-control" formControlName="durasiJam"
                     placeholder="Contoh: 1.0" />
                   <span class="input-group-text bg-light fw-medium">Jam</span>
                 </div>
@@ -251,7 +247,8 @@
               </small>
             </div>
             <div class="flex-shrink-0">
-              <button type="button" class="btn btn-sm btn-primary btn-label waves-effect waves-light" (click)="addMenuRow()">
+              <button type="button" class="btn btn-sm btn-primary btn-label waves-effect waves-light"
+                (click)="addMenuRow()">
                 <i class="ri-add-line label-icon align-middle fs-16 me-2"></i> Tambah Menu
               </button>
             </div>
@@ -272,9 +269,7 @@
                   </tr>
                 </thead>
                 <tbody formArrayName="orderItems">
-                  <tr
-                    *ngFor="let itemRow of orderItems.controls; let idx = index"
-                    [formGroupName]="idx">
+                  <tr *ngFor="let itemRow of orderItems.controls; let idx = index" [formGroupName]="idx">
                     <!-- # -->
                     <td class="text-center text-muted fw-semibold">
                       {{ idx + 1 }}
@@ -284,26 +279,19 @@
                     <td class="position-relative menu-search-container">
                       <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light text-muted"><i class="ri-search-line"></i></span>
-                        <input
-                          type="text"
-                          class="form-control"
-                          placeholder="Ketik untuk mencari menu..."
-                          [value]="searchMenuQueries[idx] || ''"
-                          (focus)="onMenuSearchFocus(idx)"
-                          (input)="onMenuSearchInput(idx, $event)"
-                          autocomplete="off" />
+                        <input type="text" class="form-control" placeholder="Ketik untuk mencari menu..."
+                          [value]="searchMenuQueries[idx] || ''" (focus)="onMenuSearchFocus(idx)"
+                          (input)="onMenuSearchInput(idx, $event)" autocomplete="off" />
                       </div>
 
                       <!-- Floating Dropdown Hasil Pencarian (Velzon Style) -->
-                      <div
-                        *ngIf="activeDropdownIndex === idx && filteredMenus[idx] && filteredMenus[idx].length > 0"
+                      <div *ngIf="activeDropdownIndex === idx && filteredMenus[idx] && filteredMenus[idx].length > 0"
                         class="search-dropdown-menu">
                         <div class="dropdown-header">
-                          <i class="ri-restaurant-2-line me-1"></i> Katalog Menu Usaha ({{ filteredMenus[idx].length }} ditemukan)
+                          <i class="ri-restaurant-2-line me-1"></i> Katalog Menu Usaha ({{ filteredMenus[idx].length }}
+                          ditemukan)
                         </div>
-                        <a
-                          *ngFor="let m of filteredMenus[idx]"
-                          href="javascript:void(0);"
+                        <a *ngFor="let m of filteredMenus[idx]" href="javascript:void(0);"
                           class="dropdown-item d-flex justify-content-between align-items-center"
                           (click)="selectMenuItem(idx, m)">
                           <div>
@@ -330,23 +318,16 @@
                     <td>
                       <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light text-muted">Rp</span>
-                        <input
-                          type="number"
-                          min="0"
-                          class="form-control form-control-sm text-end fw-semibold"
-                          formControlName="price"
-                          (input)="onPriceChange(idx)" />
+                        <input type="number" min="0" class="form-control form-control-sm text-end fw-semibold"
+                          formControlName="price" (input)="onPriceChange(idx)" />
                       </div>
                     </td>
 
                     <!-- Porsi / Qty -->
                     <td>
-                      <input
-                        type="number"
-                        min="1"
-                        class="form-control form-control-sm text-center fw-semibold"
-                        formControlName="qty"
-                        (input)="onQtyChange(idx)" />
+                      <input type="number" min="1" inputmode="numeric"
+                        class="form-control form-control-sm text-center fw-semibold" formControlName="qty"
+                        (input)="onQtyChange(idx)" (blur)="onQtyBlur(idx)" (focus)="$any($event.target).select()" />
                     </td>
 
                     <!-- Subtotal -->
@@ -356,10 +337,7 @@
 
                     <!-- Aksi Hapus -->
                     <td class="text-center">
-                      <button
-                        type="button"
-                        class="btn-ghost-danger"
-                        (click)="removeMenuRow(idx)"
+                      <button type="button" class="btn-ghost-danger" (click)="removeMenuRow(idx)"
                         title="Hapus baris menu ini">
                         <i class="ri-delete-bin-line fs-15"></i>
                       </button>
@@ -414,26 +392,16 @@
           <div class="card-body p-4">
             <!-- Progress Bar Foto -->
             <div class="progress mb-3" style="height: 6px;">
-              <div
-                class="progress-bar bg-primary"
-                role="progressbar"
-                [style.width.%]="((uploadedPhotos.length + existingPhotos.length) / maxPhotos) * 100"
-                aria-valuenow="25"
-                aria-valuemin="0"
-                aria-valuemax="100">
+              <div class="progress-bar bg-primary" role="progressbar"
+                [style.width.%]="((uploadedPhotos.length + existingPhotos.length) / maxPhotos) * 100" aria-valuenow="25"
+                aria-valuemin="0" aria-valuemax="100">
               </div>
             </div>
 
             <!-- Upload Dropzone (Velzon Style) -->
-            <div
-              class="dropzone-box p-4 text-center mb-3"
+            <div class="dropzone-box p-4 text-center mb-3"
               [class.dropzone-disabled]="(uploadedPhotos.length + existingPhotos.length) >= maxPhotos">
-              <input
-                type="file"
-                id="photoInputGallery"
-                class="d-none"
-                accept="image/*"
-                multiple
+              <input type="file" id="photoInputGallery" class="d-none" accept="image/*" multiple
                 (change)="onPhotosSelected($event)"
                 [disabled]="(uploadedPhotos.length + existingPhotos.length) >= maxPhotos" />
               <label for="photoInputGallery" class="cursor-pointer mb-0 w-100">
@@ -458,11 +426,7 @@
                   <span class="badge bg-dark bg-opacity-75 photo-badge">
                     Tersimpan
                   </span>
-                  <button
-                    type="button"
-                    class="btn-delete-photo"
-                    (click)="removeExistingPhoto(eIdx)"
-                    title="Hapus foto">
+                  <button type="button" class="btn-delete-photo" (click)="removeExistingPhoto(eIdx)" title="Hapus foto">
                     <i class="ri-close-line fs-14"></i>
                   </button>
                 </div>
@@ -475,11 +439,7 @@
                   <span class="badge bg-success photo-badge">
                     Baru
                   </span>
-                  <button
-                    type="button"
-                    class="btn-delete-photo"
-                    (click)="removeUploadedPhoto(uIdx)"
-                    title="Hapus foto">
+                  <button type="button" class="btn-delete-photo" (click)="removeUploadedPhoto(uIdx)" title="Hapus foto">
                     <i class="ri-close-line fs-14"></i>
                   </button>
                 </div>
@@ -497,10 +457,7 @@
             </h5>
           </div>
           <div class="card-body p-4">
-            <textarea
-              class="form-control"
-              rows="3"
-              formControlName="catatan"
+            <textarea class="form-control" rows="3" formControlName="catatan"
               placeholder="Catatan tambahan mengenai situasi usaha, jam puncak, kondisi keramaian, respon pengelola, dll..."></textarea>
           </div>
         </div>
@@ -558,18 +515,21 @@
               <ul class="list-group list-group-flush border-0 mb-0 fs-13">
                 <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                   <span class="text-muted"><i class="ri-group-line me-1 text-muted"></i> Pengunjung Teramati:</span>
-                  <span class="fw-semibold text-dark">{{ pendataanForm.get('jumlahPengunjung')?.value || 0 }} Orang</span>
+                  <span class="fw-semibold text-dark">{{ pendataanForm.get('jumlahPengunjung')?.value || 0 }}
+                    Orang</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                   <span class="text-muted"><i class="ri-timer-line me-1 text-muted"></i> Durasi Pengamatan:</span>
                   <span class="fw-semibold text-dark">{{ pendataanForm.get('durasiJam')?.value || 1 }} Jam</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-                  <span class="text-muted"><i class="ri-speed-up-line me-1 text-muted"></i> Pengunjung / Jam (VPH):</span>
+                  <span class="text-muted"><i class="ri-speed-up-line me-1 text-muted"></i> Pengunjung / Jam
+                    (VPH):</span>
                   <span class="fw-semibold text-info">{{ calcSummary.vph }} Orang/Jam</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-                  <span class="text-muted"><i class="ri-wallet-3-line me-1 text-muted"></i> Rata-rata Belanja / Orang:</span>
+                  <span class="text-muted"><i class="ri-wallet-3-line me-1 text-muted"></i> Rata-rata Belanja /
+                    Orang:</span>
                   <span class="fw-bold text-primary">{{ formatCurrency(calcSummary.avgSpendPerPerson) }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
@@ -584,19 +544,13 @@
           <div class="card">
             <div class="card-body p-3">
               <div class="d-grid gap-2">
-                <button
-                  type="submit"
-                  class="btn btn-primary btn-label waves-effect waves-light shadow-sm"
+                <button type="submit" class="btn btn-primary btn-label waves-effect waves-light shadow-sm"
                   [disabled]="submitting">
                   <i *ngIf="!submitting" class="ri-save-line label-icon align-middle fs-16 me-2"></i>
                   <span *ngIf="submitting" class="spinner-border spinner-border-sm me-2" role="status"></span>
                   {{ submitting ? 'Menyimpan Hasil...' : 'Simpan & Terapkan Hasil' }}
                 </button>
-                <button
-                  type="button"
-                  class="btn btn-soft-secondary"
-                  (click)="cancel()"
-                  [disabled]="submitting">
+                <button type="button" class="btn btn-soft-secondary" (click)="cancel()" [disabled]="submitting">
                   Batal & Kembali
                 </button>
               </div>
