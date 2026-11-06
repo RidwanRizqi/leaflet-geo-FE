@@ -68,6 +68,10 @@ export interface Assessment {
   // Timestamps
   createdAt?: string;
   updatedAt?: string;
+  updatedBy?: string;
+
+  // Omzet Justification
+  justifikasiOmzet?: number;
 }
 
 export interface RealisasiHistoryItem {
@@ -126,6 +130,7 @@ export interface LocationDetails {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
 }
 
 export interface AssessmentListResponse {
@@ -169,6 +174,7 @@ export interface AssessmentRequest {
   nearSchool?: boolean;
   nearOffice?: boolean;
   nearMarket?: boolean;
+  crowdLevel?: string;
     // Menu Based Method
   menuItems?: MenuItem[];
   openingDaysPerMonth?: number;
@@ -187,6 +193,11 @@ export interface AssessmentRequest {
   taxRate?: number;
   inflationRate?: number;
   operationalRate?: number;
+  
+  // Omzet Justification
+  justifikasiOmzet?: number;
+  
+  updatedBy?: string;
 }
 
 export interface ObservationRequest {

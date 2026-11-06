@@ -3,6 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgPipesModule } from 'ngx-pipes';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { DefaultRouteComponent } from './components/default-route/default-route.component';
 import { LayoutsModule } from './components/layouts/layouts.module';
 import { PagesModule } from './features/pages.module';
 import {
@@ -52,7 +53,7 @@ export function createTranslateLoader(http: HttpClient): any {
 }
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, DefaultRouteComponent],
   bootstrap: [AppComponent],
   imports: [
     TranslateModule.forRoot({

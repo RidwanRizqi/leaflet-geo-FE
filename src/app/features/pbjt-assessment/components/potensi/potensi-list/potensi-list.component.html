@@ -1,0 +1,1638 @@
+<div class="container-fluid">
+  <!-- Breadcrumbs & Actions Header (Velzon Standard) -->
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <app-breadcrumbs
+          [title]="breadCrumbTitle"
+          [breadcrumbItems]="breadCrumbItems">
+        </app-breadcrumbs>
+        <div class="d-flex gap-2">
+          <button class="btn btn-success btn-label waves-effect waves-light" (click)="openExportModal()">
+            <i class="ri-file-excel-2-line label-icon align-middle fs-16 me-2"></i> Cetak Excel
+          </button>
+          <button class="btn btn-primary btn-label waves-effect waves-light" (click)="createNew()">
+            <i class="ri-add-line label-icon align-middle fs-16 me-2"></i> Tambah Potensi Baru
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Widgets Section (Velzon Signature Dashboard Style) -->
+  <div class="row mb-2" *ngIf="!loading">
+    <!-- Widget 1: Total Usaha -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1 overflow-hidden">
+              <p class="text-uppercase fw-semibold text-muted text-truncate mb-0 fs-12">Total Usaha Terdata</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-3">
+            <div>
+              <h4 class="fs-22 fw-bold ff-secondary mb-0 text-dark">{{ totalUsahaCount }}</h4>
+              <span class="badge bg-light text-muted fs-11 mt-1 border">Objek Usaha</span>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-primary-subtle rounded fs-3">
+                <i class="ri-store-2-line text-primary"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget 2: Estimasi Total Omzet -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1 overflow-hidden">
+              <p class="text-uppercase fw-semibold text-muted text-truncate mb-0 fs-12">Total Estimasi Omzet / Bln</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-3">
+            <div>
+              <h4 class="fs-18 fw-bold ff-secondary mb-0 text-primary">{{ formatCurrency(totalEstimasiOmzet) }}</h4>
+              <span class="badge bg-primary-subtle text-primary fs-11 mt-1">Estimasi Lapangan</span>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-success-subtle rounded fs-3">
+                <i class="ri-money-dollar-circle-line text-success"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget 3: Potensi Pajak PBJT (10%) -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1 overflow-hidden">
+              <p class="text-uppercase fw-semibold text-muted text-truncate mb-0 fs-12">Potensi PBJT / Bln (10%)</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-3">
+            <div>
+              <h4 class="fs-18 fw-bold ff-secondary mb-0 text-success">{{ formatCurrency(totalEstimasiPbjt) }}</h4>
+              <span class="badge bg-success-subtle text-success fs-11 mt-1">10% Pajak Daerah</span>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-warning-subtle rounded fs-3">
+                <i class="ri-percent-line text-warning"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Widget 4: Observasi Lapangan -->
+    <div class="col-xl-3 col-md-6">
+      <div class="card card-animate">
+        <div class="card-body">
+          <div class="d-flex align-items-center">
+            <div class="flex-grow-1 overflow-hidden">
+              <p class="text-uppercase fw-semibold text-muted text-truncate mb-0 fs-12">Observasi Lapangan</p>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between mt-3">
+            <div>
+              <h4 class="fs-22 fw-bold ff-secondary mb-0 text-info">{{ totalObservasiCount }}</h4>
+              <span class="badge bg-info-subtle text-info fs-11 mt-1">Kegiatan Survei</span>
+            </div>
+            <div class="avatar-sm flex-shrink-0">
+              <span class="avatar-title bg-info-subtle rounded fs-3">
+                <i class="ri-survey-line text-info"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header border-bottom-dashed">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+              <h5 class="card-title mb-0">Daftar Potensi Usaha (Non-SIMPATDA)</h5>
+              <p class="text-muted small mb-0">Data hasil survei dan pendataan potensi objek pajak mandiri di lapangan</p>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex justify-content-end gap-2">
+                <div class="search-box position-relative w-100" style="max-width: 350px;">
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    placeholder="Cari kode, nama usaha, alamat, kecamatan..."
+                    [(ngModel)]="searchTerm"
+                    (input)="onSearch()">
+                  <i class="ri-search-line search-icon position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Memuat data potensi...</p>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+            <i class="ri-error-warning-line align-middle me-2"></i> {{ error }}
+          </div>
+
+          <!-- Table -->
+          <div *ngIf="!loading && !error" class="table-responsive table-card mb-0">
+            <table class="table table-hover table-striped align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 140px;">Kode Potensi</th>
+                  <th>Nama Usaha</th>
+                  <th>Lokasi</th>
+                  <th>Tipe Usaha</th>
+                  <th class="text-end">Kapasitas</th>
+                  <th>Tanggal</th>
+                  <th>Tracking Update</th>
+                  <th class="text-center" style="width: 250px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of potensiList">
+                  <td>
+                    <span class="badge bg-primary-subtle text-primary font-monospace py-1 px-2 fs-12">
+                      {{ item.kodePotensi }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <strong class="text-dark">{{ item.namaUsaha }}</strong>
+                      <span *ngIf="item.observationCount && item.observationCount > 0"
+                            class="badge bg-info-subtle text-info cursor-pointer border border-info-subtle py-1 px-2"
+                            (click)="openHistoryModal(item)"
+                            style="cursor: pointer;"
+                            title="Klik untuk melihat {{ item.observationCount }} riwayat survei & komparasi">
+                        <i class="ri-history-line me-1"></i>{{ item.observationCount }} Survei
+                      </span>
+                    </div>
+                    <small class="text-muted" *ngIf="item.menuItems?.length">
+                      <i class="ri-restaurant-line text-success"></i> {{ item.menuItems?.length }} Menu terdaftar
+                    </small>
+                    <small class="text-muted" *ngIf="!item.menuItems?.length">
+                      <span class="badge bg-warning-subtle text-warning">Belum ada menu</span>
+                    </small>
+                  </td>
+                  <td>
+                    <small class="d-block fw-medium">
+                      {{ item.kelurahan || '-' }}, {{ item.kecamatan || '-' }}
+                    </small>
+                    <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;" [title]="item.alamat || ''">
+                      {{ item.alamat || '-' }}
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle">
+                      {{ getBusinessTypeDisplay(item.tipeUsaha) }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <span class="fw-semibold">{{ item.kapasitasKursi || 0 }}</span> seats
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ item.tanggalPendataan | date:'dd/MM/yyyy' }}</small>
+                  </td>
+                  <td>
+                    <div *ngIf="item.updatedBy">
+                      <small class="d-block fw-bold text-primary">{{ item.updatedBy }}</small>
+                      <small class="text-muted">{{ item.updatedAt | date:'dd/MM/yyyy HH:mm' }}</small>
+                    </div>
+                    <div *ngIf="!item.updatedBy">
+                      <small class="text-muted">-</small>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="d-flex justify-content-center gap-1">
+                      <!-- Action: Observasi Potensi Lapangan -> Pindah Halaman ke Pendataan Potensi -->
+                      <button
+                        class="btn btn-sm btn-soft-primary position-relative"
+                        (click)="goToPendataan(item)"
+                        title="Observasi & Pendataan Potensi Lapangan">
+                        <i class="ri-survey-line align-middle"></i>
+                        <span *ngIf="item.observationCount && item.observationCount > 0"
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                              style="font-size: 0.65rem;"
+                              title="{{ item.observationCount }} Observasi Tercatat">
+                          {{ item.observationCount }}
+                        </span>
+                      </button>
+                      <!-- Action: Riwayat & Komparasi Survei -->
+                      <button
+                        class="btn btn-sm btn-soft-secondary"
+                        (click)="openHistoryModal(item)"
+                        title="Riwayat & Komparasi Survei Lapangan">
+                        <i class="ri-history-line align-middle"></i>
+                      </button>
+                      <!-- Action: Cetak Berita Acara -->
+                      <button
+                        class="btn btn-sm btn-soft-dark"
+                        (click)="openSignatureModal(item, signatureModalTemplate)"
+                        title="Print Berita Acara">
+                        <i class="ri-printer-line align-middle"></i>
+                      </button>
+                      <!-- Action: Detail -->
+                      <button
+                        class="btn btn-sm btn-soft-info"
+                        (click)="viewDetail(item)"
+                        title="Lihat Detail Lengkap">
+                        <i class="ri-eye-line align-middle"></i>
+                      </button>
+                      <!-- Action: Google Maps -->
+                      <button
+                        class="btn btn-sm btn-soft-success"
+                        (click)="viewOnGoogleMaps(item)"
+                        title="Buka di Google Maps"
+                        [disabled]="!item.latitude || !item.longitude">
+                        <i class="ri-map-pin-2-line align-middle"></i>
+                      </button>
+                      <!-- Action: Edit -->
+                      <button
+                        class="btn btn-sm btn-soft-warning"
+                        (click)="editPotensi(item)"
+                        title="Edit Profil, Lokasi & Menu">
+                        <i class="ri-edit-line align-middle"></i>
+                      </button>
+                      <!-- Action: Hapus -->
+                      <button
+                        class="btn btn-sm btn-soft-danger"
+                        (click)="deletePotensi(item)"
+                        title="Hapus Data">
+                        <i class="ri-delete-bin-line align-middle"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="potensiList.length === 0 && !loading">
+                  <td colspan="8" class="text-center py-5">
+                    <div class="text-muted">
+                      <i class="ri-funds-line text-secondary" style="font-size: 3.5rem;"></i>
+                      <p class="mt-3 fs-15" *ngIf="searchTerm">
+                        Tidak ada hasil untuk pencarian "<strong>{{ searchTerm }}</strong>"
+                      </p>
+                      <p class="mt-3 fs-15" *ngIf="!searchTerm">
+                        Belum ada data Potensi PBJT yang terdaftar
+                      </p>
+                      <button class="btn btn-primary btn-sm mt-2" (click)="createNew()" *ngIf="!searchTerm">
+                        <i class="ri-add-line"></i> Tambah Data Potensi Pertama
+                      </button>
+                      <button class="btn btn-secondary btn-sm mt-2" (click)="searchTerm=''; onSearch()" *ngIf="searchTerm">
+                        <i class="ri-close-line"></i> Reset Pencarian
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="totalElements > 0 && !loading" class="row align-items-center mt-4">
+            <div class="col-sm-6">
+              <div class="text-muted">
+                Menampilkan <span class="fw-semibold">{{ currentPage * pageSize + 1 }}</span> sampai
+                <span class="fw-semibold">{{ (currentPage + 1) * pageSize > totalElements ? totalElements : (currentPage + 1) * pageSize }}</span> dari
+                <span class="fw-semibold">{{ totalElements }}</span> data
+              </div>
+            </div>
+            <div class="col-sm-6">
+              <div class="d-flex justify-content-end">
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item" [class.disabled]="currentPage === 0">
+                    <button class="page-link" (click)="onPageChange(currentPage - 1)">
+                      <i class="ri-arrow-left-s-line"></i> Sebelumnya
+                    </button>
+                  </li>
+                  <li class="page-item active">
+                    <span class="page-link">{{ currentPage + 1 }} / {{ totalPages }}</span>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPage >= totalPages - 1">
+                    <button class="page-link" (click)="onPageChange(currentPage + 1)">
+                      Berikutnya <i class="ri-arrow-right-s-line"></i>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= POP-UP MODAL: DAFTAR MENU & ESTIMASI POTENSI ================= -->
+<ng-template #menuModal let-modal>
+  <div class="modal-header bg-success text-white py-3">
+    <div>
+      <h5 class="modal-title text-white mb-0">
+        <i class="ri-restaurant-line me-1"></i> Daftar Menu & Estimasi Potensi
+      </h5>
+      <small class="text-white-50">
+        {{ selectedPotensi?.namaUsaha }} (<code>{{ selectedPotensi?.kodePotensi }}</code>) &bull; Kapasitas: {{ selectedPotensi?.kapasitasKursi || 0 }} Kursi
+      </small>
+    </div>
+    <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body p-4">
+    <!-- Datalist Autocomplete dari Master Menu -->
+    <datalist id="popupMasterMenuList">
+      <option *ngFor="let m of masterMenus" [value]="m.namaMenu">
+        {{ m.kategori === 'BEVERAGE' ? 'Minuman' : 'Makanan' }} - {{ formatCurrency(m.defaultHarga || 0) }}
+      </option>
+    </datalist>
+
+    <div class="row g-4">
+      <!-- Kolom Kiri: Input Daftar Menu -->
+      <div class="col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 fw-semibold small text-nowrap">Hari Buka / Bulan:</label>
+            <div class="input-group input-group-sm" style="width: 140px;">
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="openingDaysEdit"
+                (input)="calculateModalEstimates()"
+                min="1"
+                max="31">
+              <span class="input-group-text">Hari</span>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-success" (click)="addMenuModalItem()">
+            <i class="ri-add-line me-1"></i> Tambah Menu
+          </button>
+        </div>
+
+        <div class="alert alert-soft-success small py-2 mb-3">
+          <i class="ri-lightbulb-line me-1"></i> Ketik nama menu untuk memilih dari katalog Master Menu, atau ketik nama menu baru. Menu baru akan otomatis tersimpan ke Master Menu database.
+        </div>
+
+        <!-- Tabel Daftar Menu Popup -->
+        <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+          <table class="table table-bordered table-sm align-middle mb-0">
+            <thead class="table-light text-center small text-muted position-sticky top-0 bg-light" style="z-index: 1;">
+              <tr>
+                <th>Nama Menu</th>
+                <th style="width: 130px;">Kategori</th>
+                <th style="width: 140px;">Harga (Rp)</th>
+                <th style="width: 45px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of menuModalItems; let i = index">
+                <td>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    list="popupMasterMenuList"
+                    [(ngModel)]="item.name"
+                    (input)="onModalMenuNameSelected(i, $event)"
+                    placeholder="Nama menu...">
+                </td>
+                <td>
+                  <select class="form-select form-select-sm" [(ngModel)]="item.category" (change)="calculateModalEstimates()">
+                    <option value="FOOD">Makanan</option>
+                    <option value="BEVERAGE">Minuman</option>
+                  </select>
+                </td>
+                <td>
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Rp</span>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [(ngModel)]="item.price"
+                      (input)="calculateModalEstimates()"
+                      min="0"
+                      placeholder="0">
+                  </div>
+                </td>
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm p-0 px-1"
+                    (click)="removeMenuModalItem(i)"
+                    title="Hapus baris menu">
+                    <i class="ri-delete-bin-line"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="menuModalItems.length === 0">
+                <td colspan="4" class="text-center py-4 text-muted small">
+                  Belum ada menu yang ditambahkan. Klik tombol "Tambah Menu" di atas.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Kolom Kanan: Rincian Estimasi Omzet & PBJT -->
+      <div class="col-lg-5">
+        <div class="card bg-light border-0 h-100">
+          <div class="card-body p-3">
+            <h6 class="fw-bold text-primary mb-3">
+              <i class="ri-calculator-line me-1"></i> Rincian Estimasi Potensi Pajak
+            </h6>
+
+            <div class="list-group list-group-flush mb-3 text-sm bg-white rounded p-2 border">
+              <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-1 border-0">
+                <span class="text-muted small">Rata-rata Makanan:</span>
+                <strong class="text-dark">{{ formatCurrency(calcModalPreview.avgFood) }}</strong>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-1 border-0">
+                <span class="text-muted small">Rata-rata Minuman:</span>
+                <strong class="text-dark">{{ formatCurrency(calcModalPreview.avgBev) }}</strong>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-2 border-top bg-light rounded mt-1">
+                <span class="fw-semibold small">Pengeluaran / Orang:</span>
+                <strong class="text-primary">{{ formatCurrency(calcModalPreview.spendPerPerson) }}</strong>
+              </div>
+              <div class="list-group-item d-flex justify-content-between align-items-center px-2 py-1 border-0 mt-1">
+                <span class="text-muted small">Pengunjung / Hari:</span>
+                <strong class="text-dark">{{ calcModalPreview.dailyVisitors }} orang</strong>
+              </div>
+            </div>
+
+            <!-- Omzet Card -->
+            <div class="card bg-primary-subtle border-0 mb-2">
+              <div class="card-body p-3">
+                <small class="text-primary fw-bold text-uppercase d-block fs-11">Estimasi Omzet Bulanan</small>
+                <h4 class="mb-0 text-primary mt-1 fw-bold">{{ formatCurrency(calcModalPreview.monthlyRevenue) }}</h4>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-2">
+              <div class="col-6">
+                <div class="card bg-success-subtle border-0 mb-0">
+                  <div class="card-body p-2">
+                    <small class="text-success fw-bold text-uppercase d-block fs-11">PBJT / Bulan (10%)</small>
+                    <h6 class="mb-0 text-success mt-1 fw-bold">{{ formatCurrency(calcModalPreview.monthlyPbjt) }}</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="card bg-warning-subtle border-0 mb-0">
+                  <div class="card-body p-2">
+                    <small class="text-warning fw-bold text-uppercase d-block fs-11">PBJT / Tahun (+3%)</small>
+                    <h6 class="mb-0 text-warning mt-1 fw-bold">{{ formatCurrency(calcModalPreview.annualPbjt) }}</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <small class="text-muted d-block mt-2 fs-11">
+              <i class="ri-information-line"></i> Nilai omzet dan potensi pajak otomatis tersimpan dan terbarui pada data potensi objek ini.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer bg-light py-2">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()" [disabled]="savingMenuModal">Tutup</button>
+    <button type="button" class="btn btn-success" (click)="saveMenuModal()" [disabled]="savingMenuModal">
+      <span *ngIf="savingMenuModal" class="spinner-border spinner-border-sm me-1" role="status"></span>
+      <i *ngIf="!savingMenuModal" class="ri-save-line me-1"></i>
+      {{ savingMenuModal ? 'Menyimpan...' : 'Simpan Menu & Hitung Potensi' }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- ================= MODAL EXPORT EXCEL ================= -->
+<ng-template #exportModal let-modal>
+  <div class="modal-header bg-success text-white">
+    <h5 class="modal-title text-white">
+      <i class="ri-file-excel-2-line me-1"></i> Cetak Data ke Excel (.xlsx)
+    </h5>
+    <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label class="form-label fw-bold">Pilih Metode Cetak:</label>
+      <div class="d-flex gap-3 mt-1">
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="exportMode"
+            id="modeAll"
+            value="ALL"
+            [(ngModel)]="exportMode">
+          <label class="form-check-label" for="modeAll">
+            <strong>Cetak Semua Data</strong>
+            <small class="d-block text-muted">Ekspor seluruh data potensi tanpa filter</small>
+          </label>
+        </div>
+        <div class="form-check">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="exportMode"
+            id="modeDate"
+            value="DATE_RANGE"
+            [(ngModel)]="exportMode">
+          <label class="form-check-label" for="modeDate">
+            <strong>Filter Tanggal</strong>
+            <small class="d-block text-muted">Berdasarkan tanggal pendataan</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date Range inputs (if DATE_RANGE selected) -->
+    <div *ngIf="exportMode === 'DATE_RANGE'" class="card bg-light border p-3 mb-3">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Dari Tanggal:</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="exportStartDate">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label small fw-semibold">Sampai Tanggal:</label>
+          <input type="date" class="form-control form-control-sm" [(ngModel)]="exportEndDate">
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info py-2 small mb-0">
+      <i class="ri-information-line me-1"></i> File Excel yang diunduh mencakup data profil usaha, lokasi GIS, detail daftar menu, serta estimasi omzet dan PBJT bulanan/tahunan.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()" [disabled]="exporting">Batal</button>
+    <button type="button" class="btn btn-success" (click)="executeExport()" [disabled]="exporting">
+      <span *ngIf="exporting" class="spinner-border spinner-border-sm me-1" role="status"></span>
+      <i *ngIf="!exporting" class="ri-download-2-line me-1"></i>
+      {{ exporting ? 'Mengunduh...' : 'Unduh File Excel' }}
+    </button>
+  </div>
+</ng-template>
+
+<!-- ================= POP-UP MODAL: OBSERVASI POTENSI LAPANGAN ================= -->
+<ng-template #observationModal let-modal>
+  <div class="modal-header bg-primary text-white py-3">
+    <div>
+      <h5 class="modal-title text-white mb-0">
+        <i class="ri-survey-line me-2"></i> Observasi Potensi Lapangan
+      </h5>
+      <small class="text-white-50">
+        {{ selectedPotensiObs?.namaUsaha }} | Kode: {{ selectedPotensiObs?.kodePotensi }}
+        | Jam Buka: {{ selectedPotensiObs?.jamBuka || '08:00' }} - {{ selectedPotensiObs?.jamTutup || '22:00' }}
+        | {{ selectedPotensiObs?.openingDaysPerMonth || 30 }} Hari/Bulan
+      </small>
+    </div>
+    <button type="button" class="btn-close btn-close-white" (click)="modal.dismiss()"></button>
+  </div>
+
+  <div class="modal-body p-4">
+    <!-- INFO BANNER -->
+    <div class="alert alert-info py-2 px-3 small mb-4 d-flex align-items-center">
+      <i class="ri-information-line fs-5 me-2 text-info"></i>
+      <div>
+        Fitur ini digunakan untuk <strong>mencatat observasi riil lapangan</strong> berdasarkan <strong>jumlah pengunjung</strong>,
+        <strong>waktu ramai/kunjungan</strong>, dan <strong>menu yang dipesan/diobservasi</strong>.
+        Setiap kali observasi disimpan, sistem langsung memperbarui estimasi potensi pajak dengan rumus observasi resmi.
+      </div>
+    </div>
+
+    <!-- SECTION 1: RIWAYAT OBSERVASI TERCATAT -->
+    <div class="card border mb-4">
+      <div class="card-header bg-light py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">
+          <i class="ri-history-line me-1 text-primary"></i> Riwayat Observasi Usaha Ini
+          <span class="badge bg-primary ms-1">{{ observationList.length }}</span>
+        </h6>
+        <span class="text-muted small" *ngIf="observationList.length > 0">
+          Potensi pajak dihitung dari rata-rata observasi
+        </span>
+      </div>
+      <div class="card-body p-0">
+        <div *ngIf="loadingObservations" class="text-center py-4">
+          <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+          <span class="ms-2 small text-muted">Memuat riwayat observasi...</span>
+        </div>
+
+        <div *ngIf="!loadingObservations && observationList.length === 0" class="text-center py-4 text-muted small">
+          <i class="ri-inbox-line fs-3 d-block text-secondary mb-1"></i>
+          Belum ada data observasi yang tercatat untuk usaha ini. Silakan tambahkan observasi pertama Anda pada formulir di bawah.
+        </div>
+
+        <div class="table-responsive" *ngIf="!loadingObservations && observationList.length > 0">
+          <table class="table table-hover align-middle mb-0 table-sm" style="font-size: 0.85rem;">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 40px;" class="text-center">#</th>
+                <th>Waktu & Tanggal</th>
+                <th>Kategori Waktu</th>
+                <th class="text-end">Pengunjung</th>
+                <th class="text-end">Durasi</th>
+                <th class="text-end">VPH (Org/Jam)</th>
+                <th class="text-end">Spend/Org</th>
+                <th class="text-end">Est. PBJT/Bulan</th>
+                <th>Petugas & Catatan</th>
+                <th style="width: 60px;" class="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let obs of observationList; let i = index">
+                <td class="text-center text-muted fw-bold">{{ i + 1 }}</td>
+                <td>
+                  <span class="fw-semibold text-dark">{{ obs.tanggalObservasi | date:'dd/MM/yyyy HH:mm' }}</span>
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getTipeWaktuBadge(obs.tipeWaktu).class">
+                    {{ getTipeWaktuBadge(obs.tipeWaktu).label }}
+                  </span>
+                </td>
+                <td class="text-end fw-bold text-primary">{{ obs.jumlahPengunjung }} orang</td>
+                <td class="text-end">{{ obs.durasiJam }} jam</td>
+                <td class="text-end fw-bold">{{ obs.pengunjungPerJam }}</td>
+                <td class="text-end">{{ formatCurrency(obs.spendPerPerson) }}</td>
+                <td class="text-end fw-bold text-success">{{ formatCurrency(obs.estimatedMonthlyPbjt) }}</td>
+                <td>
+                  <div class="fw-semibold text-dark">{{ obs.petugas || '-' }}</div>
+                  <small class="text-muted" *ngIf="obs.catatan">{{ obs.catatan }}</small>
+                </td>
+                <td class="text-center">
+                  <button
+                    class="btn btn-sm btn-outline-danger py-0 px-2"
+                    (click)="deleteObservation(obs)"
+                    [disabled]="deletingObservationId === obs.id"
+                    title="Hapus Observasi Ini">
+                    <span *ngIf="deletingObservationId === obs.id" class="spinner-border spinner-border-sm" role="status"></span>
+                    <i *ngIf="deletingObservationId !== obs.id" class="ri-delete-bin-line"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: FORM INPUT OBSERVASI BARU -->
+    <div class="card border border-primary shadow-sm">
+      <div class="card-header bg-primary bg-opacity-10 py-2 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-primary">
+          <i class="ri-add-circle-line me-1"></i> Tambah Observasi Baru (Waktu Ramai / Lapangan)
+        </h6>
+        <span class="badge bg-primary">Input Pengunjung & Menu</span>
+      </div>
+      <div class="card-body p-3">
+        <!-- BARIS 1: Tanggal/Jam, Tipe Waktu, Petugas -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Tanggal & Jam Observasi <span class="text-danger">*</span>
+            </label>
+            <input
+              type="datetime-local"
+              class="form-control form-control-sm"
+              [(ngModel)]="newObsDate">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Kategori Waktu Kunjungan <span class="text-danger">*</span>
+            </label>
+            <select class="form-select form-select-sm" [(ngModel)]="newObsTipeWaktu">
+              <option value="PEAK">Waktu Ramai (Peak Hour)</option>
+              <option value="NORMAL">Waktu Normal / Biasa</option>
+              <option value="OFF_PEAK">Waktu Sepi (Off-Peak)</option>
+            </select>
+            <small class="text-muted" style="font-size: 0.75rem;">
+              Pilih waktu ramai jika observasi dilakukan saat pengunjung puncak WP.
+            </small>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Petugas Observasi / Surveyor
+            </label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="newObsPetugas"
+              placeholder="Nama Petugas Lapangan">
+          </div>
+        </div>
+
+        <!-- BARIS 2: Pengunjung, Durasi, Catatan -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Jumlah Pengunjung (Orang) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-sm">
+              <input
+                type="number"
+                min="1"
+                class="form-control"
+                [(ngModel)]="newObsVisitors"
+                (ngModelChange)="calculateObsLivePreview()"
+                placeholder="Contoh: 35">
+              <span class="input-group-text bg-light text-muted">Orang</span>
+            </div>
+            <small class="text-muted" style="font-size: 0.75rem;">
+              Total pengunjung yang datang/terlihat selama durasi observasi.
+            </small>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Durasi Observasi (Jam) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group input-group-sm">
+              <input
+                type="number"
+                step="0.5"
+                min="0.5"
+                max="24"
+                class="form-control"
+                [(ngModel)]="newObsDuration"
+                (ngModelChange)="calculateObsLivePreview()"
+                placeholder="Contoh: 1.0">
+              <span class="input-group-text bg-light text-muted">Jam</span>
+            </div>
+            <small class="text-primary fw-semibold" style="font-size: 0.75rem;">
+              VPH: {{ calcObsPreview.vph }} orang per jam
+            </small>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label small fw-semibold text-dark mb-1">
+              Catatan Kondisi Lapangan (Opsional)
+            </label>
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              [(ngModel)]="newObsCatatan"
+              placeholder="Misal: Parkiran penuh, jam istirahat kantor">
+          </div>
+        </div>
+
+        <!-- BARIS 3: MENU OBSERVASI (Checklist & Tambah Menu Baru) -->
+        <div class="card bg-light border mb-3">
+          <div class="card-header bg-white py-2 d-flex justify-content-between align-items-center">
+            <span class="small fw-bold text-dark">
+              <i class="ri-restaurant-2-line me-1 text-success"></i> Menu Yang Diobservasi / Dipesan Pengunjung
+              <span class="badge bg-success ms-1">
+                {{ getSelectedObsMenuCount() }} Terpilih
+              </span>
+            </span>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-secondary btn-sm py-0" (click)="toggleSelectAllObsMenus(true)">
+                Pilih Semua
+              </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm py-0" (click)="toggleSelectAllObsMenus(false)">
+                Batalkan
+              </button>
+              <button type="button" class="btn btn-outline-success btn-sm py-0" (click)="showAddMenuInline = !showAddMenuInline">
+                <i class="ri-add-line"></i> + Menu Baru
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-3">
+            <!-- Inline Add New Menu Form -->
+            <div *ngIf="showAddMenuInline" class="card border border-success p-2 mb-3 bg-white">
+              <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                  <label class="form-label small fw-semibold mb-1">Nama Menu Baru:</label>
+                  <input
+                    type="text"
+                    class="form-control form-control-sm"
+                    [(ngModel)]="inlineMenuName"
+                    placeholder="Contoh: Nasi Goreng Spesial">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label small fw-semibold mb-1">Kategori:</label>
+                  <select class="form-select form-select-sm" [(ngModel)]="inlineMenuCategory">
+                    <option value="FOOD">Makanan (FOOD)</option>
+                    <option value="BEVERAGE">Minuman (BEVERAGE)</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label small fw-semibold mb-1">Harga (Rp):</label>
+                  <input
+                    type="number"
+                    class="form-control form-control-sm"
+                    [(ngModel)]="inlineMenuPrice"
+                    placeholder="15000">
+                </div>
+                <div class="col-md-2 d-flex gap-1">
+                  <button type="button" class="btn btn-success btn-sm w-100" (click)="addInlineMenu()">
+                    <i class="ri-check-line"></i> Tambah
+                  </button>
+                  <button type="button" class="btn btn-light btn-sm" (click)="showAddMenuInline = false">
+                    <i class="ri-close-line"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- List Menu Checkbox Items -->
+            <div *ngIf="obsMenuItems.length === 0" class="text-center py-2 text-muted small">
+              Belum ada menu yang terdaftar untuk usaha ini. Silakan klik tombol <strong>+ Menu Baru</strong> di atas untuk menambahkan menu yang dipesan.
+            </div>
+
+            <div class="row g-2" *ngIf="obsMenuItems.length > 0">
+              <div class="col-md-6 col-lg-4" *ngFor="let m of obsMenuItems; let idx = index">
+                <div
+                  class="p-2 border rounded d-flex align-items-center justify-content-between"
+                  [ngClass]="m.selected ? 'bg-white border-primary shadow-xs' : 'bg-light text-muted'"
+                  style="cursor: pointer;"
+                  (click)="toggleObsMenuSelection(idx)">
+                  <div class="form-check mb-0">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [checked]="m.selected"
+                      (click)="$event.stopPropagation(); toggleObsMenuSelection(idx)">
+                    <label class="form-check-label fw-semibold small" style="cursor: pointer;">
+                      {{ m.name }}
+                    </label>
+                    <div class="small text-muted" style="font-size: 0.72rem;">
+                      <span class="badge" [ngClass]="m.category === 'BEVERAGE' ? 'bg-info text-dark' : 'bg-warning text-dark'">
+                        {{ m.category === 'BEVERAGE' ? 'Minuman' : 'Makanan' }}
+                      </span>
+                    </div>
+                  </div>
+                  <span class="fw-bold small" [ngClass]="m.selected ? 'text-primary' : 'text-muted'">
+                    {{ formatCurrency(m.price) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BARIS 4: LIVE PREVIEW HASIL KALKULASI OBSERVASI -->
+        <div class="card bg-success bg-opacity-10 border border-success p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold text-success">
+              <i class="ri-calculator-line me-1"></i> Live Preview Hasil Kalkulasi Observasi Ini
+            </span>
+            <span class="badge bg-success">Rumus Menu-Based Assessment</span>
+          </div>
+
+          <div class="row g-2 text-center">
+            <div class="col-6 col-md-3">
+              <div class="bg-white p-2 rounded border">
+                <small class="text-muted d-block" style="font-size: 0.72rem;">VPH (Pengunjung/Jam)</small>
+                <span class="fw-bold text-dark fs-6">{{ calcObsPreview.vph }}</span>
+                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                  {{ calcObsPreview.operatingHours }} Jam Buka/Hari
+                </small>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="bg-white p-2 rounded border">
+                <small class="text-muted d-block" style="font-size: 0.72rem;">Pengunjung Harian</small>
+                <span class="fw-bold text-primary fs-6">{{ calcObsPreview.dailyVisitors }}</span>
+                <small class="text-muted d-block" style="font-size: 0.7rem;">Orang / Hari</small>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="bg-white p-2 rounded border">
+                <small class="text-muted d-block" style="font-size: 0.72rem;">Rata-rata Belanja/Orang</small>
+                <span class="fw-bold text-dark fs-6">{{ formatCurrency(calcObsPreview.spendPerPerson) }}</span>
+                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                  Mak: {{ formatCurrency(calcObsPreview.avgFood) }} | Min: {{ formatCurrency(calcObsPreview.avgBev) }}
+                </small>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="bg-white p-2 rounded border border-success">
+                <small class="text-muted d-block" style="font-size: 0.72rem;">Est. PBJT Bulanan (10%)</small>
+                <span class="fw-bold text-success fs-6">{{ formatCurrency(calcObsPreview.monthlyPbjt) }}</span>
+                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                  Omzet: {{ formatCurrency(calcObsPreview.monthlyRevenue) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer bg-white d-flex justify-content-between align-items-center py-3">
+        <span class="text-muted small">
+          <i class="ri-check-double-line text-success me-1"></i>
+          Menyimpan observasi akan memperbarui data potensi pajak usaha ini secara otomatis.
+        </span>
+        <button
+          type="button"
+          class="btn btn-primary"
+          (click)="saveObservation()"
+          [disabled]="savingObservation">
+          <span *ngIf="savingObservation" class="spinner-border spinner-border-sm me-1" role="status"></span>
+          <i *ngIf="!savingObservation" class="ri-save-line me-1"></i>
+          {{ savingObservation ? 'Menyimpan...' : 'Simpan & Terapkan Hasil Observasi' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()">Tutup</button>
+  </div>
+</ng-template>
+
+<!-- ========================================================================================= -->
+<!-- MODAL TANDA TANGAN BERITA ACARA                                                           -->
+<!-- ========================================================================================= -->
+<ng-template #signatureModalTemplate let-modal>
+  <div class="modal-header bg-light">
+    <h5 class="modal-title fw-bold">
+      <i class="ri-file-text-line me-1 text-primary"></i> Form Tanda Tangan Berita Acara
+    </h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body p-4 bg-light bg-opacity-50">
+    <div class="card mb-4 shadow-sm border-0">
+      <div class="card-header bg-primary text-white py-2">
+        <h6 class="mb-0 fs-14 fw-semibold">
+          <i class="ri-file-list-3-line me-1"></i> Data Tambahan Berita Acara
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Nomor Surat Perintah</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNoSuratPerintah" placeholder="Contoh: 000.1.2.3 / ... / 427.74/2026">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Tanggal</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="baTanggal">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">NIP Pegawai</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNip" placeholder="(Kosongkan jika tidak ada)">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">NIK WP</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baNik" placeholder="(Kosongkan jika tidak ada)">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Nomor Telp.</label>
+            <input type="text" class="form-control form-control-sm" [(ngModel)]="baTelp" placeholder="Contoh: 08..">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Bertindak Selaku</label>
+            <div class="mt-1">
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="baB1" value="Wajib Pajak" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label small" for="baB1">Wajib Pajak</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="baB2" value="Wakil" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label small" for="baB2">Wakil</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="baBertindak" id="baB3" value="Kuasa" [(ngModel)]="baBertindakSelaku">
+                <label class="form-check-label small" for="baB3">Kuasa</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Tarif Menu (Rata-rata)</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text">Rp</span>
+              <input type="number" class="form-control" [(ngModel)]="baTarifMenu">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Pengunjung Weekend/Libur</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungWeekend">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Pengunjung Hari Biasa</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungBiasa">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold">Rata-rata Pengunjung / Bulan</label>
+            <input type="number" class="form-control form-control-sm" [(ngModel)]="baPengunjungRata">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold d-block">Pemilik Usaha sudah menerapkan PBJT 10%</label>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="potensiSudahPbjt" [(ngModel)]="baSudahPbjt">
+              <label class="form-check-label small" for="potensiSudahPbjt">{{ baSudahPbjt ? 'Sudah' : 'Belum' }}</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold d-block">Menyetujui / Bersedia dipungut pajak</label>
+            <div class="form-check form-switch mt-2">
+              <input class="form-check-input" type="checkbox" id="potensiSetujuPajak" [(ngModel)]="baSetujuPajak">
+              <label class="form-check-label small" for="potensiSetujuPajak">{{ baSetujuPajak ? 'Setuju & Bersedia' : 'Tidak Setuju' }}</label>
+            </div>
+          </div>
+          <div class="col-md-12" *ngIf="!baSetujuPajak">
+            <label class="form-label small fw-bold text-danger">Alasan Tidak Setuju</label>
+            <textarea class="form-control form-control-sm border-danger" rows="2" [(ngModel)]="baAlasanTidakSetuju" placeholder="Masukkan alasan mengapa tidak setuju..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <!-- Wajib Pajak (Disembunyikan jika role adalah USER) -->
+      <div class="col-md-6 mb-3 text-center" *ngIf="!isUserRole()">
+        <label class="form-label fw-bold">Wajib Pajak / Penanggung Jawab</label>
+        <input type="text" class="form-control mb-3 text-center form-control-sm" [(ngModel)]="wpName" placeholder="Nama Wajib Pajak">
+        
+        <div style="border: 2px dashed #a3c2e0; background-color: #fff; border-radius: 8px;">
+          <canvas id="potensiWpCanvas" width="1000" height="350" style="touch-action: none; width: 100%; height: 160px;"></canvas>
+        </div>
+        <button class="btn btn-sm btn-outline-danger mt-2" (click)="clearWpSignature()">
+          <i class="ri-eraser-line me-1"></i> Bersihkan
+        </button>
+      </div>
+
+      <!-- Petugas Pemeriksa -->
+      <div [ngClass]="isUserRole() ? 'col-md-12' : 'col-md-6'" class="mb-3 text-center">
+        <label class="form-label fw-bold">Petugas Pemeriksa (Surveyor)</label>
+        <input type="text" class="form-control mb-3 text-center form-control-sm" [(ngModel)]="petugasName" placeholder="Nama Petugas">
+        
+        <div style="border: 2px dashed #a3c2e0; background-color: #fff; border-radius: 8px;">
+          <canvas id="potensiPetugasCanvas" width="1000" height="350" style="touch-action: none; width: 100%; height: 160px;"></canvas>
+        </div>
+        <button class="btn btn-sm btn-outline-danger mt-2" (click)="clearPetugasSignature()">
+          <i class="ri-eraser-line me-1"></i> Bersihkan
+        </button>
+      </div>
+    </div>
+    
+    <div class="alert alert-warning mb-0 mt-3 border-0 py-2" role="alert">
+       <i class="ri-information-line me-2"></i><strong>Tips:</strong> Jika tidak bertanda tangan, silakan kosongi kotak tanda tangan di atas.
+    </div>
+  </div>
+  
+  <div class="modal-footer border-top-0">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss('Close click')">Tutup</button>
+    <button type="button" class="btn btn-success" (click)="modal.close('generate')">
+      <i class="ri-printer-line me-1"></i> Generate Berita Acara
+    </button>
+  </div>
+</ng-template>
+
+<!-- ========================================================================= -->
+<!--             POPUP MODAL: RIWAYAT & KOMPARASI SURVEI LAPANGAN              -->
+<!-- ========================================================================= -->
+<ng-template #historyModalTemplate let-modal>
+  <div class="modal-header bg-light pb-3">
+    <div class="d-flex align-items-center">
+      <div class="avatar-xs me-2">
+        <span class="avatar-title rounded-circle bg-primary-subtle text-primary">
+          <i class="ri-history-line fs-18"></i>
+        </span>
+      </div>
+      <div>
+        <h5 class="modal-title mb-0 fw-bold">Riwayat & Komparasi Survei Lapangan</h5>
+        <div class="d-flex align-items-center gap-2 mt-1">
+          <span class="text-dark fw-semibold fs-13">{{ selectedPotensiHistory?.namaUsaha }}</span>
+          <span class="badge bg-primary-subtle text-primary fs-11 font-monospace">{{ selectedPotensiHistory?.kodePotensi }}</span>
+          <span class="badge bg-info-subtle text-info fs-11">{{ getBusinessTypeDisplay(selectedPotensiHistory?.tipeUsaha) }}</span>
+          <span class="badge bg-secondary-subtle text-secondary fs-11">
+            <i class="ri-file-list-3-line me-1"></i>Total {{ historyList.length }} Survei
+          </span>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+
+  <!-- Navigation Bar: Tabs + Action Button -->
+  <div class="bg-light px-3 py-2 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <ul class="nav nav-pills nav-custom nav-custom-light">
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link"
+          [class.active]="activeHistoryTab === 'timeline'"
+          (click)="activeHistoryTab = 'timeline'">
+          <i class="ri-time-line me-1 align-middle"></i>
+          Timeline Riwayat Survei
+          <span class="badge rounded-pill bg-primary ms-1" *ngIf="historyList.length > 0">{{ historyList.length }}</span>
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link"
+          [class.active]="activeHistoryTab === 'compare'"
+          (click)="activeHistoryTab = 'compare'">
+          <i class="ri-scales-3-line me-1 align-middle"></i>
+          Komparasi Berdampingan
+        </button>
+      </li>
+    </ul>
+
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn btn-sm btn-primary"
+        (click)="modal.dismiss(); goToPendataan(selectedPotensiHistory!)"
+        title="Input Data Survei Observasi Baru">
+        <i class="ri-add-circle-line me-1 align-middle"></i>
+        Survei Baru
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-body p-4" style="max-height: 72vh; overflow-y: auto;">
+    <!-- Loading Spinner -->
+    <div *ngIf="loadingHistory" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading riwayat...</span>
+      </div>
+      <p class="text-muted mt-2 fs-13">Memuat riwayat survei lapangan...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loadingHistory && historyList.length === 0" class="text-center py-5">
+      <div class="avatar-lg mx-auto mb-3">
+        <span class="avatar-title rounded-circle bg-light text-muted fs-32">
+          <i class="ri-history-line"></i>
+        </span>
+      </div>
+      <h6 class="fw-semibold text-dark">Belum Ada Riwayat Survei</h6>
+      <p class="text-muted fs-13 mb-3">
+        Objek usaha ini belum pernah disurvei di lapangan. Lakukan survei pertama untuk menetapkan baseline potensi pajak.
+      </p>
+      <button
+        type="button"
+        class="btn btn-primary btn-sm"
+        (click)="modal.dismiss(); goToPendataan(selectedPotensiHistory!)">
+        <i class="ri-survey-line me-1"></i> Mulai Survei Pertama
+      </button>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!--                   TAB 1: RIWAYAT OBSERVASI METODE MENU                   -->
+    <!-- ===================================================================== -->
+    <div *ngIf="!loadingHistory && historyList.length > 0 && activeHistoryTab === 'timeline'">
+      <!-- Outer Card Container with Teal Rounded Border matching the user image -->
+      <div class="card shadow-none mb-3" style="border: 1.5px solid #20c997; border-radius: 14px; background: #ffffff;">
+        <div class="card-body p-4">
+          <!-- Card Header Row -->
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <div class="d-flex align-items-center">
+              <i class="ri-history-line text-success fs-18 me-2"></i>
+              <h6 class="mb-0 fw-semibold text-dark fs-14">Riwayat Observasi Metode Menu</h6>
+            </div>
+            <div>
+              <button
+                type="button"
+                class="btn btn-sm fw-bold p-0 text-decoration-none"
+                style="color: #0ab39c; font-size: 13px;"
+                (click)="modal.dismiss(); goToPendataan(selectedPotensiHistory!)">
+                + Tambah Observasi
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr class="text-dark fw-bold fs-13" style="border-bottom: 2px solid #e9ebec;">
+                  <th style="min-width: 170px;">Tgl Observasi</th>
+                  <th>Hari Buka/Bulan</th>
+                  <th>Jumlah Menu</th>
+                  <th>Omzet/Bulan</th>
+                  <th>Pajak PBJT/Bulan</th>
+                  <th class="text-center" style="width: 70px;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let obs of historyList; let idx = index">
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold text-dark fs-13">{{ obs.tanggalObservasi | date:'dd MMM yyyy' }}</span>
+                        <span *ngIf="idx === 0" class="badge bg-success-subtle text-success border border-success-subtle fs-10 py-1 px-1">Aktif</span>
+                        <span class="badge bg-light text-muted border fs-10 py-1 px-1">Ke-{{ obs.surveyKe || (historyList.length - idx) }}</span>
+                      </div>
+                      <small class="text-muted d-block fs-11 mt-1">
+                        <i class="ri-user-line me-1"></i>{{ obs.petugas || 'Surveyor' }} &bull; 
+                        <span [ngClass]="obs.tipeWaktu === 'PEAK' ? 'text-danger fw-semibold' : 'text-muted'">{{ getTipeWaktuBadge(obs.tipeWaktu).label }}</span>
+                      </small>
+                    </td>
+                    <td>
+                      <span class="text-dark fw-medium">{{ selectedPotensiHistory?.openingDaysPerMonth || 30 }} Hari</span>
+                      <small class="text-muted d-block fs-11 mt-1">{{ obs.jumlahPengunjung }} Org / {{ obs.vph || obs.pengunjungPerJam || 0 }} VPH</small>
+                    </td>
+                    <td>
+                      <span class="badge bg-light text-dark border px-2 py-1 fs-12">
+                        {{ obs.menuItems?.length || 0 }} Item
+                      </span>
+                    </td>
+                    <td>
+                      <span class="text-dark fw-semibold fs-13">{{ formatCurrency(obs.estimatedMonthlyRevenue) }}</span>
+                      <small class="text-muted d-block fs-11 mt-1">&#64; {{ formatCurrency(obs.avgSpendPerPerson || obs.spendPerPerson) }}/org</small>
+                    </td>
+                    <td>
+                      <strong class="text-primary fs-14 fw-bold">{{ formatCurrency(obs.estimatedMonthlyPbjt || obs.estimatedPbjtBulanan) }}</strong>
+                      <small class="text-muted d-block fs-11 mt-1">10% PBJT</small>
+                    </td>
+                    <td class="text-center">
+                      <!-- Red outline trash can button as in screenshot -->
+                      <button
+                        type="button"
+                        class="btn btn-sm btn-outline-danger p-1 px-2"
+                        style="border-radius: 6px; border-color: #f87171; color: #ef4444;"
+                        (click)="deleteObservation(obs)"
+                        title="Hapus Riwayat Survei">
+                        <i class="ri-delete-bin-line fs-14"></i>
+                      </button>
+                    </td>
+                  </tr>
+
+                  <!-- Baris Detail Tambahan: Sampel Menu & Foto Lapangan jika tersedia -->
+                  <tr *ngIf="(obs.menuItems && obs.menuItems.length > 0) || (obs.photoUrls && obs.photoUrls.length > 0) || obs.catatan" class="bg-light-subtle">
+                    <td colspan="6" class="p-2 px-3 border-0">
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 fs-12">
+                        <div class="d-flex align-items-center gap-2 flex-wrap" *ngIf="obs.menuItems && obs.menuItems.length > 0">
+                          <small class="text-muted fw-semibold"><i class="ri-restaurant-line text-success me-1"></i>Sampel Menu:</small>
+                          <span *ngFor="let m of obs.menuItems" class="badge bg-white text-dark border py-1 px-2 fs-11">
+                            {{ m.name }} <small class="text-muted" *ngIf="m.qty">({{ m.qty }}x)</small> &#64; {{ formatCurrency(m.price) }}
+                          </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2" *ngIf="obs.photoUrls && obs.photoUrls.length > 0">
+                          <small class="text-muted fw-semibold"><i class="ri-camera-line text-primary me-1"></i>Foto:</small>
+                          <a *ngFor="let p of obs.photoUrls" [href]="p" target="_blank" class="border rounded bg-white p-1 shadow-sm d-inline-block">
+                            <img [src]="p" alt="Foto" style="width: 28px; height: 28px; object-fit: cover; border-radius: 3px;" />
+                          </a>
+                        </div>
+                        <div *ngIf="obs.catatan" class="text-muted fs-11">
+                          <i class="ri-chat-1-line text-info me-1"></i>{{ obs.catatan }}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!--               TAB 2: KOMPARASI BERDAMPINGAN (SIDE-BY-SIDE)            -->
+    <!-- ===================================================================== -->
+    <div *ngIf="!loadingHistory && activeHistoryTab === 'compare'">
+      <!-- Kurang dari 2 data -->
+      <div *ngIf="historyList.length < 2" class="alert alert-warning border-0 bg-warning-subtle text-warning-emphasis py-3 px-3 rounded text-center">
+        <i class="ri-scales-3-line fs-24 d-block mb-2 text-warning"></i>
+        <h6 class="fw-bold mb-1">Dibutuhkan Minimal 2 Data Survei</h6>
+        <p class="fs-13 mb-2">
+          Komparasi berdampingan membutuhkan minimal 2 hasil observasi lapangan untuk membandingkan selisih nilai dan tren perubahan.
+        </p>
+        <button
+          type="button"
+          class="btn btn-warning btn-sm"
+          (click)="modal.dismiss(); goToPendataan(selectedPotensiHistory!)">
+          <i class="ri-add-line me-1"></i> Tambah Survei Kedua Sekarang
+        </button>
+      </div>
+
+      <!-- Jika 2 data atau lebih -->
+      <div *ngIf="historyList.length >= 2">
+        <!-- Selector Box -->
+        <div class="card border bg-light mb-3">
+          <div class="card-body p-3">
+            <div class="row g-3 align-items-center">
+              <div class="col-md-5">
+                <label class="form-label fs-12 fw-bold text-uppercase text-muted mb-1">
+                  <i class="ri-bookmark-line text-secondary me-1"></i>Survei A (Baseline / Acuan Lama)
+                </label>
+                <select class="form-select form-select-sm fw-medium border-secondary" [ngModel]="compareObsAId" (ngModelChange)="onSelectCompareA($event)">
+                  <option *ngFor="let item of historyList" [value]="item.id">
+                    Survei Ke-{{ item.surveyKe }} ({{ item.tanggalObservasi | date:'dd/MM/yyyy' }}) - {{ item.petugas || 'Surveyor' }} - {{ formatCurrency(item.estimatedPbjtBulanan) }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="col-md-2 text-center d-none d-md-block">
+                <span class="avatar-title rounded-circle bg-white shadow-sm border mx-auto fs-16 text-primary" style="width: 36px; height: 36px;">
+                  <i class="ri-arrow-left-right-line"></i>
+                </span>
+                <small class="text-muted d-block fs-11 mt-1">DIBANDINGKAN</small>
+              </div>
+
+              <div class="col-md-5">
+                <label class="form-label fs-12 fw-bold text-uppercase text-muted mb-1">
+                  <i class="ri-focus-3-line text-primary me-1"></i>Survei B (Pembanding / Baru)
+                </label>
+                <select class="form-select form-select-sm fw-medium border-primary" [ngModel]="compareObsBId" (ngModelChange)="onSelectCompareB($event)">
+                  <option *ngFor="let item of historyList" [value]="item.id">
+                    Survei Ke-{{ item.surveyKe }} ({{ item.tanggalObservasi | date:'dd/MM/yyyy' }}) - {{ item.petugas || 'Surveyor' }} - {{ formatCurrency(item.estimatedPbjtBulanan) }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="compareObsA && compareObsB">
+          <!-- Executive Summary Callout Banner -->
+          <div class="card border shadow-none mb-3" [ngClass]="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) >= 0 ? 'border-success bg-success-subtle' : 'border-danger bg-danger-subtle'">
+            <div class="card-body p-3">
+              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center">
+                  <div class="avatar-sm me-3 flex-shrink-0">
+                    <span class="avatar-title rounded-circle fs-20" [ngClass]="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) >= 0 ? 'bg-success text-white' : 'bg-danger text-white'">
+                      <i [ngClass]="getDeltaIcon(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)"></i>
+                    </span>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold" [ngClass]="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) >= 0 ? 'text-success' : 'text-danger'">
+                      Ringkasan Pertumbuhan Potensi PBJT:
+                      <span *ngIf="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) > 0">MENGALAMI KENAIKAN</span>
+                      <span *ngIf="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) < 0">MENGALAMI PENURUNAN</span>
+                      <span *ngIf="getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) === 0">TIDAK ADA PERUBAHAN (STABIL)</span>
+                    </h6>
+                    <p class="mb-0 fs-13 text-dark">
+                      Dari Survei Ke-{{ compareObsA.surveyKe }} ke Survei Ke-{{ compareObsB.surveyKe }}, potensi pajak bulanan berubah sebesar
+                      <strong>{{ formatCurrency(getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)) }}</strong>
+                      ({{ getDeltaPercent(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) }}%).
+                    </p>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <span class="badge py-2 px-3 fs-13" [ngClass]="getDeltaBadgeClass(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)">
+                    <i [ngClass]="getDeltaIcon(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)" class="me-1"></i>
+                    {{ getDeltaPercent(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) }}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Comparison Table -->
+          <div class="table-responsive table-card mb-4">
+            <table class="table table-bordered table-striped align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 28%;">Parameter Komparasi</th>
+                  <th class="text-center" style="width: 24%;">
+                    <div class="fw-bold">Survei Ke-{{ compareObsA.surveyKe }} (A)</div>
+                    <small class="text-muted">{{ compareObsA.tanggalObservasi | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </th>
+                  <th class="text-center" style="width: 24%;">
+                    <div class="fw-bold text-primary">Survei Ke-{{ compareObsB.surveyKe }} (B)</div>
+                    <small class="text-muted">{{ compareObsB.tanggalObservasi | date:'dd/MM/yyyy HH:mm' }}</small>
+                  </th>
+                  <th class="text-center" style="width: 24%;">Selisih & Perubahan (B vs A)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- 1. Surveyor & Waktu -->
+                <tr>
+                  <td class="fw-semibold text-dark">Petugas Surveyor</td>
+                  <td class="text-center">{{ compareObsA.petugas || 'Surveyor' }}</td>
+                  <td class="text-center text-primary fw-medium">{{ compareObsB.petugas || 'Surveyor' }}</td>
+                  <td class="text-center text-muted fs-12">-</td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold text-dark">Kondisi Waktu Survei</td>
+                  <td class="text-center">
+                    <span class="badge" [ngClass]="getTipeWaktuBadge(compareObsA.tipeWaktu).class">
+                      {{ getTipeWaktuBadge(compareObsA.tipeWaktu).label }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge" [ngClass]="getTipeWaktuBadge(compareObsB.tipeWaktu).class">
+                      {{ getTipeWaktuBadge(compareObsB.tipeWaktu).label }}
+                    </span>
+                  </td>
+                  <td class="text-center text-muted fs-12">
+                    {{ compareObsA.tipeWaktu === compareObsB.tipeWaktu ? 'Kondisi Serupa' : 'Kondisi Berbeda' }}
+                  </td>
+                </tr>
+
+                <!-- 2. Pengunjung & Durasi -->
+                <tr>
+                  <td class="fw-semibold text-dark">Pengunjung Teramati</td>
+                  <td class="text-center">{{ compareObsA.jumlahPengunjung }} orang</td>
+                  <td class="text-center fw-bold">{{ compareObsB.jumlahPengunjung }} orang</td>
+                  <td class="text-center">
+                    <span [ngClass]="getDeltaBadgeClass(compareObsB.jumlahPengunjung, compareObsA.jumlahPengunjung)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.jumlahPengunjung, compareObsA.jumlahPengunjung)" class="me-1"></i>
+                      {{ getDelta(compareObsB.jumlahPengunjung, compareObsA.jumlahPengunjung) > 0 ? '+' : '' }}{{ getDelta(compareObsB.jumlahPengunjung, compareObsA.jumlahPengunjung) }} org
+                      ({{ getDeltaPercent(compareObsB.jumlahPengunjung, compareObsA.jumlahPengunjung) }}%)
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold text-dark">Durasi Pengamatan</td>
+                  <td class="text-center">{{ compareObsA.durasiJam }} jam</td>
+                  <td class="text-center">{{ compareObsB.durasiJam }} jam</td>
+                  <td class="text-center text-muted fs-12">
+                    {{ compareObsA.durasiJam === compareObsB.durasiJam ? 'Durasi Sama' : ((compareObsB.durasiJam || 1) - (compareObsA.durasiJam || 1)) + ' jam' }}
+                  </td>
+                </tr>
+                <tr>
+                  <td class="fw-semibold text-dark">Laju Pengunjung / Jam (VPH)</td>
+                  <td class="text-center fw-semibold">{{ compareObsA.vph || 0 }} VPH</td>
+                  <td class="text-center fw-bold text-primary">{{ compareObsB.vph || 0 }} VPH</td>
+                  <td class="text-center">
+                    <span [ngClass]="getDeltaBadgeClass(compareObsB.vph, compareObsA.vph)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.vph, compareObsA.vph)" class="me-1"></i>
+                      {{ getDelta(compareObsB.vph, compareObsA.vph) > 0 ? '+' : '' }}{{ getDelta(compareObsB.vph, compareObsA.vph) }} VPH
+                      ({{ getDeltaPercent(compareObsB.vph, compareObsA.vph) }}%)
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- 3. Rata-rata Belanja -->
+                <tr>
+                  <td class="fw-semibold text-dark">Rata-rata Belanja / Orang</td>
+                  <td class="text-center">{{ formatCurrency(compareObsA.avgSpendPerPerson) }}</td>
+                  <td class="text-center fw-bold">{{ formatCurrency(compareObsB.avgSpendPerPerson) }}</td>
+                  <td class="text-center">
+                    <span [ngClass]="getDeltaBadgeClass(compareObsB.avgSpendPerPerson, compareObsA.avgSpendPerPerson)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.avgSpendPerPerson, compareObsA.avgSpendPerPerson)" class="me-1"></i>
+                      {{ formatCurrency(getDelta(compareObsB.avgSpendPerPerson, compareObsA.avgSpendPerPerson)) }}
+                      ({{ getDeltaPercent(compareObsB.avgSpendPerPerson, compareObsA.avgSpendPerPerson) }}%)
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- 4. Estimasi Omzet Bulanan -->
+                <tr>
+                  <td class="fw-semibold text-dark">Estimasi Omzet Bulanan</td>
+                  <td class="text-center fw-semibold">{{ formatCurrency(compareObsA.estimatedMonthlyRevenue) }}</td>
+                  <td class="text-center fw-bold text-dark">{{ formatCurrency(compareObsB.estimatedMonthlyRevenue) }}</td>
+                  <td class="text-center">
+                    <span [ngClass]="getDeltaBadgeClass(compareObsB.estimatedMonthlyRevenue, compareObsA.estimatedMonthlyRevenue)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.estimatedMonthlyRevenue, compareObsA.estimatedMonthlyRevenue)" class="me-1"></i>
+                      {{ formatCurrency(getDelta(compareObsB.estimatedMonthlyRevenue, compareObsA.estimatedMonthlyRevenue)) }}
+                      ({{ getDeltaPercent(compareObsB.estimatedMonthlyRevenue, compareObsA.estimatedMonthlyRevenue) }}%)
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- 5. Potensi PBJT 10% Bulanan (Main KPI) -->
+                <tr class="table-active">
+                  <td class="fw-bold text-success fs-14">
+                    <i class="ri-percent-line me-1"></i>Potensi PBJT 10% Bulanan
+                  </td>
+                  <td class="text-center fw-bold fs-14 text-dark">{{ formatCurrency(compareObsA.estimatedPbjtBulanan) }}</td>
+                  <td class="text-center fw-bold fs-14 text-success">{{ formatCurrency(compareObsB.estimatedPbjtBulanan) }}</td>
+                  <td class="text-center">
+                    <span class="py-1 px-2 fs-13" [ngClass]="getDeltaBadgeClass(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)" class="me-1"></i>
+                      {{ formatCurrency(getDelta(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)) }}
+                      ({{ getDeltaPercent(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan) }}%)
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- 6. Potensi PBJT 10% Tahunan -->
+                <tr>
+                  <td class="fw-semibold text-dark">Potensi PBJT 10% Tahunan</td>
+                  <td class="text-center">{{ formatCurrency((compareObsA.estimatedPbjtBulanan || 0) * 12) }}</td>
+                  <td class="text-center fw-bold">{{ formatCurrency((compareObsB.estimatedPbjtBulanan || 0) * 12) }}</td>
+                  <td class="text-center">
+                    <span [ngClass]="getDeltaBadgeClass((compareObsB.estimatedPbjtBulanan || 0) * 12, (compareObsA.estimatedPbjtBulanan || 0) * 12)">
+                      <i [ngClass]="getDeltaIcon(compareObsB.estimatedPbjtBulanan, compareObsA.estimatedPbjtBulanan)" class="me-1"></i>
+                      {{ formatCurrency(getDelta((compareObsB.estimatedPbjtBulanan || 0) * 12, (compareObsA.estimatedPbjtBulanan || 0) * 12)) }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Komparasi Visual: Foto Dokumentasi Lapangan Berdampingan -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card border mb-0">
+                <div class="card-header bg-light py-2 px-3">
+                  <h6 class="mb-0 fs-12 fw-bold text-uppercase text-muted">
+                    <i class="ri-camera-line me-1 text-secondary"></i>
+                    Foto Dokumentasi Survei Ke-{{ compareObsA.surveyKe }} ({{ compareObsA.photoUrls?.length || 0 }})
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="d-flex flex-wrap gap-2" *ngIf="compareObsA.photoUrls && compareObsA.photoUrls.length > 0">
+                    <a *ngFor="let p of compareObsA.photoUrls" [href]="p" target="_blank" class="border rounded p-1 bg-white shadow-sm">
+                      <img [src]="p" alt="Foto Survei A" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+                    </a>
+                  </div>
+                  <div class="text-muted fs-12 text-center py-3" *ngIf="!compareObsA.photoUrls || compareObsA.photoUrls.length === 0">
+                    Tidak ada foto pada survei ini.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border mb-0">
+                <div class="card-header bg-light py-2 px-3">
+                  <h6 class="mb-0 fs-12 fw-bold text-uppercase text-primary">
+                    <i class="ri-camera-line me-1 text-primary"></i>
+                    Foto Dokumentasi Survei Ke-{{ compareObsB.surveyKe }} ({{ compareObsB.photoUrls?.length || 0 }})
+                  </h6>
+                </div>
+                <div class="card-body p-3">
+                  <div class="d-flex flex-wrap gap-2" *ngIf="compareObsB.photoUrls && compareObsB.photoUrls.length > 0">
+                    <a *ngFor="let p of compareObsB.photoUrls" [href]="p" target="_blank" class="border rounded p-1 bg-white shadow-sm">
+                      <img [src]="p" alt="Foto Survei B" style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" />
+                    </a>
+                  </div>
+                  <div class="text-muted fs-12 text-center py-3" *ngIf="!compareObsB.photoUrls || compareObsB.photoUrls.length === 0">
+                    Tidak ada foto pada survei ini.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Komparasi Sampel Menu -->
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card border mb-0">
+                <div class="card-header bg-light py-2 px-3">
+                  <h6 class="mb-0 fs-12 fw-bold text-uppercase text-muted">
+                    <i class="ri-restaurant-line me-1 text-success"></i>
+                    Sampel Menu Survei Ke-{{ compareObsA.surveyKe }} ({{ compareObsA.menuItems?.length || 0 }} Menu)
+                  </h6>
+                </div>
+                <div class="card-body p-2">
+                  <div class="list-group list-group-flush fs-12" *ngIf="compareObsA.menuItems && compareObsA.menuItems.length > 0">
+                    <div *ngFor="let m of compareObsA.menuItems" class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0">
+                      <span>{{ m.name }} <small class="text-muted" *ngIf="m.qty">({{ m.qty }}x)</small></span>
+                      <span class="fw-semibold">{{ formatCurrency(m.price) }}</span>
+                    </div>
+                  </div>
+                  <div class="text-muted fs-12 text-center py-2" *ngIf="!compareObsA.menuItems || compareObsA.menuItems.length === 0">
+                    Tidak ada catatan menu.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border mb-0">
+                <div class="card-header bg-light py-2 px-3">
+                  <h6 class="mb-0 fs-12 fw-bold text-uppercase text-primary">
+                    <i class="ri-restaurant-line me-1 text-success"></i>
+                    Sampel Menu Survei Ke-{{ compareObsB.surveyKe }} ({{ compareObsB.menuItems?.length || 0 }} Menu)
+                  </h6>
+                </div>
+                <div class="card-body p-2">
+                  <div class="list-group list-group-flush fs-12" *ngIf="compareObsB.menuItems && compareObsB.menuItems.length > 0">
+                    <div *ngFor="let m of compareObsB.menuItems" class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0">
+                      <span>{{ m.name }} <small class="text-muted" *ngIf="m.qty">({{ m.qty }}x)</small></span>
+                      <span class="fw-semibold text-primary">{{ formatCurrency(m.price) }}</span>
+                    </div>
+                  </div>
+                  <div class="text-muted fs-12 text-center py-2" *ngIf="!compareObsB.menuItems || compareObsB.menuItems.length === 0">
+                    Tidak ada catatan menu.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer bg-light py-2">
+    <button type="button" class="btn btn-light" (click)="modal.dismiss()">Tutup</button>
+  </div>
+</ng-template>

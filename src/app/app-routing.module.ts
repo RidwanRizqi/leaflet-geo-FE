@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { LayoutComponent } from './components/layouts/layout.component';
+import { DefaultRouteComponent } from './components/default-route/default-route.component';
 
 // Auth
 import { AuthGuard } from './guards/auth.guard';
@@ -10,15 +11,18 @@ const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
-    canActivate: [AuthGuard],  // Added AuthGuard here
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
     children: [
-      { path: '', redirectTo: 'dashboard-pajak', pathMatch: 'full' },
+      { path: '', component: DefaultRouteComponent, pathMatch: 'full' },
       { path: 'dashboard-pajak', loadChildren: () => import('./features/dashboard-pajak/dashboard-pajak.module').then(m => m.DashboardPajakModule) },
       { path: 'dashboard-pendapatan', loadComponent: () => import('./features/dashboard-pendapatan/dashboard-pendapatan.component').then(m => m.DashboardPendapatanComponent) },
       { path: 'proyeksi-ai', loadComponent: () => import('./features/proyeksi-iipa/proyeksi-iipa.component').then(m => m.ProyeksiIipaComponent) },
       { path: 'pbjt-assessment', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-hotel', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
       { path: 'pbjt-makanan', loadChildren: () => import('./features/pbjt-assessment/pbjt-assessment.module').then(m => m.PbjtAssessmentModule) },
+      { path: 'laporan-dinas', loadChildren: () => import('./pages/laporan-dinas/laporan-dinas.module').then(m => m.LaporanDinasModule) },
+      { path: 'absensi', loadChildren: () => import('./features/absensi/absensi.module').then(m => m.AbsensiModule) },
       { path: '', loadChildren: () => import('./features/pages.module').then(m => m.PagesModule) }
     ]
   },

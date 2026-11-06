@@ -804,6 +804,9 @@
       },
       "ANGGARAN": {
         "TEXT": "Anggaran"
+      },
+      "OPSEN": {
+        "TEXT": "Opsen"
       }
     },
     "BIDANG": {

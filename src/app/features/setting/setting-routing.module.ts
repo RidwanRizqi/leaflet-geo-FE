@@ -5,6 +5,7 @@ import { KecamatanComponent } from './kecamatan/kecamatan.component';
 import { KelurahanComponent } from './kelurahan/kelurahan.component';
 import { BlokComponent } from './blok/blok.component';
 import { AnggaranComponent } from './anggaran/anggaran.component';
+import { OpsenComponent } from './opsen/opsen.component';
 
 const routes: Routes = [
     {
@@ -27,6 +28,10 @@ const routes: Routes = [
     {
         path: 'anggaran',
         component: AnggaranComponent
+    },
+    {
+        path: 'opsen',
+        component: OpsenComponent
     }
 ];
 

@@ -1,0 +1,589 @@
+<div class="container-fluid">
+  <!-- Start Breadcrumbs (Velzon Standard) -->
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <app-breadcrumbs
+          [title]="(isEditMode ? 'Edit' : 'Tambah') + ' Potensi PBJT'"
+          [breadcrumbItems]="breadCrumbItems">
+        </app-breadcrumbs>
+        <div>
+          <button class="btn btn-soft-secondary btn-sm" (click)="cancel()">
+            <i class="ri-arrow-left-line align-middle me-1"></i> Kembali ke Daftar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Memuat data form...</p>
+  </div>
+
+  <div class="row" *ngIf="!loading">
+    <div class="col-lg-12">
+      <form [formGroup]="potensiForm" (ngSubmit)="onSubmit()">
+        <!-- Step Navigation Tabs -->
+        <div class="card mb-3 shadow-sm border-0">
+          <div class="card-body p-2">
+            <ul class="nav nav-pills nav-justified gap-2" role="tablist">
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link text-start d-flex align-items-center p-3 rounded-3"
+                  [class.active]="activeTab === 1"
+                  (click)="activeTab = 1">
+                  <div class="avatar-xs flex-shrink-0 me-3">
+                    <span class="avatar-title rounded-circle" [class.bg-primary]="activeTab === 1" [class.bg-light]="activeTab !== 1" [class.text-dark]="activeTab !== 1">1</span>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-semibold">1. Profil Usaha</h6>
+                    <small class="text-muted">Nama usaha, kapasitas & operasional</small>
+                  </div>
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link text-start d-flex align-items-center p-3 rounded-3"
+                  [class.active]="activeTab === 2"
+                  (click)="activeTab = 2">
+                  <div class="avatar-xs flex-shrink-0 me-3">
+                    <span class="avatar-title rounded-circle" [class.bg-primary]="activeTab === 2" [class.bg-light]="activeTab !== 2" [class.text-dark]="activeTab !== 2">2</span>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-semibold">2. Lokasi & GIS</h6>
+                    <small class="text-muted">Alamat, koordinat & faktor sekitar</small>
+                  </div>
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  type="button"
+                  class="nav-link text-start d-flex align-items-center p-3 rounded-3"
+                  [class.active]="activeTab === 3"
+                  (click)="activeTab = 3">
+                  <div class="avatar-xs flex-shrink-0 me-3">
+                    <span class="avatar-title rounded-circle" [class.bg-primary]="activeTab === 3" [class.bg-light]="activeTab !== 3" [class.text-dark]="activeTab !== 3">3</span>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-semibold">3. Daftar Menu & Potensi</h6>
+                    <small class="text-muted">Katalog menu & estimasi omzet/pajak</small>
+                  </div>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ================= TAB 1: PROFIL USAHA ================= -->
+        <div class="card shadow-sm border-0 mb-4" *ngIf="activeTab === 1">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 text-primary">
+              <i class="ri-store-2-line me-1"></i> Informasi Profil Usaha Potensi
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info py-2 small mb-4">
+              <i class="ri-information-line me-1"></i> Data potensi ini dicatat secara mandiri untuk objek yang belum terdaftar di SIMPATDA.
+            </div>
+
+            <!-- Datalist Autocomplete Nama Usaha yang sudah ada di database -->
+            <datalist id="businessNamesList">
+              <option *ngFor="let name of businessNames" [value]="name"></option>
+            </datalist>
+
+            <div class="row g-3">
+              <!-- Kode Potensi (Auto-filled & Readonly) -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                  Kode Potensi <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text bg-light text-primary fw-bold font-monospace">
+                    <i class="ri-barcode-line me-1"></i> POT
+                  </span>
+                  <input
+                    id="input-kodePotensi"
+                    type="text"
+                    class="form-control font-monospace bg-light fw-bold text-primary"
+                    formControlName="kodePotensi"
+                    readonly>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="generateNewCode()"
+                    title="Generate ulang kode"
+                    *ngIf="!isEditMode">
+                    <i class="ri-refresh-line"></i>
+                  </button>
+                </div>
+                <small class="text-muted d-block mt-1">
+                  <i class="ri-lock-line me-1"></i> Terisi otomatis oleh sistem dan tidak dapat diubah manual.
+                </small>
+              </div>
+
+              <!-- Tanggal Pendataan -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                  Tanggal Pendataan <span class="text-danger">*</span>
+                </label>
+                <input
+                  id="input-tanggalPendataan"
+                  type="date"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('tanggalPendataan')"
+                  formControlName="tanggalPendataan">
+                <div *ngIf="isFieldInvalid('tanggalPendataan')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Tanggal pendataan wajib diisi.
+                </div>
+              </div>
+
+              <!-- Tipe Usaha -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                  Tipe Usaha <span class="text-danger">*</span>
+                </label>
+                <select
+                  id="input-tipeUsaha"
+                  class="form-select"
+                  [class.is-invalid]="isFieldInvalid('tipeUsaha')"
+                  formControlName="tipeUsaha">
+                  <option *ngFor="let t of businessTypes" [value]="t.value">{{ t.label }}</option>
+                </select>
+                <div *ngIf="isFieldInvalid('tipeUsaha')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Tipe usaha wajib dipilih.
+                </div>
+              </div>
+
+              <!-- Nama Usaha (Dengan Autocomplete & Auto-load Menu) -->
+              <div class="col-md-8">
+                <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                  <span>Nama Usaha / Tempat Makan <span class="text-danger">*</span></span>
+                  <span *ngIf="isLoadingMenusByName" class="badge bg-primary-subtle text-primary">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span> Mencari data menu...
+                  </span>
+                </label>
+                <input
+                  id="input-namaUsaha"
+                  type="text"
+                  class="form-control"
+                  list="businessNamesList"
+                  [class.is-invalid]="isFieldInvalid('namaUsaha')"
+                  formControlName="namaUsaha"
+                  (change)="onNamaUsahaBlurOrSelect()"
+                  (blur)="onNamaUsahaBlurOrSelect()"
+                  placeholder="Contoh: Pinus Sewu, Warung Bakso Maknyus, Cafe Kopi Senja...">
+                <div *ngIf="isFieldInvalid('namaUsaha')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Nama usaha wajib diisi.
+                </div>
+                <small class="text-muted d-block mt-1">
+                  <i class="ri-lightbulb-line text-warning"></i> <strong>Deteksi Menu Otomatis:</strong> Ketik atau pilih nama usaha yang ada di database (misal <em>Pinus Sewu</em>), maka seluruh daftar menunya akan langsung otomatis tampil di form.
+                </small>
+              </div>
+
+              <!-- Kapasitas Kursi -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">
+                  Kapasitas Kursi (Seats) <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <input
+                    id="input-kapasitasKursi"
+                    type="number"
+                    class="form-control"
+                    [class.is-invalid]="isFieldInvalid('kapasitasKursi')"
+                    formControlName="kapasitasKursi"
+                    min="1"
+                    placeholder="25">
+                  <span class="input-group-text">Kursi</span>
+                </div>
+                <div *ngIf="isFieldInvalid('kapasitasKursi')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Kapasitas kursi wajib diisi (minimal 1 kursi).
+                </div>
+              </div>
+
+              <!-- Luas Bangunan -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Luas Bangunan (m²)</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="luasBangunan" min="0" placeholder="50">
+                  <span class="input-group-text">m²</span>
+                </div>
+              </div>
+
+              <!-- Jam Buka -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Jam Buka <span class="text-danger">*</span></label>
+                <input
+                  id="input-jamBuka"
+                  type="time"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('jamBuka')"
+                  formControlName="jamBuka">
+                <div *ngIf="isFieldInvalid('jamBuka')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Jam buka wajib diisi.
+                </div>
+              </div>
+
+              <!-- Jam Tutup -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Jam Tutup <span class="text-danger">*</span></label>
+                <input
+                  id="input-jamTutup"
+                  type="time"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('jamTutup')"
+                  formControlName="jamTutup">
+                <div *ngIf="isFieldInvalid('jamTutup')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Jam tutup wajib diisi.
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-light d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-primary" (click)="activeTab = 2">
+              Lanjut ke Lokasi & GIS <i class="ri-arrow-right-line ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 2: LOKASI & GIS ================= -->
+        <div class="card shadow-sm border-0 mb-4" *ngIf="activeTab === 2">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 text-primary">
+              <i class="ri-map-pin-line me-1"></i> Lokasi & Faktor Lingkungan
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <!-- Alamat -->
+              <div class="col-12">
+                <label class="form-label fw-semibold">Alamat Lengkap <span class="text-danger">*</span></label>
+                <textarea
+                  id="input-alamat"
+                  class="form-control"
+                  rows="2"
+                  [class.is-invalid]="isFieldInvalid('alamat')"
+                  formControlName="alamat"
+                  placeholder="Nama jalan, nomor, RT/RW..."></textarea>
+                <div *ngIf="isFieldInvalid('alamat')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Alamat lengkap wajib diisi.
+                </div>
+              </div>
+
+              <!-- Kecamatan -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kecamatan <span class="text-danger">*</span></label>
+                <select
+                  id="input-kecamatan"
+                  class="form-select"
+                  [class.is-invalid]="isFieldInvalid('kecamatan')"
+                  formControlName="kecamatan"
+                  (change)="onKecamatanChange()">
+                  <option value="">-- Pilih Kecamatan --</option>
+                  <option *ngFor="let k of kecamatanList" [value]="k.value">{{ k.label }}</option>
+                </select>
+                <div *ngIf="isFieldInvalid('kecamatan')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Kecamatan wajib dipilih.
+                </div>
+                <small *ngIf="isLoadingKecamatan" class="text-muted d-block mt-1">Memuat data kecamatan...</small>
+              </div>
+
+              <!-- Kelurahan -->
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Kelurahan / Desa <span class="text-danger">*</span></label>
+                <select
+                  id="input-kelurahan"
+                  class="form-select"
+                  [class.is-invalid]="isFieldInvalid('kelurahan')"
+                  formControlName="kelurahan"
+                  (change)="onKelurahanChange()">
+                  <option value="">-- Pilih Kelurahan --</option>
+                  <option *ngFor="let k of kelurahanList" [value]="k.value">{{ k.label }}</option>
+                </select>
+                <div *ngIf="isFieldInvalid('kelurahan')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Kelurahan / Desa wajib dipilih.
+                </div>
+                <small *ngIf="isLoadingKelurahan" class="text-muted d-block mt-1">Memuat data kelurahan...</small>
+              </div>
+
+              <!-- Koordinat GIS -->
+              <div class="col-md-5">
+                <label class="form-label fw-semibold">Latitude (Garis Lintang) <span class="text-danger">*</span></label>
+                <input
+                  id="input-latitude"
+                  type="number"
+                  step="0.000001"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('latitude')"
+                  formControlName="latitude">
+                <div *ngIf="isFieldInvalid('latitude')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Latitude wajib diisi (-90 s/d 90).
+                </div>
+              </div>
+              <div class="col-md-5">
+                <label class="form-label fw-semibold">Longitude (Garis Bujur) <span class="text-danger">*</span></label>
+                <input
+                  id="input-longitude"
+                  type="number"
+                  step="0.000001"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('longitude')"
+                  formControlName="longitude">
+                <div *ngIf="isFieldInvalid('longitude')" class="invalid-feedback-custom">
+                  <i class="ri-error-warning-line"></i> Longitude wajib diisi (-180 s/d 180).
+                </div>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-outline-success w-100" (click)="getCurrentLocation()" style="height: 38px;">
+                  <i class="ri-gps-line me-1"></i> GPS Saya
+                </button>
+              </div>
+
+              <!-- Tipe Jalan -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Tipe Akses Jalan</label>
+                <select class="form-select" formControlName="roadType">
+                  <option *ngFor="let r of roadTypes" [value]="r.value">{{ r.label }}</option>
+                </select>
+              </div>
+
+              <!-- Tingkat Keramaian -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Tingkat Keramaian</label>
+                <select class="form-select" formControlName="crowdLevel">
+                  <option *ngFor="let c of crowdLevels" [value]="c.value">{{ c.label }}</option>
+                </select>
+              </div>
+
+              <!-- Surveyor ID -->
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Petugas Surveyor</label>
+                <input type="text" class="form-control" formControlName="surveyorId" placeholder="ID / Nama Surveyor">
+              </div>
+
+              <!-- Faktor Fasilitas Sekitar -->
+              <div class="col-12">
+                <label class="form-label fw-semibold d-block">Fasilitas / Keramaian Sekitar Lokasi (+Bobot Omzet):</label>
+                <div class="d-flex flex-wrap gap-4 mt-1">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="nearSchool" formControlName="nearSchool">
+                    <label class="form-check-label" for="nearSchool">Dekat Sekolah / Kampus (+10%)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="nearOffice" formControlName="nearOffice">
+                    <label class="form-check-label" for="nearOffice">Dekat Perkantoran (+15%)</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="nearMarket" formControlName="nearMarket">
+                    <label class="form-check-label" for="nearMarket">Dekat Pasar / Pusat Belanja (+12%)</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer bg-light d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" (click)="activeTab = 1">
+              <i class="ri-arrow-left-line me-1"></i> Kembali ke Profil
+            </button>
+            <button type="button" class="btn btn-primary" (click)="activeTab = 3">
+              Lanjut ke Daftar Menu & Potensi <i class="ri-arrow-right-line ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= TAB 3: DAFTAR MENU & ESTIMASI ================= -->
+        <div class="row" *ngIf="activeTab === 3">
+          <!-- Kolom Kiri: Input Menu -->
+          <div class="col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 text-primary">
+                  <i class="ri-restaurant-line me-1"></i> Daftar Menu Makanan & Minuman
+                </h5>
+                <button type="button" class="btn btn-sm btn-outline-success" (click)="addMenuItem()">
+                  <i class="ri-add-line me-1"></i> Tambah Baris Menu
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="alert alert-soft-success small mb-3">
+                  <i class="ri-lightbulb-line me-1"></i>
+                  <strong>Katalog Terintegrasi:</strong> Ketik nama menu yang ada untuk memilih dari katalog Master Menu, atau ketik nama menu baru. Menu baru akan <strong>otomatis tersimpan ke Master Menu</strong> dan langsung dapat digunakan di Daftar Asesmen.
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Estimasi Hari Buka Per Bulan: <span class="text-danger">*</span></label>
+                  <div class="input-group" style="max-width: 200px;">
+                    <input
+                      id="input-openingDaysPerMonth"
+                      type="number"
+                      class="form-control"
+                      [class.is-invalid]="isFieldInvalid('openingDaysPerMonth')"
+                      formControlName="openingDaysPerMonth"
+                      min="1"
+                      max="31">
+                    <span class="input-group-text">Hari / Bulan</span>
+                  </div>
+                  <div *ngIf="isFieldInvalid('openingDaysPerMonth')" class="invalid-feedback-custom">
+                    <i class="ri-error-warning-line"></i> Hari buka per bulan wajib diisi (1 - 31 hari).
+                  </div>
+                </div>
+
+                <!-- Datalist Autocomplete dari Master Menu -->
+                <datalist id="masterMenuList">
+                  <option *ngFor="let m of masterMenus" [value]="m.namaMenu">
+                    {{ m.kategori === 'BEVERAGE' ? 'Minuman' : 'Makanan' }} - {{ formatCurrency(m.defaultHarga || 0) }}
+                  </option>
+                </datalist>
+
+                <!-- Tabel Input Menu Items -->
+                <div class="table-responsive">
+                  <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light text-center small text-muted">
+                      <tr>
+                        <th>Nama Menu (Ketik untuk cari/tambah) <span class="text-danger">*</span></th>
+                        <th style="width: 150px;">Kategori</th>
+                        <th style="width: 160px;">Harga (Rp) <span class="text-danger">*</span></th>
+                        <th style="width: 50px;"></th>
+                      </tr>
+                    </thead>
+                    <tbody formArrayName="menuItems">
+                      <tr *ngFor="let item of menuItems.controls; let i = index" [formGroupName]="i">
+                        <td>
+                          <input
+                            [id]="'input-menu-name-' + i"
+                            type="text"
+                            class="form-control"
+                            [class.is-invalid]="isMenuItemInvalid(i, 'name')"
+                            list="masterMenuList"
+                            formControlName="name"
+                            (input)="onMenuNameSelected(i, $event)"
+                            placeholder="Ketik nama menu...">
+                        </td>
+                        <td>
+                          <select class="form-select" formControlName="category">
+                            <option value="FOOD">Makanan</option>
+                            <option value="BEVERAGE">Minuman</option>
+                          </select>
+                        </td>
+                        <td>
+                          <div class="input-group">
+                            <span class="input-group-text">Rp</span>
+                            <input
+                              [id]="'input-menu-price-' + i"
+                              type="number"
+                              class="form-control"
+                              [class.is-invalid]="isMenuItemInvalid(i, 'price')"
+                              formControlName="price"
+                              min="0"
+                              placeholder="0">
+                          </div>
+                        </td>
+                        <td class="text-center">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm p-1 px-2"
+                            (click)="removeMenuItem(i)"
+                            title="Hapus baris menu">
+                            <i class="ri-delete-bin-line"></i>
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="menuItems.length === 0">
+                        <td colspan="4" class="text-center py-4 text-muted small">
+                          Belum ada menu yang ditambahkan. Klik tombol "Tambah Baris Menu" di atas.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="card-footer bg-light d-flex justify-content-between">
+                <button type="button" class="btn btn-secondary" (click)="activeTab = 2">
+                  <i class="ri-arrow-left-line me-1"></i> Kembali ke Lokasi
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Kolom Kanan: Live Calculation Estimasi -->
+          <div class="col-lg-5">
+            <div class="card shadow-sm border-0 border-top border-primary border-3 mb-4">
+              <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 text-primary">
+                  <i class="ri-calculator-line me-1"></i> Estimasi Perhitungan Potensi
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small">Dihitung otomatis secara real-time berdasarkan kapasitas, harga menu, jam operasional, dan lokasi.</p>
+
+                <!-- Parameter breakdown -->
+                <div class="list-group list-group-flush mb-3 text-sm">
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span class="text-muted">Rata-rata Harga Makanan:</span>
+                    <strong class="text-dark">{{ formatCurrency(calcPreview.avgFood) }}</strong>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span class="text-muted">Rata-rata Harga Minuman:</span>
+                    <strong class="text-dark">{{ formatCurrency(calcPreview.avgBev) }}</strong>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-light px-2 rounded">
+                    <span class="fw-semibold">Rata-rata Pengeluaran / Orang:</span>
+                    <strong class="text-primary">{{ formatCurrency(calcPreview.spendPerPerson) }}</strong>
+                  </div>
+                  <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                    <span class="text-muted">Estimasi Pengunjung / Hari:</span>
+                    <strong class="text-dark">{{ calcPreview.dailyVisitors }} orang</strong>
+                  </div>
+                </div>
+
+                <!-- Result Cards -->
+                <div class="card bg-primary-subtle border-0 mb-3">
+                  <div class="card-body p-3">
+                    <small class="text-primary fw-bold text-uppercase d-block">Estimasi Omzet Bulanan</small>
+                    <h4 class="mb-0 text-primary mt-1 fw-bold">{{ formatCurrency(calcPreview.monthlyRevenue) }}</h4>
+                  </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                  <div class="col-6">
+                    <div class="card bg-success-subtle border-0 mb-0">
+                      <div class="card-body p-3">
+                        <small class="text-success fw-bold text-uppercase d-block">PBJT / Bulan (10%)</small>
+                        <h5 class="mb-0 text-success mt-1 fw-bold">{{ formatCurrency(calcPreview.monthlyPbjt) }}</h5>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="card bg-warning-subtle border-0 mb-0">
+                      <div class="card-body p-3">
+                        <small class="text-warning fw-bold text-uppercase d-block">Proyeksi PBJT / Tahun</small>
+                        <h5 class="mb-0 text-warning mt-1 fw-bold">{{ formatCurrency(calcPreview.annualPbjt) }}</h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submit Action Buttons -->
+                <div class="d-grid gap-2 mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg" [disabled]="submitting">
+                    <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    <i *ngIf="!submitting" class="ri-save-line me-1"></i>
+                    {{ isEditMode ? 'Simpan Perubahan Potensi' : 'Simpan Data Potensi Baru' }}
+                  </button>
+                  <button type="button" class="btn btn-outline-secondary" (click)="cancel()" [disabled]="submitting">
+                    Batal
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

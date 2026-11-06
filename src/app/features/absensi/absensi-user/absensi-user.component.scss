@@ -1,0 +1,612 @@
+// ========================================================
+// ABSENSI USER STYLING (HARMONIZED WITH VELZON THEME)
+// ========================================================
+.absensi-page {
+  padding-bottom: 2.5rem;
+
+  // =============================================================
+  // HEADER CARD (MATCHING DASHBOARD PAJAK #004f36 -> #00695c)
+  // =============================================================
+  .header-card {
+    background: linear-gradient(135deg, #004f36 0%, #00695c 100%);
+    padding: 1.75rem 2rem;
+    border-radius: 16px;
+    color: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 79, 54, 0.25);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 320px;
+      height: 320px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .text-white-75 {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .user-avatar-box {
+      width: 54px;
+      height: 54px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+
+    .badge-role {
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .header-watermark-icon {
+      font-size: 5rem;
+      color: rgba(255, 255, 255, 0.08);
+      position: absolute;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+  }
+
+  // ==============================================================
+  //  PETUNJUK ABSEN BUTTON (WARM ACCENT WITH VELZON BUTTON STYLE)
+  // ==============================================================
+  .btn-petunjuk-absen {
+    background: #ffffff;
+    color: #004f36;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    padding: 0.65rem 1.15rem;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(6px);
+
+    &:hover {
+      background: #f0fdf4;
+      color: #004f36;
+      border-color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    .emoji-icon {
+      display: inline-block;
+      animation: emoji-float 2.5s infinite ease-in-out;
+    }
+  }
+
+  @keyframes emoji-float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+
+  // ========================================================
+  // DIGITAL CLOCK WIDGET (SLEEK & INTEGRATED)
+  // ========================================================
+  .digital-clock-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 0.5rem 1.15rem;
+    text-align: center;
+    backdrop-filter: blur(6px);
+
+    .clock-digits {
+      font-size: 1.65rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      letter-spacing: 1.5px;
+      color: #a7f3d0;
+      text-shadow: 0 0 10px rgba(167, 243, 208, 0.4);
+    }
+
+    .clock-tz {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .clock-label {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  // ========================================================
+  // GPS & LOCATION STATUS CARD
+  // ========================================================
+  .status-card {
+    border-radius: 14px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+
+    &.status-success {
+      border-left: 5px solid #00695c !important;
+      background: linear-gradient(90deg, rgba(230, 244, 241, 0.5) 0%, #ffffff 100%);
+    }
+
+    &.status-warning {
+      border-left: 5px solid #f59e0b !important;
+      background: linear-gradient(90deg, rgba(254, 243, 199, 0.5) 0%, #ffffff 100%);
+    }
+
+    &.status-danger {
+      border-left: 5px solid #ef4444 !important;
+      background: linear-gradient(90deg, rgba(254, 242, 242, 0.5) 0%, #ffffff 100%);
+    }
+
+    .status-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      flex-shrink: 0;
+    }
+
+    .badge-meta {
+      background: #f8fafc;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 8px;
+    }
+
+    .live-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+      animation: pulse-ring 1.8s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    }
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.9);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scale(1.3);
+      opacity: 0.4;
+    }
+    100% {
+      transform: scale(0.9);
+      opacity: 0.9;
+    }
+  }
+
+  // ========================================================
+  // SECTION TITLE (MATCHING DASHBOARD PAJAK)
+  // ========================================================
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+
+    i {
+      color: #004f36;
+    }
+  }
+
+  // ========================================================
+  // ACTION CARDS (MASUK & PULANG)
+  // ========================================================
+  .action-card {
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+    &:hover {
+      box-shadow: 0 10px 25px rgba(0, 79, 54, 0.1) !important;
+      transform: translateY(-3px);
+    }
+
+    &.card-absen-masuk {
+      border-top: 4px solid #004f36 !important;
+    }
+
+    &.card-absen-pulang {
+      border-top: 4px solid #0284c7 !important;
+    }
+
+    .action-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .recorded-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+
+      .time-display {
+        font-size: 2.25rem;
+        font-weight: 800;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        letter-spacing: 1px;
+      }
+    }
+
+    .instruction-box {
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+    }
+
+    // ACTION BUTTONS (VELZON SOLID GRADIENT)
+    .btn-masuk {
+      background: linear-gradient(135deg, #004f36 0%, #00695c 100%);
+      color: #ffffff;
+      border: none;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #00695c 0%, #004f36 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 79, 54, 0.35) !important;
+      }
+
+      &:disabled {
+        background: #94a3b8;
+        opacity: 0.75;
+      }
+    }
+
+    .btn-pulang {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      border: none;
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(2, 132, 199, 0.35) !important;
+      }
+
+      &:disabled {
+        background: #94a3b8;
+        opacity: 0.75;
+      }
+    }
+  }
+
+  // ========================================================
+  // MAP CONTAINER & HISTORY CARDS
+  // ========================================================
+  .map-container-card, .history-table-card {
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+
+    .map-icon-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .photo-thumbnail {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    &:hover {
+      transform: scale(1.6);
+      z-index: 10;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+}
+
+// ========================================================
+//    CAMERA MODAL STYLES (PORTRAIT ENVIRONMENT VIEW)
+// ========================================================
+.camera-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+
+  .camera-modal-dialog {
+    width: 100%;
+    max-width: 460px;
+    background: #0f172a;
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+
+    .camera-modal-header {
+      padding: 1rem 1.25rem;
+      background: #1e293b;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+      .btn-toggle-camera {
+        background: rgba(255, 255, 255, 0.12);
+        color: #f8fafc;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 0.35rem 0.75rem;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+          color: #ffffff;
+        }
+      }
+
+      .btn-close-modal {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        opacity: 0.8;
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+
+    .camera-modal-body {
+      position: relative;
+      background: #000000;
+      width: 100%;
+      height: 480px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .video-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        .camera-stream {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transform: none;
+
+          &.mirrored {
+            transform: scaleX(-1);
+          }
+        }
+
+        .viewfinder-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+
+          .viewfinder-box {
+            position: relative;
+            width: 82%;
+            height: 78%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+
+            .corner {
+              position: absolute;
+              width: 22px;
+              height: 22px;
+              border-color: #34d399;
+              border-style: solid;
+            }
+
+            .top-left {
+              top: -2px;
+              left: -2px;
+              border-width: 4px 0 0 4px;
+              border-top-left-radius: 16px;
+            }
+
+            .top-right {
+              top: -2px;
+              right: -2px;
+              border-width: 4px 4px 0 0;
+              border-top-right-radius: 16px;
+            }
+
+            .bottom-left {
+              bottom: -2px;
+              left: -2px;
+              border-width: 0 0 4px 4px;
+              border-bottom-left-radius: 16px;
+            }
+
+            .bottom-right {
+              bottom: -2px;
+              right: -2px;
+              border-width: 0 4px 4px 0;
+              border-bottom-right-radius: 16px;
+            }
+
+            .viewfinder-cross {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              width: 16px;
+              height: 16px;
+              transform: translate(-50%, -50%);
+              &::before, &::after {
+                content: '';
+                position: absolute;
+                background: rgba(255, 255, 255, 0.4);
+              }
+              &::before {
+                top: 7px;
+                left: 0;
+                width: 16px;
+                height: 2px;
+              }
+              &::after {
+                top: 0;
+                left: 7px;
+                width: 2px;
+                height: 16px;
+              }
+            }
+          }
+
+          .viewfinder-hint {
+            margin-top: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+          }
+        }
+      }
+
+      .preview-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        .captured-preview-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .preview-watermark-tag {
+          position: absolute;
+          top: 1rem;
+          left: 1rem;
+          background: rgba(15, 23, 42, 0.8);
+          color: #ffffff;
+          padding: 0.35rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          backdrop-filter: blur(4px);
+        }
+      }
+    }
+
+    .camera-modal-footer {
+      padding: 1.25rem;
+      background: #1e293b;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+      .btn-shutter {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: transparent;
+        border: 4px solid #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.15s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+
+        &:active {
+          transform: scale(0.92);
+        }
+
+        .shutter-inner {
+          width: 52px;
+          height: 52px;
+          border-radius: 50%;
+          background: #00695c;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+
+      .btn-submit-absen {
+        background: linear-gradient(135deg, #004f36 0%, #00695c 100%);
+        color: #ffffff;
+        border: none;
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #00695c 0%, #004f36 100%);
+          box-shadow: 0 4px 14px rgba(0, 79, 54, 0.4) !important;
+        }
+      }
+    }
+  }
+}

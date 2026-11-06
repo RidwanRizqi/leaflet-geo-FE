@@ -1,0 +1,46 @@
+.profile-header-banner {
+  background: linear-gradient(135deg, #405189 0%, #0ab39c 100%) !important;
+  border-radius: 8px 8px 0 0;
+}
+
+.avatar-profile-wrapper {
+  width: 120px;
+  height: 120px;
+  margin-top: -60px;
+}
+
+.profile-img-avatar {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+.upload-photo-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  transition: transform 0.15s ease-in-out;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.wa-contact-btn {
+  background-color: #25d366 !important;
+  border-color: #25d366 !important;
+  color: #ffffff !important;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #128c7e !important;
+    border-color: #128c7e !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35) !important;
+  }
+}

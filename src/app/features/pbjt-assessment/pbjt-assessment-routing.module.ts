@@ -4,6 +4,10 @@ import { AssessmentListComponent } from './components/assessment-list/assessment
 import { AssessmentFormComponent } from './components/assessment-form/assessment-form.component';
 import { AssessmentDetailComponent } from './components/assessment-detail/assessment-detail.component';
 import { PbjtMapComponent } from './components/pbjt-map/pbjt-map.component';    
+import { PotensiListComponent } from './components/potensi/potensi-list/potensi-list.component';
+import { PotensiFormComponent } from './components/potensi/potensi-form/potensi-form.component';
+import { PotensiDetailComponent } from './components/potensi/potensi-detail/potensi-detail.component';
+import { PotensiPendataanComponent } from './components/potensi/potensi-pendataan/potensi-pendataan.component';
 
 const routes: Routes = [
     {
@@ -25,6 +29,30 @@ const routes: Routes = [
     {
         path: 'detail/:id',
         component: AssessmentDetailComponent
+    },
+    {
+        path: 'pendataan',
+        component: PotensiPendataanComponent
+    },
+    {
+        path: 'potensi',
+        component: PotensiListComponent
+    },
+    {
+        path: 'potensi/pendataan',
+        component: PotensiPendataanComponent
+    },
+    {
+        path: 'potensi/create',
+        component: PotensiFormComponent
+    },
+    {
+        path: 'potensi/edit/:id',
+        component: PotensiFormComponent
+    },
+    {
+        path: 'potensi/detail/:id',
+        component: PotensiDetailComponent
     },
     {
         path: 'dashboard',

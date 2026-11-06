@@ -1,0 +1,494 @@
+<div class="container-fluid absensi-page py-3">
+  <!-- PAGE HERO & GREETING BANNER (VELZON THEME MATCHING DASHBOARD PAJAK) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="header-card shadow-sm">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+          <!-- PROFILE & GREETING -->
+          <div class="d-flex align-items-center gap-3">
+            <div class="user-avatar-box d-flex align-items-center justify-content-center shadow-sm">
+              <i class="ri-user-star-line fs-28 text-white"></i>
+            </div>
+            <div>
+              <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+                <h2 class="mb-0 fw-bold text-white">Halo, {{ currentUser?.nama || 'Pengguna' }}!</h2>
+                <span class="badge badge-role px-2 py-1 text-uppercase">{{ currentUser?.role || 'MAGANG' }}</span>
+              </div>
+              <p class="text-white-75 mb-0 fs-13 d-flex align-items-center gap-1">
+                <i class="ri-calendar-line"></i> {{ currentDate }}
+              </p>
+            </div>
+          </div>
+
+          <!-- ACTIONS & DIGITAL CLOCK -->
+          <div class="d-flex flex-wrap align-items-center gap-3 ms-auto mt-2 mt-md-0 position-relative z-1">
+            <!-- PETUNJUK ABSEN BUTTON -->
+            <button
+              type="button"
+              class="btn btn-petunjuk-absen shadow-sm d-flex align-items-center gap-2"
+              (click)="openInstructionsModal()"
+              title="Klik untuk melihat petunjuk dan panduan absensi">
+              <span class="emoji-icon fs-18">💡</span>
+              <span class="fw-semibold fs-13">Petunjuk Absen</span>
+            </button>
+
+            <!-- DIGITAL CLOCK WIDGET -->
+            <div class="digital-clock-box shadow-sm">
+              <div class="d-flex align-items-baseline justify-content-center gap-1">
+                <span class="clock-digits">{{ currentTime }}</span>
+                <span class="clock-tz">WIB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WATERMARK BACKGROUND ICON -->
+        <div class="header-watermark-icon">
+          <i class="ri-calendar-check-line"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPS & LOKASI STATUS (VELZON CARD STYLE) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card status-card border-0 shadow-sm" [ngClass]="{
+        'status-success': isLocationReady && isWithinRadius,
+        'status-warning': isLocationReady && !isWithinRadius,
+        'status-danger': !isLocationReady
+      }">
+        <div class="card-body py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="status-icon-circle d-flex align-items-center justify-content-center" [ngClass]="{
+              'bg-success-subtle text-success': isLocationReady && isWithinRadius,
+              'bg-warning-subtle text-warning': isLocationReady && !isWithinRadius,
+              'bg-danger-subtle text-danger': !isLocationReady
+            }">
+              <span *ngIf="isLocating" class="spinner-border spinner-border-sm text-primary" role="status"></span>
+              <i *ngIf="!isLocating && isLocationReady && isWithinRadius" class="ri-checkbox-circle-fill fs-24"></i>
+              <i *ngIf="!isLocating && isLocationReady && !isWithinRadius" class="ri-error-warning-fill fs-24"></i>
+              <i *ngIf="!isLocating && !isLocationReady" class="ri-map-pin-user-fill fs-24"></i>
+            </div>
+            <div>
+              <div class="fw-bold fs-15 mb-1 d-flex align-items-center gap-2">
+                <span *ngIf="isLocating" class="text-primary">Mencari koordinat GPS ponsel Anda...</span>
+                <span *ngIf="!isLocating && isLocationReady && isWithinRadius" class="text-success d-flex align-items-center gap-1">
+                  <span class="live-pulse bg-success"></span> GPS Aktif — Anda Berada Di Area Kantor (Radius {{ officeLocation.radiusMeter }}m)
+                </span>
+                <span *ngIf="!isLocating && isLocationReady && !isWithinRadius" class="text-warning d-flex align-items-center gap-1">
+                  <span class="live-pulse bg-warning"></span> GPS Aktif — Anda Di Luar Area Kantor ({{ distanceMeter }}m dari kantor)
+                </span>
+                <span *ngIf="!isLocating && !isLocationReady" class="text-danger d-flex align-items-center gap-1">
+                  <span class="live-pulse bg-danger"></span> GPS Belum Aktif / Sinyal Lokasi Belum Terkunci
+                </span>
+              </div>
+              <div class="d-flex flex-wrap align-items-center gap-2" *ngIf="isLocationReady">
+                <span class="badge badge-meta">
+                  <i class="ri-map-pin-2-line text-success me-1"></i>{{ latitude | number:'1.5-5' }}, {{ longitude | number:'1.5-5' }}
+                </span>
+                <span class="badge badge-meta">
+                  <i class="ri-radar-line text-primary me-1"></i>Akurasi: ±{{ gpsAccuracy }}m
+                </span>
+                <span class="badge badge-meta" *ngIf="distanceMeter !== null">
+                  <i class="ri-compass-3-line text-info me-1"></i>Jarak: {{ distanceMeter }} meter
+                </span>
+              </div>
+              <small class="text-danger fw-semibold d-block mt-1" *ngIf="!isLocationReady && locationErrorMsg">
+                {{ locationErrorMsg }}
+              </small>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-outline-success btn-sm rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2 shadow-xs"
+            (click)="requestLocation()"
+            [disabled]="isLocating">
+            <i class="ri-refresh-line" [ngClass]="{'spin': isLocating}"></i>
+            <span>{{ isLocating ? 'Mendeteksi...' : 'Deteksi Ulang Lokasi' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION TITLE -->
+  <div class="row mb-3">
+    <div class="col-12">
+      <h5 class="section-title mb-0">
+        <i class="ri-fingerprint-line me-2"></i>Aksi Presensi Harian
+      </h5>
+    </div>
+  </div>
+
+  <!-- ACTION CARDS: ABSEN MASUK & ABSEN PULANG (VELZON SUMMARY CARD STYLE) -->
+  <div class="row g-4 mb-4">
+    <!-- KARTU ABSEN MASUK -->
+    <div class="col-12 col-md-6">
+      <div class="card h-100 action-card card-absen-masuk border-0 shadow-sm" [ngClass]="{'is-recorded': todayAttendance?.jamMasuk}">
+        <div class="card-body p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="action-icon-circle bg-success-subtle text-success">
+                  <i class="ri-sun-line fs-20"></i>
+                </div>
+                <div>
+                  <h6 class="action-title mb-0">Absen Masuk</h6>
+                  <small class="text-muted">Presensi kedatangan di kantor</small>
+                </div>
+              </div>
+              <span *ngIf="todayAttendance?.jamMasuk" class="badge bg-success-subtle text-success px-3 py-2 fs-11 fw-bold rounded-pill">
+                <i class="ri-checkbox-circle-fill me-1"></i>SUDAH TERCATAT
+              </span>
+              <span *ngIf="!todayAttendance?.jamMasuk" class="badge bg-light text-muted border px-3 py-2 fs-11 fw-semibold rounded-pill">
+                BELUM ABSEN
+              </span>
+            </div>
+
+            <!-- JIKA SUDAH ABSEN MASUK -->
+            <div *ngIf="todayAttendance?.jamMasuk" class="recorded-card p-3 rounded-3 mb-3">
+              <div class="d-flex align-items-baseline gap-2 mb-2">
+                <h1 class="time-display text-success mb-0">
+                  {{ todayAttendance?.jamMasuk | date:'HH:mm' }}
+                </h1>
+                <span class="fs-14 fw-bold text-success">WIB</span>
+              </div>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="badge" [ngClass]="todayAttendance?.lokasiStatus === 'DI_KANTOR' ? 'bg-success' : 'bg-warning text-dark'">
+                  {{ todayAttendance?.lokasiStatus === 'DI_KANTOR' ? '🏢 Di Kantor' : '📍 Di Luar Kantor' }}
+                </span>
+                <span class="text-muted fs-12">({{ todayAttendance?.jarakMeter }}m dari kantor)</span>
+              </div>
+              <div *ngIf="todayAttendance?.fotoMasuk" class="photo-preview-item mt-3 d-flex align-items-center gap-3">
+                <img [src]="getPhotoUrl(todayAttendance?.fotoMasuk)" alt="Bukti Foto Masuk" class="rounded-3 shadow-xs border" width="75" height="75" style="object-fit: cover;">
+                <div>
+                  <div class="fs-12 fw-bold text-dark mb-1">Bukti Foto Kantor</div>
+                  <small class="text-muted d-block">Tervalidasi pada sistem</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- JIKA BELUM ABSEN MASUK -->
+            <div *ngIf="!todayAttendance?.jamMasuk" class="instruction-box p-3 rounded-3 mb-3">
+              <div class="d-flex gap-2 text-muted fs-13">
+                <i class="ri-information-line text-success fs-18 flex-shrink-0"></i>
+                <span>Ambil foto suasana/ruangan kantor saat Anda tiba. Sistem memverifikasi foto dan koordinat GPS secara otomatis.</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-masuk w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2 py-3 rounded-3"
+            (click)="openCamera('MASUK')"
+            [disabled]="todayAttendance?.jamMasuk || !isLocationReady">
+            <i class="ri-camera-fill fs-20"></i>
+            <span>{{ todayAttendance?.jamMasuk ? 'Absen Masuk Selesai' : 'Ambil Foto & Absen Masuk' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KARTU ABSEN PULANG -->
+    <div class="col-12 col-md-6">
+      <div class="card h-100 action-card card-absen-pulang border-0 shadow-sm" [ngClass]="{'is-recorded': todayAttendance?.jamPulang}">
+        <div class="card-body p-4 d-flex flex-column justify-content-between">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div class="d-flex align-items-center gap-2">
+                <div class="action-icon-circle bg-info-subtle text-info">
+                  <i class="ri-moon-line fs-20"></i>
+                </div>
+                <div>
+                  <h6 class="action-title mb-0">Absen Pulang</h6>
+                  <small class="text-muted">Presensi kepulangan selesai tugas</small>
+                </div>
+              </div>
+              <span *ngIf="todayAttendance?.jamPulang" class="badge bg-info-subtle text-info px-3 py-2 fs-11 fw-bold rounded-pill">
+                <i class="ri-checkbox-circle-fill me-1"></i>SUDAH TERCATAT
+              </span>
+              <span *ngIf="!todayAttendance?.jamPulang && todayAttendance?.jamMasuk" class="badge bg-warning-subtle text-warning px-3 py-2 fs-11 fw-semibold rounded-pill">
+                SIAP ABSEN PULANG
+              </span>
+              <span *ngIf="!todayAttendance?.jamMasuk" class="badge bg-light text-muted border px-3 py-2 fs-11 fw-semibold rounded-pill">
+                BELUM MASUK
+              </span>
+            </div>
+
+            <!-- JIKA SUDAH ABSEN PULANG -->
+            <div *ngIf="todayAttendance?.jamPulang" class="recorded-card p-3 rounded-3 mb-3">
+              <div class="d-flex align-items-baseline gap-2 mb-2">
+                <h1 class="time-display text-info mb-0">
+                  {{ todayAttendance?.jamPulang | date:'HH:mm' }}
+                </h1>
+                <span class="fs-14 fw-bold text-info">WIB</span>
+              </div>
+              <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <span class="badge" [ngClass]="todayAttendance?.pulangLokasiStatus === 'DI_KANTOR' ? 'bg-success' : 'bg-warning text-dark'">
+                  {{ todayAttendance?.pulangLokasiStatus === 'DI_KANTOR' ? '🏢 Di Kantor' : '📍 Di Luar Kantor' }}
+                </span>
+                <span class="text-muted fs-12">({{ todayAttendance?.pulangJarakMeter }}m dari kantor)</span>
+              </div>
+              <div *ngIf="todayAttendance?.fotoPulang" class="photo-preview-item mt-3 d-flex align-items-center gap-3">
+                <img [src]="getPhotoUrl(todayAttendance?.fotoPulang)" alt="Bukti Foto Pulang" class="rounded-3 shadow-xs border" width="75" height="75" style="object-fit: cover;">
+                <div>
+                  <div class="fs-12 fw-bold text-dark mb-1">Bukti Foto Kantor</div>
+                  <small class="text-muted d-block">Tervalidasi pada sistem</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- JIKA BELUM ABSEN PULANG -->
+            <div *ngIf="!todayAttendance?.jamPulang" class="instruction-box p-3 rounded-3 mb-3">
+              <div class="d-flex gap-2 text-muted fs-13">
+                <i class="ri-information-line text-info fs-18 flex-shrink-0"></i>
+                <span>Lakukan absensi pulang saat jam kerja berakhir. Ambil foto suasana sekitar kantor sebagai bukti fisik kepulangan.</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-pulang w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-2 py-3 rounded-3"
+            (click)="openCamera('PULANG')"
+            [disabled]="!todayAttendance?.jamMasuk || todayAttendance?.jamPulang || !isLocationReady">
+            <i class="ri-logout-box-r-line fs-20"></i>
+            <span>{{ todayAttendance?.jamPulang ? 'Absen Pulang Selesai' : 'Ambil Foto & Absen Pulang' }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MINI MAP CARD (VELZON FULL WIDTH CARD) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm overflow-hidden map-container-card">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="map-icon-circle bg-success-subtle text-success">
+              <i class="ri-map-pin-range-line fs-18"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-bold text-dark">Peta Geofencing & Posisi Presensi</h5>
+              <small class="text-muted">Visualisasi area presensi berbasis koordinat GPS</small>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fs-12 fw-semibold">
+              🏢 Kantor: {{ officeLocation.nama }}
+            </span>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fs-12 fw-semibold">
+              🎯 Radius: {{ officeLocation.radiusMeter }} Meter
+            </span>
+            <span class="badge px-3 py-2 rounded-pill fs-12 fw-semibold" [ngClass]="isWithinRadius ? 'bg-success text-white' : 'bg-warning text-dark'">
+              📏 Jarak: {{ distanceMeter !== null ? distanceMeter + ' m' : '-' }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="userMiniMap" style="height: 360px; width: 100%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABEL RIWAYAT ABSENSI SAYA (VELZON TABLE CARD STYLE) -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm history-table-card">
+        <div class="card-header bg-white py-3 px-4 border-bottom d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <div class="map-icon-circle bg-primary-subtle text-primary">
+              <i class="ri-history-line fs-18"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-bold text-dark">Riwayat Presensi Saya</h5>
+              <small class="text-muted">Data kehadiran harian yang telah tervalidasi</small>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-semibold d-flex align-items-center gap-1" (click)="loadHistory()">
+            <i class="ri-refresh-line"></i> Muat Ulang
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light text-uppercase fs-11 text-muted fw-bold">
+                <tr>
+                  <th class="ps-4 py-3">TANGGAL</th>
+                  <th class="py-3">JAM MASUK</th>
+                  <th class="py-3">JAM PULANG</th>
+                  <th class="py-3">STATUS LOKASI</th>
+                  <th class="py-3">JARAK</th>
+                  <th class="py-3">BUKTI FOTO</th>
+                  <th class="pe-4 py-3 text-center">STATUS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngIf="isLoadingHistory">
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <div class="spinner-border spinner-border-sm text-success me-2"></div>
+                    Memuat data riwayat absensi...
+                  </td>
+                </tr>
+                <tr *ngIf="!isLoadingHistory && historyList.length === 0">
+                  <td colspan="7" class="text-center py-5 text-muted">
+                    <i class="ri-inbox-line fs-36 d-block mb-2 text-secondary"></i>
+                    Belum ada data riwayat absensi tercatat.
+                  </td>
+                </tr>
+                <tr *ngFor="let item of historyList">
+                  <td class="ps-4 fw-semibold text-dark">
+                    <i class="ri-calendar-event-line text-muted me-1"></i>
+                    {{ item.tanggal | date:'dd MMM yyyy' }}
+                  </td>
+                  <td>
+                    <span *ngIf="item.jamMasuk" class="badge bg-success-subtle text-success fs-12 px-2 py-1 fw-bold">
+                      <i class="ri-sun-line me-1"></i>{{ item.jamMasuk | date:'HH:mm' }} WIB
+                    </span>
+                    <span *ngIf="!item.jamMasuk" class="text-muted">-</span>
+                  </td>
+                  <td>
+                    <span *ngIf="item.jamPulang" class="badge bg-info-subtle text-info fs-12 px-2 py-1 fw-bold">
+                      <i class="ri-moon-line me-1"></i>{{ item.jamPulang | date:'HH:mm' }} WIB
+                    </span>
+                    <span *ngIf="!item.jamPulang" class="text-muted">-</span>
+                  </td>
+                  <td>
+                    <span class="badge px-2 py-1 fw-bold" [ngClass]="item.lokasiStatus === 'DI_KANTOR' ? 'bg-success text-white' : 'bg-warning text-dark'">
+                      {{ item.lokasiStatus === 'DI_KANTOR' ? '🏢 Di Kantor' : '📍 Di Luar Kantor' }}
+                    </span>
+                  </td>
+                  <td class="text-muted fs-13">
+                    {{ item.jarakMeter ? item.jarakMeter + ' m' : '-' }}
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2">
+                      <img *ngIf="item.fotoMasuk" [src]="getPhotoUrl(item.fotoMasuk)" class="rounded-3 border photo-thumbnail" width="40" height="40" style="object-fit: cover;" title="Foto Masuk">
+                      <img *ngIf="item.fotoPulang" [src]="getPhotoUrl(item.fotoPulang)" class="rounded-3 border photo-thumbnail" width="40" height="40" style="object-fit: cover;" title="Foto Pulang">
+                      <span *ngIf="!item.fotoMasuk && !item.fotoPulang" class="text-muted fs-12">-</span>
+                    </div>
+                  </td>
+                  <td class="pe-4 text-center">
+                    <span *ngIf="item.isCompleted" class="badge bg-success text-white px-3 py-1 rounded-pill fw-bold">
+                      <i class="ri-checkbox-circle-line me-1"></i>Lengkap
+                    </span>
+                    <span *ngIf="!item.isCompleted && item.jamMasuk" class="badge bg-warning text-dark px-3 py-1 rounded-pill fw-bold">
+                      <i class="ri-time-line me-1"></i>Masuk Saja
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL KAMERA (PORTRAIT ENVIRONMENT / BUKTI SEKITAR KANTOR)-->
+<!-- ======================================================== -->
+<div class="camera-modal-backdrop" *ngIf="isCameraOpen">
+  <div class="camera-modal-dialog shadow-2xl">
+    <!-- MODAL HEADER -->
+    <div class="camera-modal-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge px-2 py-1 text-uppercase fw-bold fs-11" [ngClass]="activeAbsenType === 'MASUK' ? 'bg-success' : 'bg-info'">
+          {{ activeAbsenType === 'MASUK' ? 'Absen Masuk' : 'Absen Pulang' }}
+        </span>
+        <h6 class="mb-0 fw-bold text-white fs-14">
+          📸 Foto Bukti Lingkungan Kantor
+        </h6>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <!-- TOGGLE KAMERA BELAKANG / DEPAN -->
+        <button
+          type="button"
+          class="btn btn-sm btn-toggle-camera d-flex align-items-center gap-1"
+          (click)="toggleCameraFacing()"
+          title="Putar Kamera (Belakang/Depan)">
+          <i class="ri-camera-switch-line fs-14"></i>
+          <span class="fs-12">{{ currentFacingMode === 'environment' ? 'Belakang' : 'Depan' }}</span>
+        </button>
+
+        <button type="button" class="btn btn-sm btn-close-modal" (click)="closeCameraModal()" title="Tutup">
+          <i class="ri-close-line fs-22 text-white"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL BODY -->
+    <div class="camera-modal-body">
+      <!-- LIVE VIDEO STREAM -->
+      <div class="video-container" *ngIf="!capturedPhotoBase64">
+        <video
+          #videoElement
+          autoplay
+          playsinline
+          class="camera-stream"
+          [ngClass]="{'mirrored': currentFacingMode === 'user'}"></video>
+
+        <!-- VIEWFINDER HUD OVERLAY (PORTRAIT ENVIRONMENT FRAMING) -->
+        <div class="viewfinder-overlay">
+          <div class="viewfinder-box">
+            <div class="corner top-left"></div>
+            <div class="corner top-right"></div>
+            <div class="corner bottom-left"></div>
+            <div class="corner bottom-right"></div>
+            <div class="viewfinder-cross"></div>
+          </div>
+          <div class="viewfinder-hint">
+            <i class="ri-focus-3-line me-1"></i> Arahkan ke suasana ruangan/meja kantor
+          </div>
+        </div>
+      </div>
+
+      <!-- PREVIEW HASIL FOTO YANG SUDAH DIAMBIL -->
+      <div class="preview-container" *ngIf="capturedPhotoBase64">
+        <img [src]="capturedPhotoBase64" alt="Hasil Foto Bukti Kantor" class="captured-preview-img">
+        <div class="preview-watermark-tag">
+          <i class="ri-checkbox-circle-fill text-success me-1"></i> Foto Siap Dikirim
+        </div>
+      </div>
+
+      <!-- HIDDEN CANVAS UNTUK RENDER + WATERMARK -->
+      <canvas #canvasElement style="display: none;"></canvas>
+    </div>
+
+    <!-- MODAL FOOTER -->
+    <div class="camera-modal-footer">
+      <!-- KONDISI BELUM JEPRET FOTO -->
+      <div *ngIf="!capturedPhotoBase64" class="w-100 d-flex flex-column align-items-center gap-2">
+        <button type="button" class="btn-shutter" (click)="snapPhoto()" title="Ambil Foto">
+          <div class="shutter-inner">
+            <i class="ri-camera-fill text-white fs-22"></i>
+          </div>
+        </button>
+        <span class="text-white-50 fs-12">Ketuk tombol untuk mengambil foto bukti kantor</span>
+      </div>
+
+      <!-- KONDISI SUDAH ADA FOTO -->
+      <div *ngIf="capturedPhotoBase64" class="w-100 d-flex gap-3">
+        <button type="button" class="btn btn-outline-light w-50 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 rounded-3" (click)="retakePhoto()">
+          <i class="ri-restart-line fs-16"></i> Foto Ulang
+        </button>
+        <button
+          type="button"
+          class="btn btn-submit-absen w-50 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 rounded-3 shadow"
+          (click)="submitAttendance()"
+          [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm"></span>
+          <i *ngIf="!isSubmitting" class="ri-send-plane-fill fs-16"></i>
+          {{ isSubmitting ? 'Mengirim...' : 'Kirim Absensi' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -5,10 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { firstValueFrom, take } from 'rxjs';
 import { AuthenticationService } from 'src/app/services/auth.service';
+import { RoleMenuService } from 'src/app/services/role-menu.service';
 import { LanguageService } from 'src/app/services/language.service';
 import { ToastService } from 'src/app/shared/services/toast-service';
 import { Store } from '@ngrx/store';
-import { setUser } from 'src/app/store/auth/auth.action';
+import { setUser, setMenuPermissions } from 'src/app/store/auth/auth.action';
 import { selectCurrentUser } from 'src/app/store/auth/auth.selector';
 import { ApiResponse, LoginResponse } from 'src/app/models/auth.models';
 
@@ -40,6 +41,7 @@ export class CoverComponent implements OnInit {
   constructor(
     private formBuilder: UntypedFormBuilder,
     private authenticationService: AuthenticationService,
+    private roleMenuService: RoleMenuService,
     private router: Router,
     private route: ActivatedRoute,
     public toastService: ToastService,
@@ -58,7 +60,11 @@ export class CoverComponent implements OnInit {
       .subscribe(user => {
         this.userData = user;
         if (this.userData) {
-          this.router.navigate(['/']);
+          if (this.userData.role?.toUpperCase() === 'MAGANG') {
+            this.router.navigate(['/absensi']);
+          } else {
+            this.router.navigate(['/']);
+          }
         }
       });
 
@@ -113,6 +119,16 @@ export class CoverComponent implements OnInit {
           }
         }));
 
+        // Fetch and store menu permissions immediately
+        let userMenuIds: number[] | null = null;
+        try {
+          userMenuIds = await firstValueFrom(this.roleMenuService.getMyPermissions());
+          this.store.dispatch(setMenuPermissions({ menuIds: userMenuIds ?? null }));
+        } catch (permErr) {
+          console.warn('Could not load menu permissions on login:', permErr);
+          this.store.dispatch(setMenuPermissions({ menuIds: [] }));
+        }
+
         this.alertType = 'success';
         this.alertMessage = response.message || 'Login berhasil';
 
@@ -124,20 +140,42 @@ export class CoverComponent implements OnInit {
           'GIS': '/bidang/map',
           'PBJT-HOTEL': '/pbjt-hotel/assessment-list',
           'PBJT-MAMIN': '/pbjt-makanan',
+          'MAGANG': '/absensi',
         };
         const role = response.data.role?.toUpperCase() || '';
-        const defaultRoute = roleRoutes[role] || '/';
-        const target = this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : defaultRoute;
+        let target = '/';
+
+        if (role === 'MAGANG') {
+          target = '/absensi';
+        } else if (userMenuIds !== null && !userMenuIds.includes(7)) {
+          // User does not have access to dashboard-pajak
+          if (userMenuIds.includes(12) || userMenuIds.includes(121)) {
+            target = '/absensi';
+          } else {
+            target = '/';
+          }
+        } else {
+          const defaultRoute = roleRoutes[role] || '/';
+          target = this.returnUrl && this.returnUrl !== '/' ? this.returnUrl : defaultRoute;
+          // If returnUrl was /dashboard-pajak but user lacks access to 7
+          if (target === '/dashboard-pajak' && userMenuIds !== null && !userMenuIds.includes(7)) {
+            target = userMenuIds.includes(12) || userMenuIds.includes(121) ? '/absensi' : '/';
+          }
+        }
         
         const navSuccess = await this.router.navigate([target]);
         if (!navSuccess) {
-          // Jika AuthGuard memblokir akses (misal tidak punya menu permission untuk route target)
-          this.error = 'Akses ditolak: Anda belum diberikan akses ke menu utama. Silakan hubungi Admin.';
-          this.alertType = 'danger';
-          this.alertMessage = this.error;
-          this.toastService.show(this.error, { classname: 'bg-danger text-white', delay: 5000 });
-          this.authenticationService.clearToken();
-          this.store.dispatch(setUser({ user: null }));
+          // Jika target awal ditolak AuthGuard, fallback ke /absensi atau landing utama
+          const fallback = (userMenuIds && (userMenuIds.includes(12) || userMenuIds.includes(121))) ? '/absensi' : '/';
+          const retrySuccess = await this.router.navigate([fallback]);
+          if (!retrySuccess) {
+            this.error = 'Akses ditolak: Anda belum diberikan akses ke menu utama. Silakan hubungi Admin.';
+            this.alertType = 'danger';
+            this.alertMessage = this.error;
+            this.toastService.show(this.error, { classname: 'bg-danger text-white', delay: 5000 });
+            this.authenticationService.clearToken();
+            this.store.dispatch(setUser({ user: null }));
+          }
         }
       } else {
         // Login failed

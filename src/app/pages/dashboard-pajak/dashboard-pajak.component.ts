@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexStroke, ApexYAxis, ApexGrid, ApexLegend, ChartComponent } from 'ng-apexcharts';
 
 import { environment } from '../../../environments/environment';
@@ -28,7 +28,7 @@ interface PajakData {
   templateUrl: './dashboard-pajak.component.html',
   styleUrls: ['./dashboard-pajak.component.scss']
 })
-export class DashboardPajakComponent implements OnInit {
+export class DashboardPajakComponent implements OnInit, OnDestroy {
   pajakData: PajakData[] = [];
   kategoris: string[] = [];
   chartOptionsMap: Map<string, Partial<ChartOptions>> = new Map();
@@ -55,7 +55,50 @@ export class DashboardPajakComponent implements OnInit {
     '#fee140'  // Yellow
   ];
 
+  // --- Obfuscator / Randomizer ---
+  isObfuscated: boolean = true; // Set to true to hide real values
+  obfuscationInterval: any;
+  randomValues: { [key: string]: number } = {};
+
   constructor() {}
+
+  ngOnDestroy(): void {
+    this.stopObfuscator();
+  }
+
+  toggleObfuscator(): void {
+    if (this.isObfuscated) {
+      this.stopObfuscator();
+    } else {
+      this.startObfuscator();
+    }
+  }
+
+  startObfuscator(): void {
+    this.isObfuscated = true;
+    this.obfuscationInterval = setInterval(() => {
+      this.kategoris.forEach(kategori => {
+        const realTotal = this.getTotalByCategoryReal(kategori);
+        
+        // Generate wild random values
+        const randomize = (val: number) => {
+          const base = val === 0 ? 1000000000 : val;
+          const variance = base * 0.8; // +/- 80% variance
+          return base + (Math.random() * variance * 2 - variance);
+        };
+
+        this.randomValues[kategori] = Math.max(0, randomize(realTotal));
+      });
+    }, 80); // Update every 80ms
+  }
+
+  stopObfuscator(): void {
+    this.isObfuscated = false;
+    if (this.obfuscationInterval) {
+      clearInterval(this.obfuscationInterval);
+      this.obfuscationInterval = null;
+    }
+  }
 
   ngOnInit(): void {
     this.loadPajakData();
@@ -81,6 +124,11 @@ export class DashboardPajakComponent implements OnInit {
   processData(): void {
     // Get unique categories
     this.kategoris = [...new Set(this.pajakData.map(item => item.kategori))];
+
+    // Start obfuscator if enabled
+    if (this.isObfuscated) {
+      this.startObfuscator();
+    }
 
     // Create chart options for each category
     this.updateCharts();
@@ -331,6 +379,13 @@ export class DashboardPajakComponent implements OnInit {
   }
 
   getTotalByCategory(kategori: string): number {
+    if (this.isObfuscated && this.randomValues[kategori]) {
+      return this.randomValues[kategori];
+    }
+    return this.getTotalByCategoryReal(kategori);
+  }
+
+  getTotalByCategoryReal(kategori: string): number {
     return this.pajakData
       .filter(item => item.kategori === kategori && item.tahun == this.selectedYear)
       .reduce((sum, item) => sum + item.value, 0);

@@ -112,6 +112,36 @@
             <strong>Koordinat:</strong>
             {{ assessment.location?.latitude }}, {{ assessment.location?.longitude }}
           </div>
+          <div class="mb-2">
+            <strong>Tingkat Keramaian:</strong> {{ assessment.location?.crowdLevel || 'NORMAL' }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Faktor Keramaian Khusus -->
+      <div class="card" *ngIf="assessment.location?.customerOrderEstimates?.length || assessment.location?.bestSellingMenus?.length || assessment.location?.crowdPeakTimes?.length">
+        <div class="card-header bg-info-subtle">
+          <h5 class="card-title mb-0 text-info"><i class="ri-group-line"></i> Faktor Keramaian Khusus</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3" *ngIf="assessment.location?.customerOrderEstimates?.length">
+            <strong>Perkiraan Pesanan Pelanggan:</strong>
+            <div class="d-flex flex-wrap gap-1 mt-1">
+              <span class="badge bg-primary-subtle text-primary" *ngFor="let item of assessment.location?.customerOrderEstimates">{{ item }}</span>
+            </div>
+          </div>
+          <div class="mb-3" *ngIf="assessment.location?.bestSellingMenus?.length">
+            <strong>Menu Terlaris:</strong>
+            <div class="d-flex flex-wrap gap-1 mt-1">
+              <span class="badge bg-success-subtle text-success" *ngFor="let item of assessment.location?.bestSellingMenus">{{ item }}</span>
+            </div>
+          </div>
+          <div class="mb-2" *ngIf="assessment.location?.crowdPeakTimes?.length">
+            <strong>Estimasi Waktu Keramaian:</strong>
+            <ul class="mb-0 mt-1 pl-3 text-muted">
+              <li *ngFor="let time of assessment.location?.crowdPeakTimes">{{ time }}</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>

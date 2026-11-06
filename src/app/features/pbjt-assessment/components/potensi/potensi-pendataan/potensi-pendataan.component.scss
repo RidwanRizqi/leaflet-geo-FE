@@ -1,0 +1,238 @@
+/* ==========================================================================
+   Potensi Pendataan Component - Velzon Theme & Modern UI
+   ========================================================================== */
+
+:host {
+  display: block;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   Card & Header Enhancements
+   ========================================================================== */
+.card-header {
+  background-color: transparent;
+}
+
+.card-title {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   Menu Search Autocomplete (Velzon Native Style)
+   ========================================================================== */
+.menu-search-container {
+  position: relative;
+
+  .search-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1060;
+    background-color: var(--vz-card-bg, #ffffff);
+    border: 1px solid var(--vz-border-color, #e9ebec);
+    border-radius: 0.4rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    max-height: 250px;
+    overflow-y: auto;
+    animation: fadeInDown 0.18s ease-out;
+
+    /* Custom scrollbar */
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: #ced4da;
+      border-radius: 4px;
+    }
+
+    .dropdown-header {
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--vz-gray-600, #878a99);
+      background-color: var(--vz-light, #f3f6f9);
+      padding: 0.45rem 0.85rem;
+      border-bottom: 1px solid var(--vz-border-color, #e9ebec);
+    }
+
+    .dropdown-item {
+      padding: 0.55rem 0.85rem;
+      font-size: 0.85rem;
+      transition: background-color 0.15s ease, color 0.15s ease;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover,
+      &:focus {
+        background-color: var(--vz-light, #f3f6f9);
+        color: var(--vz-primary, #155034);
+      }
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Table & Input Styling
+   ========================================================================== */
+.table {
+  thead th {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    vertical-align: middle;
+  }
+}
+
+.btn-ghost-danger {
+  color: var(--vz-danger, #f06548);
+  background-color: transparent;
+  border: none;
+  padding: 0.25rem 0.45rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(240, 101, 72, 0.12);
+    color: #cc4f36;
+  }
+}
+
+/* ==========================================================================
+   Photo Gallery & Upload Dropzone
+   ========================================================================== */
+.dropzone-box {
+  border: 2px dashed var(--vz-border-color, #ced4da);
+  border-radius: 0.5rem;
+  background-color: var(--vz-light, #f8f9fa);
+  transition: all 0.25s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--vz-primary, #155034);
+    background-color: rgba(21, 80, 52, 0.03);
+  }
+
+  &.dropzone-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    border-color: var(--vz-border-color, #e9ebec);
+    background-color: var(--vz-light, #f3f6f9);
+    &:hover {
+      border-color: var(--vz-border-color, #e9ebec);
+      background-color: var(--vz-light, #f3f6f9);
+    }
+  }
+
+  .dropzone-icon {
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    border-radius: 50%;
+    margin: 0 auto;
+    background-color: rgba(21, 80, 52, 0.1);
+    color: var(--vz-primary, #155034);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.photo-card {
+  position: relative;
+  border-radius: 0.4rem;
+  overflow: hidden;
+  border: 1px solid var(--vz-border-color, #e9ebec);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #000;
+
+  img {
+    height: 105px;
+    width: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  &:hover img {
+    transform: scale(1.06);
+    opacity: 0.92;
+  }
+
+  .photo-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-delete-photo {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(240, 101, 72, 0.9);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    transition: transform 0.18s ease, background-color 0.18s ease;
+
+    &:hover {
+      background-color: #f06548;
+      transform: scale(1.15);
+    }
+  }
+}
+
+/* ==========================================================================
+   Sticky Summary Sidebar
+   ========================================================================== */
+.sticky-sidebar {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 80px;
+  z-index: 1020;
+}
+
+.stat-widget {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+  }
+}

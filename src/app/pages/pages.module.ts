@@ -34,7 +34,7 @@ import { SectionComponent } from './master-data/section/section.component';
 import { SubSectionComponent } from './master-data/sub-section/sub-section.component';
 import { OrganizationComponent as OrganizationMasterComponent } from './master-data/organization/organization.component';
 import { EmailRecipientComponent } from './master-data/email-recipient/email-recipient.component';
-
+import { ProfileComponent } from '../features/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +45,8 @@ import { EmailRecipientComponent } from './master-data/email-recipient/email-rec
     SectionComponent,
     SubSectionComponent,
     OrganizationMasterComponent,
-    EmailRecipientComponent
+    EmailRecipientComponent,
+    ProfileComponent
   ],
   imports: [
     CommonModule,
